@@ -1,62 +1,78 @@
-# NITKnot v2.0 — Production-Ready Campus Dating App
+# NITKnot 💕 — The Heart of NITK Surathkal
 
-## 🚀 What's Fixed (vs Original)
+![NITKnot Banner](https://img.shields.io/badge/NITKnot-Campus_Dating-ee2b9d?style=for-the-badge&logo=heart)
+![Status](https://img.shields.io/badge/Status-Beta-brightgreen?style=for-the-badge)
+![Target](https://img.shields.io/badge/Exclusive_For-NITK_Surathkal-0077b5?style=for-the-badge)
 
-### Critical Bug Fixes
-1. **Static files**: Server now correctly serves from `public/` directory
-2. **Match socket**: `match_found` event now sends correct `{ match_id, user }` structure
-3. **Swipe response**: Frontend correctly reads `data.match`, `data.match_id`, `data.matched_user`
-4. **`closeMatch()`/`goToChat()`**: Were on `App` object, never callable from HTML — fixed as global functions
-5. **Voice messages**: Fixed FormData upload with proper audio MIME type handling
-6. **`retrySend`**: Referenced `window._tempMsgs` which was never populated — completely rewritten
-7. **Nav badge**: Chat unread count badge now works
-8. **Typing indicators**: Socket handlers properly re-bound per conversation
-9. **Image viewer**: Full-screen image viewer added for chat images
-10. **Emoji picker**: Replaced broken `picmo` (not loaded) with inline emoji buttons
-11. **Message deduplication**: Polling no longer causes duplicate messages
-12. **Profile edit**: Interests now properly editable, green/red flags saveable
-13. **Date separators**: Chat now shows date separators (Today, Mon, Jan 1, etc.)
-14. **Error states**: All pages now show proper error UI with retry buttons
-15. **Auth token key**: Changed from `nitknot_token` to `nk_token` (consistent)
-16. **Input validation**: Proper XSS protection via `escapeHtml()` everywhere
-17. **Drag/swipe**: Improved with velocity detection, vertical scroll not interfering
-18. **Report modal**: Properly styled bottom sheet with reasons
-19. **Unmatch**: Moved to chat header menu (more_vert)
-20. **Server**: Audio files use disk storage even with Cloudinary (avoids format issues)
+**NITKnot** is a premium, real-time campus dating and networking platform designed exclusively for the students of **NITK Surathkal**. It brings together the tech-native students of NITK to find meaningful connections, study partners, or that special someone under the NITK sun.
 
-### New Features
-- ✅ Unread message badge on chat nav item
-- ✅ Chat search/filter
-- ✅ Image preview before sending
-- ✅ Date separators in chat
-- ✅ Inline emoji picker (no external dependency)
-- ✅ Full-screen image viewer (tap to expand)
-- ✅ Retry button for failed messages
-- ✅ Show "you: " prefix for own messages in chat list
-- ✅ Report from profile view AND message options
-- ✅ Match percentage randomized when no shared interests (not always 70%)
-- ✅ Proper loading spinners everywhere
-- ✅ Error states with retry on every page
+---
 
-## Quick Start
+## ✨ Why NITKnot?
 
-```bash
-npm install
-npm start
-```
+In a campus known for its rigorous academics and beautiful beach, finding the right connection should be easy and secure. NITKnot bridges the gap with features tailored specifically for our campus ecosystem.
 
-Open http://localhost:3000
+### 🛡️ Verified & Secure
+*   **Exclusive Access**: Sign-up is locked to `@nitk.edu.in` emails only.
+*   **Strict Verification**: Real-time OTP verification ensures every profile belongs to a legitimate NITK student.
+*   **Safety First**: Built-in reporting and blocking mechanics to keep our community safe and respectful.
 
-## Production (Render)
+### 💖 Smart Matching
+*   **Interest Alignment**: Our algorithm calculates your **Match %** based on shared interests, branch compatibility, and year of study.
+*   **Green & Red Flags**: Express your personality through customized flags to find someone who fits your vibe.
+*   **Branch-Specific Search**: Looking for someone in E&C? Or maybe a Mechie? Filter and find easily.
 
-1. Push to GitHub
-2. Create Render web service + PostgreSQL database
-3. Set env vars: `JWT_SECRET`, `DATABASE_URL` (auto from Render DB)
-4. Optional: `CLOUDINARY_*` for persistent image storage
-5. Optional: `SENDGRID_API_KEY` or `SMTP_EMAIL`/`SMTP_PASSWORD` for OTP email
+### 💬 Premium Chat Experience
+*   **Real-time Interaction**: Instant messaging powered by Socket.io.
+*   **Multimedia Support**: Send photos and **Voice Messages** for a more personal touch.
+*   **Smart Indicators**: See when they are typing and track read receipts with blue double-checks.
+*   **Rich Previews**: Reply-to functionality and image previews integrated directly into the chat flow.
 
-## Dev Note
-In development (no email configured), OTP is logged to console:
-```
-⚠️  DEV MODE — OTP for user@nitk.edu.in: 123456
-```
+---
+
+## 🚀 Built With
+
+| Tech | Purpose |
+| :--- | :--- |
+| **Node.js & Express** | Backend Powerhouse |
+| **Vanilla JS & CSS** | Hyper-optimized, glassmorphic UI |
+| **Socket.io** | Low-latency real-time communication |
+| **SQLite / PostgreSQL** | Robust data management |
+| **Cloudinary** | Secure media storage |
+
+---
+
+## 🛠️ Quick Setup (For Developers)
+
+1.  **Clone the Repo**:
+    ```bash
+    git clone https://github.com/sankalpsa/NITKnot.git
+    ```
+2.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
+3.  **Configure Environment**: Create a `.env` file with:
+    ```env
+    PORT=3000
+    JWT_SECRET=your_secret_key
+    SMTP_EMAIL=your@gmail.com
+    SMTP_PASSWORD=your_app_password
+    ```
+4.  **Run Locally**:
+    ```bash
+    npm start
+    ```
+
+---
+
+## 📍 Current Scope
+> [!IMPORTANT]  
+> NITKnot is currently in its **v2.0 Beta** phase and is exclusively operational for **NITK Surathkal**. Plans for expansion to other premier institutes are in the roadmap!
+
+---
+
+## 💌 Feedback & Support
+Made with ❤️ by the students, for the students. If you have any suggestions or found a bug, feel free to open an issue or contact the development team.
+
+**Elevate your campus life. Find your knot.**
