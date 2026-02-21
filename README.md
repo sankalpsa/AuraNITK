@@ -42,30 +42,6 @@ In a campus known for its rigorous academics and beautiful beach, finding the ri
 
 ---
 
-## 🛠️ Quick Setup (For Developers)
-
-1.  **Clone the Repo**:
-    ```bash
-    git clone https://github.com/sankalpsa/NITKnot.git
-    ```
-2.  **Install Dependencies**:
-    ```bash
-    npm install
-    ```
-3.  **Configure Environment**: Create a `.env` file with:
-    ```env
-    PORT=3000
-    JWT_SECRET=your_secret_key
-    SMTP_EMAIL=your@gmail.com
-    SMTP_PASSWORD=your_app_password
-    ```
-4.  **Run Locally**:
-    ```bash
-    npm start
-    ```
-
----
-
 ## 📍 Current Scope
 > [!IMPORTANT]  
 > NITKnot is currently in its **v2.0 Beta** phase and is exclusively operational for **NITK Surathkal**. Plans for expansion to other premier institutes are in the roadmap!
