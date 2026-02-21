@@ -1,0 +1,843 @@
+/* ================================================================
+   NITKnot — CINEMATIC ANIMATION SYSTEM
+   Aurora backgrounds · Floating particles · Magnetic interactions
+   Staggered reveals · Liquid transitions · Glow effects
+   ================================================================ */
+
+/* ---- Font imports for premium feel ---- */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+/* ================================================================
+   GLOBAL DESIGN TOKENS — Upgraded
+   ================================================================ */
+:root {
+  /* Aurora color system */
+  --aurora-1: #ff2d78;
+  --aurora-2: #b721ff;
+  --aurora-3: #21d4fd;
+  --aurora-4: #ff6b35;
+
+  /* Refined primaries */
+  --primary: #ff2d78;
+  --primary-dark: #cc1a5e;
+  --primary-glow: rgba(255,45,120,0.4);
+  --primary-soft: rgba(255,45,120,0.1);
+
+  /* Deep background */
+  --bg: #06060c;
+  --bg-card: #0e0e18;
+  --bg-elevated: #14141f;
+  --bg-glass: rgba(14,14,24,0.7);
+  --bg-input: #10101a;
+
+  /* Refined borders */
+  --border: rgba(255,255,255,0.06);
+  --border-glow: rgba(255,45,120,0.35);
+
+  /* Text */
+  --text: #f4f4fa;
+  --text-secondary: #8888aa;
+  --text-muted: #44445a;
+
+  /* Shadows with color */
+  --shadow-sm: 0 2px 12px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.5);
+  --shadow-lg: 0 12px 60px rgba(0,0,0,0.6);
+  --shadow-primary: 0 4px 30px rgba(255,45,120,0.4);
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* ================================================================
+   BASE UPGRADES
+   ================================================================ */
+html, body {
+  background: var(--bg) !important;
+  font-family: 'DM Sans', 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,45,120,0.3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,45,120,0.6); }
+
+/* ================================================================
+   KEYFRAME LIBRARY
+   ================================================================ */
+@keyframes aurora-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes float-up {
+  0%   { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+  50%  { transform: translateY(-20px) rotate(5deg); opacity: 1; }
+  100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+}
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  14%  { transform: scale(1.15); }
+  28%  { transform: scale(1); }
+  42%  { transform: scale(1.1); }
+  70%  { transform: scale(1); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,45,120,0.3), 0 0 60px rgba(255,45,120,0.1); }
+  50%       { box-shadow: 0 0 40px rgba(255,45,120,0.6), 0 0 100px rgba(255,45,120,0.2); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes reveal-scale {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes particle-drift {
+  0%   { transform: translate(0,0) scale(1); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.6; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+@keyframes border-spin {
+  from { --angle: 0deg; }
+  to   { --angle: 360deg; }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes stagger-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes match-explosion {
+  0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
+  60%  { transform: scale(1.1) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes confetti-fall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+@keyframes like-burst {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.4); }
+  60%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+@keyframes typing-dot {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%            { transform: translateY(-8px); }
+}
+@keyframes gradient-text {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(40px) scale(0.95) rotate(-2deg); }
+  to   { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+@keyframes ripple-out {
+  from { transform: scale(1); opacity: 0.6; }
+  to   { transform: scale(4); opacity: 0; }
+}
+@keyframes nav-item-in {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ================================================================
+   VIEW TRANSITIONS — Cinematic page changes
+   ================================================================ */
+.view-animate {
+  animation: reveal-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* ================================================================
+   LANDING PAGE — Aurora cinematic hero
+   ================================================================ */
+.landing-page {
+  background: var(--bg) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Aurora background */
+.landing-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% -10%, rgba(255,45,120,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 110%, rgba(183,33,255,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 60% 50%, rgba(33,212,253,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+  animation: aurora-shift 12s ease infinite;
+  background-size: 200% 200%;
+}
+
+/* Noise texture overlay */
+.landing-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.hero-section {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 28px 60px;
+  text-align: center;
+}
+
+/* Floating hearts particles */
+.hero-section .particle {
+  position: absolute;
+  font-size: 1.2rem;
+  pointer-events: none;
+  animation: float-up var(--dur, 6s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: 0.15;
+}
+
+/* Hero logo — gradient animated */
+.hero-logo {
+  font-family: 'Cormorant Garamond', 'Playfair Display', serif !important;
+  font-size: 4.5rem !important;
+  font-weight: 300 !important;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ff2d78, #b721ff, #ff6b35, #ff2d78) !important;
+  background-size: 300% 300% !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  animation: gradient-text 5s ease infinite !important;
+  filter: none !important;
+  line-height: 1;
+  margin-bottom: 8px !important;
+}
+
+.hero-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 20px;
+  opacity: 0.8;
+  animation: stagger-in 0.6s ease 0.1s both;
+}
+
+.hero-tagline {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 1.6rem !important;
+  font-weight: 300 !important;
+  font-style: italic;
+  color: rgba(244,244,250,0.9) !important;
+  margin-bottom: 16px !important;
+  letter-spacing: 0.02em;
+  animation: stagger-in 0.6s ease 0.2s both;
+}
+
+.hero-subtext {
+  font-size: 0.9rem !important;
+  line-height: 1.7 !important;
+  color: var(--text-secondary) !important;
+  max-width: 300px !important;
+  margin: 0 auto 40px !important;
+  animation: stagger-in 0.6s ease 0.3s both;
+}
+
+.hero-actions {
+  animation: stagger-in 0.6s ease 0.4s both;
+  gap: 14px !important;
+}
+
+/* ---- Cinematic CTA button ---- */
+.hero-cta {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  padding: 16px 28px;
+  background: linear-gradient(135deg, #ff2d78, #b721ff);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 30px rgba(255,45,120,0.4), 0 4px 12px rgba(183,33,255,0.2);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.hero-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.hero-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 16px 50px rgba(255,45,120,0.5), 0 8px 20px rgba(183,33,255,0.3);
+}
+.hero-cta:hover::before { opacity: 1; }
+.hero-cta:active { transform: translateY(-1px) scale(0.99); }
+
+/* Ripple on hero CTA */
+.hero-cta .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  animation: ripple-out 0.6s ease-out forwards;
+  pointer-events: none;
+  width: 10px; height: 10px;
+  margin-left: -5px; margin-top: -5px;
+}
+
+/* ---- Feature cards — glassmorphism ---- */
+.landing-features { position: relative; z-index: 1; padding: 20px 20px 80px !important; }
+.landing-features > h3 {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 1.8rem !important;
+  font-weight: 300 !important;
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 24px !important;
+  color: var(--text);
+}
+
+.feature-card {
+  background: rgba(14,14,24,0.6) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  border-radius: 18px !important;
+  padding: 24px 18px !important;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,45,120,0.5), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.feature-card:hover {
+  transform: translateY(-6px) !important;
+  border-color: rgba(255,45,120,0.2) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,45,120,0.1) !important;
+}
+.feature-card:hover::before { opacity: 1; }
+.feature-card .material-symbols-outlined {
+  font-size: 32px !important;
+  background: linear-gradient(135deg, var(--primary), #b721ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+  margin-bottom: 4px;
+}
+.feature-card h4 { font-size: 0.88rem !important; font-weight: 700 !important; margin: 10px 0 6px !important; }
+.feature-card p { font-size: 0.78rem !important; color: var(--text-secondary) !important; line-height: 1.5 !important; }
+
+/* Stagger feature cards on load */
+.features-grid .feature-card:nth-child(1) { animation: stagger-in 0.5s ease 0.5s both; }
+.features-grid .feature-card:nth-child(2) { animation: stagger-in 0.5s ease 0.65s both; }
+.features-grid .feature-card:nth-child(3) { animation: stagger-in 0.5s ease 0.8s both; }
+.features-grid .feature-card:nth-child(4) { animation: stagger-in 0.5s ease 0.95s both; }
+
+/* ================================================================
+   AUTH PAGES — Elegant glass cards
+   ================================================================ */
+.auth-page {
+  background: var(--bg) !important;
+  position: relative;
+}
+.auth-page::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 10% 0%, rgba(255,45,120,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 100%, rgba(183,33,255,0.1) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+.auth-body { position: relative; z-index: 1; }
+
+.auth-icon-wrap { margin-bottom: 16px; }
+.auth-icon {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, rgba(255,45,120,0.15), rgba(183,33,255,0.15));
+  border: 1px solid rgba(255,45,120,0.2);
+  border-radius: 20px;
+  margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  animation: float-gentle 3s ease-in-out infinite;
+  box-shadow: 0 0 40px rgba(255,45,120,0.15);
+}
+.auth-icon .material-symbols-outlined {
+  font-size: 32px !important;
+  background: linear-gradient(135deg, var(--primary), #b721ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auth-title {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 2.2rem !important;
+  font-weight: 300 !important;
+  font-style: italic !important;
+  color: var(--text) !important;
+}
+
+/* Shimmer on focused inputs */
+.input-field:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(255,45,120,0.12), 0 0 20px rgba(255,45,120,0.08) !important;
+  background: var(--bg-elevated) !important;
+}
+
+/* ================================================================
+   SWIPE CARDS — Premium card stack
+   ================================================================ */
+.swipe-card {
+  animation: card-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+.swipe-card:not(.behind):not(.far-behind) {
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.5),
+    0 8px 20px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.07) !important;
+}
+
+.card-match-badge {
+  background: linear-gradient(135deg, rgba(255,45,120,0.2), rgba(183,33,255,0.2)) !important;
+  border: 1px solid rgba(255,45,120,0.3) !important;
+  color: #ffaad0 !important;
+  backdrop-filter: blur(10px);
+}
+
+/* Card bio overflow fix */
+.card-bio { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---- Action buttons — glowing ---- */
+.action-btn {
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  position: relative;
+  overflow: visible !important;
+}
+.action-btn::after {
+  content: '';
+  position: absolute; inset: -4px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.action-btn.large {
+  background: linear-gradient(135deg, #ff2d78, #b721ff) !important;
+  box-shadow: 0 6px 30px rgba(255,45,120,0.5), 0 2px 8px rgba(0,0,0,0.3) !important;
+  border: none !important;
+}
+.action-btn.large:hover {
+  transform: scale(1.12) !important;
+  box-shadow: 0 10px 50px rgba(255,45,120,0.7), 0 4px 16px rgba(183,33,255,0.4) !important;
+  animation: glow-pulse 1.5s ease-in-out infinite;
+}
+.action-btn.large:active { animation: like-burst 0.4s ease !important; }
+.action-btn.medium:hover { transform: scale(1.1) !important; box-shadow: 0 6px 24px rgba(239,68,68,0.3) !important; }
+.action-btn.small:hover  { transform: scale(1.1) !important; box-shadow: 0 6px 24px rgba(59,130,246,0.3) !important; }
+
+/* ================================================================
+   MATCH OVERLAY — Celebration
+   ================================================================ */
+.match-overlay {
+  background: radial-gradient(ellipse at center, rgba(255,45,120,0.15) 0%, rgba(6,6,12,0.97) 70%) !important;
+}
+
+.match-content {
+  background: linear-gradient(145deg, rgba(20,20,32,0.95), rgba(14,14,24,0.95)) !important;
+  border: 1px solid rgba(255,45,120,0.2) !important;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(255,45,120,0.15), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+  animation: match-explosion 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.match-hearts {
+  font-size: 3.5rem !important;
+  animation: heartbeat 1.2s ease-in-out infinite !important;
+  display: block;
+  filter: drop-shadow(0 0 20px rgba(255,45,120,0.6));
+}
+
+.match-title {
+  background: linear-gradient(135deg, #ff2d78, #b721ff) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 2.4rem !important;
+  font-weight: 300 !important;
+  font-style: italic !important;
+}
+
+.match-photo {
+  border: 3px solid transparent !important;
+  background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+              linear-gradient(135deg, #ff2d78, #b721ff) border-box !important;
+  box-shadow: 0 8px 30px rgba(255,45,120,0.3) !important;
+  transition: transform 0.3s !important;
+}
+.match-photo:hover { transform: scale(1.05); }
+
+/* ================================================================
+   NAVIGATION — Animated sidebar & bottom nav
+   ================================================================ */
+.nav-item {
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+.nav-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,45,120,0.08), rgba(183,33,255,0.08));
+  opacity: 0;
+  transition: opacity 0.25s;
+  border-radius: inherit;
+}
+.nav-item.active::before { opacity: 1; }
+.nav-item.active .material-symbols-outlined {
+  background: linear-gradient(135deg, var(--primary), #b721ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.nav-item.active .nav-label {
+  background: linear-gradient(135deg, var(--primary), #b721ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Nav badge — pulsing */
+.nav-badge {
+  background: linear-gradient(135deg, var(--primary), #b721ff) !important;
+  box-shadow: 0 0 10px rgba(255,45,120,0.5) !important;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* ================================================================
+   BUTTONS — Premium interactions
+   ================================================================ */
+.btn-primary {
+  background: linear-gradient(135deg, #ff2d78, #cc1a5e) !important;
+  box-shadow: 0 4px 20px rgba(255,45,120,0.35), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -60%;
+  width: 40%; height: 200%;
+  background: rgba(255,255,255,0.1);
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 32px rgba(255,45,120,0.5), 0 4px 12px rgba(183,33,255,0.2), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+}
+.btn-primary:hover::after { left: 120%; }
+
+/* ================================================================
+   CHAT — Premium messaging
+   ================================================================ */
+.msg-bubble-sent .msg-bubble-inner {
+  background: linear-gradient(135deg, #ff2d78, #b721ff) !important;
+  box-shadow: 0 4px 16px rgba(255,45,120,0.3) !important;
+}
+.msg-bubble-received .msg-bubble-inner {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* Typing indicator dots */
+.typing-indicator span {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: typing-dot 1.2s ease infinite;
+}
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+/* ================================================================
+   DISCOVER HEADER — Glassmorphism
+   ================================================================ */
+.discover-header {
+  background: rgba(6,6,12,0.8) !important;
+  backdrop-filter: blur(24px) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+.logo-text {
+  background: linear-gradient(135deg, #ff2d78, #b721ff) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 1.4rem !important;
+  font-weight: 400 !important;
+  font-style: italic !important;
+}
+
+/* ================================================================
+   PAGE HEADERS — Refined
+   ================================================================ */
+.page-header {
+  background: rgba(6,6,12,0.85) !important;
+  backdrop-filter: blur(24px) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+}
+.page-header h1 {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 1.8rem !important;
+  font-weight: 300 !important;
+  font-style: italic !important;
+}
+
+/* ================================================================
+   PROFILE PAGE — Cinematic hero
+   ================================================================ */
+.profile-hero {
+  position: relative;
+  overflow: hidden;
+}
+.profile-hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, var(--bg) 100%);
+  pointer-events: none;
+}
+
+.profile-hero-info h1 {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 1.8rem !important;
+  font-weight: 300 !important;
+  font-style: italic !important;
+}
+
+/* Verified badge glow */
+.verified-badge {
+  background: linear-gradient(135deg, rgba(255,45,120,0.15), rgba(183,33,255,0.15)) !important;
+  border: 1px solid rgba(255,45,120,0.3) !important;
+  box-shadow: 0 0 20px rgba(255,45,120,0.15) !important;
+}
+
+/* Profile stats */
+.profile-stats-card {
+  background: linear-gradient(145deg, rgba(20,20,32,0.8), rgba(14,14,24,0.8)) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+.profile-stat-value {
+  background: linear-gradient(135deg, var(--primary), #b721ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1.8rem !important;
+  font-weight: 800 !important;
+}
+
+/* ================================================================
+   CONNECTION CARDS — Hover glow
+   ================================================================ */
+.connection-card {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+.connection-card:hover {
+  transform: scale(1.04) translateY(-4px) !important;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,45,120,0.2) !important;
+}
+.connection-card-badge {
+  background: linear-gradient(135deg, #ff2d78, #b721ff) !important;
+  box-shadow: 0 4px 15px rgba(255,45,120,0.4) !important;
+}
+
+/* ================================================================
+   TOAST — Premium notifications
+   ================================================================ */
+.toast {
+  backdrop-filter: blur(20px) !important;
+  background: rgba(14,14,24,0.92) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+.toast.success { border-color: rgba(16,185,129,0.4) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(16,185,129,0.1) !important; }
+.toast.error   { border-color: rgba(239,68,68,0.4) !important;   box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(239,68,68,0.1) !important; }
+.toast.info    { border-color: rgba(255,45,120,0.4) !important;  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(255,45,120,0.1) !important; }
+
+/* ================================================================
+   SWIPE LABELS — Bolder
+   ================================================================ */
+.swipe-label-like {
+  color: #00e96d !important;
+  border-color: #00e96d !important;
+  text-shadow: 0 0 20px rgba(0,233,109,0.5) !important;
+  box-shadow: 0 0 20px rgba(0,233,109,0.2) !important;
+}
+.swipe-label-nope {
+  color: #ff4458 !important;
+  border-color: #ff4458 !important;
+  text-shadow: 0 0 20px rgba(255,68,88,0.5) !important;
+  box-shadow: 0 0 20px rgba(255,68,88,0.2) !important;
+}
+
+/* ================================================================
+   SIDEBAR — Desktop premium
+   ================================================================ */
+@media (min-width: 768px) {
+  .bottom-nav {
+    background: rgba(6,6,12,0.97) !important;
+    border-right: 1px solid rgba(255,255,255,0.04) !important;
+  }
+  .bottom-nav::before {
+    font-family: 'Cormorant Garamond', serif !important;
+    font-style: italic !important;
+    font-size: 1.5rem !important;
+    font-weight: 300 !important;
+    background: linear-gradient(135deg, #ff2d78, #b721ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    content: '💕 NITKnot' !important;
+  }
+  .nav-item {
+    animation: nav-item-in 0.4s ease both;
+  }
+  .nav-item:nth-child(1) { animation-delay: 0.05s; }
+  .nav-item:nth-child(2) { animation-delay: 0.1s; }
+  .nav-item:nth-child(3) { animation-delay: 0.15s; }
+  .nav-item:nth-child(4) { animation-delay: 0.2s; }
+  .nav-item:nth-child(5) { animation-delay: 0.25s; }
+}
+
+/* ================================================================
+   CARD INFO — Premium overlays
+   ================================================================ */
+.card-name {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 1.8rem !important;
+  font-weight: 300 !important;
+  font-style: italic !important;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.5) !important;
+}
+
+.card-gradient-bottom {
+  background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 50%, transparent 100%) !important;
+  height: 75% !important;
+}
+
+/* ================================================================
+   DISCOVER SIDEBAR TIP CARD — Desktop
+   ================================================================ */
+.discover-tip-card {
+  background: rgba(14,14,24,0.7) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+.discover-tip-card::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, #ff2d78, #b721ff, #21d4fd);
+  margin-bottom: 16px;
+}
+
+/* ================================================================
+   EMPTY / ERROR STATES — Refined
+   ================================================================ */
+.empty-state .material-symbols-outlined {
+  background: linear-gradient(135deg, var(--primary), #b721ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 52px !important;
+  animation: float-gentle 3s ease-in-out infinite;
+}
+
+/* ================================================================
+   CONFETTI PARTICLES — Match celebration
+   ================================================================ */
+.confetti-piece {
+  position: fixed;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confetti-fall var(--duration, 3s) ease var(--delay, 0s) forwards;
+}
+
+/* ================================================================
+   MICRO-INTERACTIONS
+   ================================================================ */
+/* Chat item hover */
+.chat-item {
+  transition: all 0.2s ease !important;
+  border-radius: 16px !important;
+  margin: 0 8px !important;
+}
+.chat-item:hover {
+  background: rgba(255,45,120,0.06) !important;
+  transform: translateX(4px);
+}
+
+/* Input focus glow */
+.input-field {
+  transition: all 0.3s ease !important;
+}
+
+/* Spinner upgrade */
+.spinner {
+  border-color: rgba(255,45,120,0.15) !important;
+  border-top-color: var(--primary) !important;
+  box-shadow: 0 0 10px rgba(255,45,120,0.2) !important;
+}

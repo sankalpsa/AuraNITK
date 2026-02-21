@@ -274,11 +274,12 @@ function renderLanding() {
   document.getElementById('app').innerHTML = `
     <div class="landing-page view-animate">
       <div class="hero-section">
-        <div class="hero-logo">NITKnot 💕</div>
+        <div class="hero-eyebrow">NITK Surathkal · Est. 2025</div>
+      <div class="hero-logo">NITKnot</div>
         <p class="hero-tagline">Swipe. Match. Connect.</p>
         <p class="hero-subtext">The dating app made exclusively for NITK Surathkal students. Find your campus connection today.</p>
         <div class="hero-actions">
-          <button class="btn-primary" onclick="navigate('signup')">
+          <button class="hero-cta btn-primary" onclick="navigate('signup')">
             <span class="material-symbols-outlined fill-icon">favorite</span>Start Swiping
           </button>
           <button class="btn-secondary" onclick="navigate('login')">
@@ -312,6 +313,7 @@ function renderLanding() {
         </div>
       </div>
     </div>`;
+  requestAnimationFrame(spawnFloatingParticles);
 }
 
 // ========================================
@@ -1010,6 +1012,9 @@ function showMatch(matchedUser, matchId) {
   document.getElementById('match-photo-them').src = matchedUser.photo || defaultAvatar(matchedUser.name);
   document.getElementById('match-photo-them').onerror = function() { this.src = defaultAvatar(matchedUser.name); };
   document.getElementById('match-overlay').classList.remove('hidden');
+  setTimeout(() => spawnConfetti(50, 30), 200);
+  setTimeout(() => spawnConfetti(20, 50), 500);
+  setTimeout(() => spawnConfetti(80, 40), 800);
 }
 
 function closeMatch() {
@@ -1310,6 +1315,7 @@ function renderChatItems(matches) {
         ${hasUnread ? `<span class="chat-unread-badge">${m.unread_count > 9 ? '9+' : m.unread_count}</span>` : ''}
       </div>`;
   }).join('');
+  setTimeout(() => animateList('#chat-list-content .chat-item', 50), 10);
 }
 
 // ========================================
@@ -1939,6 +1945,92 @@ async function renderProfile() {
         <p class="profile-version">NITKnot v2.0 • Made with ❤️ for NITK</p>
       </div>
     </div>`;
+}
+
+
+// ================================================================
+// NITKnot — Animation System
+// Particles · Confetti · Ripple · Magnetic effects
+// ================================================================
+
+function spawnFloatingParticles() {
+  const hero = document.querySelector('.hero-section');
+  if (!hero) return;
+  const emojis = ['💕', '💖', '✨', '💫', '🌸', '💝', '🎀', '💗'];
+  // Clear old particles
+  hero.querySelectorAll('.particle').forEach(p => p.remove());
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      top: ${20 + Math.random() * 70}%;
+      --dur: ${4 + Math.random() * 6}s;
+      --delay: ${-Math.random() * 6}s;
+      font-size: ${0.7 + Math.random() * 1.2}rem;
+      animation-delay: var(--delay);
+      animation-duration: var(--dur);
+    `;
+    hero.appendChild(p);
+  }
+}
+
+function spawnConfetti(x, y) {
+  const colors = ['#ff2d78', '#b721ff', '#21d4fd', '#ff6b35', '#ffdd00', '#00e96d'];
+  for (let i = 0; i < 50; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const angle = (Math.random() * 360) * Math.PI / 180;
+    const velocity = 100 + Math.random() * 200;
+    el.style.cssText = `
+      left: ${x || 50}%;
+      top: ${y || 40}%;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      width: ${4 + Math.random() * 8}px;
+      height: ${4 + Math.random() * 8}px;
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      --duration: ${1.5 + Math.random() * 2}s;
+      --delay: ${Math.random() * 0.5}s;
+      transform: translate(-50%, -50%);
+      --dx: ${Math.cos(angle) * velocity}px;
+      --dy: ${Math.sin(angle) * velocity - 80}px;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+}
+
+function addRipple(btn, e) {
+  const rect = btn.getBoundingClientRect();
+  const x = (e.clientX - rect.left);
+  const y = (e.clientY - rect.top);
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  ripple.style.cssText = `left:${x}px;top:${y}px`;
+  btn.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 700);
+}
+
+// Add ripple to all primary buttons dynamically
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.btn-primary, .hero-cta, .action-btn');
+  if (btn) addRipple(btn, e);
+});
+
+// Stagger animation for lists
+function animateList(selector, delay = 60) {
+  document.querySelectorAll(selector).forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = `opacity 0.4s ease ${i * delay}ms, transform 0.4s ease ${i * delay}ms`;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      });
+    });
+  });
 }
 
 // ============================================================
