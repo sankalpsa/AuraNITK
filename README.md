@@ -72,7 +72,21 @@ In a campus known for its rigorous academics and beautiful beach, finding the ri
 
 ---
 
-## 💌 Feedback & Support
-Made with ❤️ by the students, for the students. If you have any suggestions or found a bug, feel free to open an issue or contact the development team.
+## ⚖️ Legal & Licensing
+
+This project is **All Rights Reserved**. You are welcome to explore the code to understand the architecture and implementation, but copying, modifying, or redistributing this work without explicit permission is strictly prohibited. This is the result of significant hard work and is protected accordingly.
+
+---
+
+## 🤝 Contributing & Inquiries
+
+I am open to collaborations! However, please do not create pull requests or forks without prior discussion. 
+
+If you:
+- Have a feature suggestion
+- Want to contribute to the code
+- Are interested in bringing NITKnot to another campus
+
+**Please reach out via email first.** You can find my contact information on my GitHub profile.
 
 **Elevate your campus life. Find your knot.**
