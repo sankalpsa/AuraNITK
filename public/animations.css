@@ -841,3 +841,293 @@ html, body {
   border-top-color: var(--primary) !important;
   box-shadow: 0 0 10px rgba(255,45,120,0.2) !important;
 }
+
+/* ================================================================
+   MAJOR VISUAL UPGRADE — Deep atmosphere & premium feel
+   ================================================================ */
+
+/* Global background — deep space feel */
+body {
+  background:
+    radial-gradient(ellipse 120% 60% at 15% -5%, rgba(255,45,120,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 85% 105%, rgba(183,33,255,0.07) 0%, transparent 50%),
+    #06060c !important;
+}
+
+/* ---- Cards everywhere — glass morphism ---- */
+.bg-card, .profile-stats-card, .vp-section,
+.auth-body > div, .discover-tip-card,
+.chat-page .page-header {
+  backdrop-filter: blur(20px) !important;
+}
+
+/* ---- Page headers — frosted glass ---- */
+.page-header, .profile-header, .chat-header, .discover-header {
+  background: rgba(6,6,12,0.8) !important;
+  backdrop-filter: blur(30px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+  box-shadow: 0 1px 0 rgba(255,45,120,0.08) !important;
+}
+
+/* ---- Profile view — cinematic ---- */
+.vp-photo-section { position: relative; }
+.vp-photo {
+  filter: saturate(1.1) !important;
+  transition: transform 0.4s ease !important;
+}
+
+.vp-info {
+  background: linear-gradient(to bottom, rgba(6,6,12,0) 0%, rgba(6,6,12,1) 60px) !important;
+  position: relative; z-index: 1;
+}
+
+.vp-section {
+  background: rgba(14,14,24,0.6) !important;
+  border: 1px solid rgba(255,255,255,0.05) !important;
+  border-radius: 16px !important;
+  padding: 16px !important;
+  margin-bottom: 12px !important;
+  backdrop-filter: blur(10px) !important;
+}
+.vp-section h3 {
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: var(--primary) !important;
+  margin-bottom: 10px !important;
+}
+.vp-name {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 2rem !important;
+  font-weight: 300 !important;
+  font-style: italic !important;
+}
+.vp-details { color: var(--text-secondary) !important; font-size: 0.88rem !important; }
+
+/* ---- Tags — gradient pills ---- */
+.vp-tag, .card-tag, .interest-tag {
+  background: linear-gradient(135deg, rgba(255,45,120,0.1), rgba(183,33,255,0.1)) !important;
+  border: 1px solid rgba(255,45,120,0.2) !important;
+  color: rgba(255,180,210,0.9) !important;
+  border-radius: 20px !important;
+  padding: 5px 12px !important;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+}
+
+/* ---- Connection cards — depth ---- */
+.connection-card img {
+  transition: transform 0.4s ease, filter 0.4s ease !important;
+  filter: saturate(0.9) !important;
+}
+.connection-card:hover img {
+  transform: scale(1.08) !important;
+  filter: saturate(1.2) !important;
+}
+.connection-card-overlay {
+  background: linear-gradient(to top, rgba(6,6,12,0.95) 0%, rgba(6,6,12,0.5) 50%, transparent 100%) !important;
+  padding: 16px 12px !important;
+}
+.connection-card-overlay h3 {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 1.1rem !important;
+  font-weight: 400 !important;
+  font-style: italic !important;
+}
+
+/* ---- Chat conversation — premium ---- */
+.chat-msgs {
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(255,45,120,0.04) 0%, transparent 60%),
+    var(--bg) !important;
+}
+.msg-bubble.msg-sent {
+  background: linear-gradient(135deg, #ff2d78, #b721ff) !important;
+  box-shadow: 0 4px 20px rgba(255,45,120,0.25), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+}
+.msg-bubble.msg-received {
+  background: rgba(20,20,32,0.8) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  backdrop-filter: blur(10px) !important;
+}
+.msg-text { font-size: 0.92rem !important; line-height: 1.5 !important; }
+
+/* Chat input area */
+.chat-input-area {
+  background: rgba(6,6,12,0.9) !important;
+  backdrop-filter: blur(30px) !important;
+  border-top: 1px solid rgba(255,255,255,0.05) !important;
+  box-shadow: 0 -1px 0 rgba(255,45,120,0.06) !important;
+}
+.chat-input {
+  background: rgba(20,20,32,0.8) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 22px !important;
+  transition: all 0.3s ease !important;
+}
+.chat-input:focus {
+  border-color: rgba(255,45,120,0.3) !important;
+  box-shadow: 0 0 0 3px rgba(255,45,120,0.06) !important;
+}
+
+/* Send button */
+.chat-send-btn {
+  background: linear-gradient(135deg, #ff2d78, #b721ff) !important;
+  box-shadow: 0 4px 20px rgba(255,45,120,0.4) !important;
+  border: none !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+.chat-send-btn:hover {
+  transform: scale(1.08) !important;
+  box-shadow: 0 6px 28px rgba(255,45,120,0.6) !important;
+}
+
+/* ---- Profile page — hero ---- */
+.profile-hero {
+  position: relative;
+}
+.profile-hero img {
+  filter: saturate(1.05) brightness(0.95) !important;
+}
+
+/* Stats card */
+.profile-stats-card {
+  background: rgba(14,14,24,0.8) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  backdrop-filter: blur(20px) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  overflow: hidden;
+  position: relative;
+}
+.profile-stats-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,45,120,0.4), transparent);
+}
+
+/* ---- Verified badge ---- */
+.verified-badge {
+  background: linear-gradient(135deg, rgba(255,45,120,0.12), rgba(183,33,255,0.12)) !important;
+  border: 1px solid rgba(255,45,120,0.25) !important;
+  border-radius: 20px !important;
+  padding: 4px 10px 4px 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  color: #ffb0d0 !important;
+  box-shadow: 0 0 16px rgba(255,45,120,0.12) !important;
+}
+
+/* ---- Sidebar desktop — depth ---- */
+@media (min-width: 768px) {
+  #layout {
+    background: var(--bg);
+  }
+  .bottom-nav {
+    background: rgba(6,6,12,0.98) !important;
+    border-right: 1px solid rgba(255,255,255,0.04) !important;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3) !important;
+  }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(255,45,120,0.12), rgba(183,33,255,0.08)) !important;
+    border: 1px solid rgba(255,45,120,0.15) !important;
+    box-shadow: 0 0 20px rgba(255,45,120,0.08), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  }
+}
+
+/* ---- Discover — card polish ---- */
+.swipe-card {
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow:
+    0 24px 64px rgba(0,0,0,0.6),
+    0 8px 24px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+.swipe-card:not(.behind):not(.far-behind) {
+  border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+/* ---- Auth inputs ---- */
+.input-field {
+  background: rgba(16,16,26,0.8) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  border-radius: 12px !important;
+  color: var(--text) !important;
+  transition: all 0.3s ease !important;
+}
+.input-field::placeholder { color: var(--text-muted) !important; }
+
+/* ---- Matches page badge ---- */
+.connection-card-badge {
+  background: linear-gradient(135deg, rgba(255,45,120,0.9), rgba(183,33,255,0.8)) !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  padding: 4px 10px !important;
+  border-radius: 20px !important;
+  box-shadow: 0 4px 12px rgba(255,45,120,0.3) !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* ---- Swipe actions area — glowing buttons ---- */
+.swipe-actions {
+  padding: 8px 0 !important;
+}
+
+/* ---- Flag items ---- */
+.flag-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 10px;
+  font-size: 0.85rem; margin-bottom: 6px;
+}
+.flag-item.green {
+  background: rgba(16,185,129,0.08) !important;
+  border: 1px solid rgba(16,185,129,0.15) !important;
+  color: #6ee7b7 !important;
+}
+.flag-item.red {
+  background: rgba(239,68,68,0.08) !important;
+  border: 1px solid rgba(239,68,68,0.15) !important;
+  color: #fca5a5 !important;
+}
+
+/* ---- Chat list items ---- */
+.chat-item {
+  border-radius: 16px !important;
+  padding: 12px 16px !important;
+  transition: all 0.2s ease !important;
+}
+.chat-item:hover {
+  background: rgba(255,45,120,0.06) !important;
+  transform: translateX(4px) !important;
+}
+.chat-avatar {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+  border: 2px solid rgba(255,45,120,0.15) !important;
+}
+
+/* ---- Online indicator pulse ---- */
+.online-dot {
+  box-shadow: 0 0 0 0 rgba(16,185,129,0.4) !important;
+  animation: online-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite !important;
+}
+@keyframes online-ping {
+  0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+
+/* ---- Empty states — more character ---- */
+.empty-state {
+  background: radial-gradient(ellipse at center, rgba(255,45,120,0.04) 0%, transparent 70%) !important;
+}
+.empty-state h3 {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 1.4rem !important;
+  font-weight: 300 !important;
+  font-style: italic !important;
+}

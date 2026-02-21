@@ -1435,9 +1435,15 @@ async function renderChatConvo(data) {
   }, 10000);
 }
 
-function viewMatchProfile() {
-  const data = { id: window._chatToUserId, name: window._chatName, match_id: window._chatMatchId };
-  navigate('viewProfile', data);
+async function viewMatchProfile() {
+  try {
+    const profile = await apiFetch(`/api/user/${window._chatToUserId}`);
+    navigate('viewProfile', { ...profile, match_id: window._chatMatchId });
+  } catch(e) {
+    // fallback with what we have
+    const data = { id: window._chatToUserId, name: window._chatName, match_id: window._chatMatchId };
+    navigate('viewProfile', data);
+  }
 }
 
 let _lastMsgIds = new Set();
@@ -1513,11 +1519,18 @@ function buildMsgHtml(m, isMine, myId, chatPartnerName) {
     ? `<span class="msg-status" style="${m.is_read ? 'color:#34b7f1' : ''}">${m.is_read ? '✓✓' : '✓'}</span>`
     : '';
 
+  // If only image (no text, no audio), use image-only bubble style
+  const isImageOnly = m.image_url && !m.text && !m.voice_url;
+  const isAudioOnly = m.voice_url && !m.text && !m.image_url;
+  const bubbleClass = isImageOnly ? 'msg-bubble msg-bubble-image-only' : 
+                      isAudioOnly ? `msg-bubble ${isMine ? 'msg-sent' : 'msg-received'} msg-bubble-audio` :
+                      `msg-bubble ${isMine ? 'msg-sent' : 'msg-received'}`;
+
   return `
     <div class="msg-wrapper ${isMine ? 'msg-sent-container' : 'msg-received-container'}"
       id="msg-${m.id}" style="margin-bottom:8px;align-self:${isMine ? 'flex-end' : 'flex-start'}">
       ${replyHtml}
-      <div class="msg-bubble ${isMine ? 'msg-sent' : 'msg-received'}"
+      <div class="${bubbleClass}"
         onclick="showMsgOptions(${m.id},'${escapeHtml((m.text || '').substring(0,100)).replace(/'/g,"\\'").replace(/"/g,'&quot;')}','${isMine ? 'You' : escapeHtml(chatPartnerName || 'User')}',${isMine})">
         ${imgHtml}${audioHtml}${textHtml}
       </div>

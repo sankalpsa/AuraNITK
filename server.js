@@ -953,6 +953,23 @@ app.delete('/api/account', authenticate, async (req, res) => {
 // ONLINE STATUS
 // ========================================
 
+// Get public profile of any user (for viewing match profiles)
+app.get('/api/user/:id', authenticate, async (req, res) => {
+    try {
+        const profile = await db.queryOne(
+            'SELECT id, name, age, gender, branch, year, bio, photo, interests, green_flags, red_flags, is_verified FROM users WHERE id = ? AND is_active = 1',
+            [req.params.id]
+        );
+        if (!profile) return res.status(404).json({ error: 'User not found' });
+        profile.interests = profile.interests ? JSON.parse(profile.interests) : [];
+        profile.green_flags = profile.green_flags ? JSON.parse(profile.green_flags) : [];
+        profile.red_flags = profile.red_flags ? JSON.parse(profile.red_flags) : [];
+        res.json(profile);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.get('/api/users/:id/online', authenticate, (req, res) => {
     res.json({ online: onlineUsers.has(req.params.id) });
 });

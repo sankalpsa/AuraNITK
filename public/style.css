@@ -663,12 +663,41 @@ select.input-field option { background: #1a1a22; }
 .msg-error { opacity: 0.8; }
 
 .msg-image {
-  max-width: 220px; border-radius: var(--radius-md);
-  cursor: pointer; display: block; margin-bottom: 6px;
+  max-width: 220px; max-height: 260px;
+  width: auto; height: auto;
+  border-radius: var(--radius-md);
+  cursor: pointer; display: block;
+  object-fit: cover;
   transition: opacity 0.2s;
 }
 .msg-image:hover { opacity: 0.9; }
-.msg-audio { max-width: 220px; height: 36px; display: block; }
+
+/* Image-only bubble — no background, no padding, just the image */
+.msg-bubble-image-only {
+  padding: 0 !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+}
+.msg-bubble-image-only .msg-image {
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  margin-bottom: 0;
+}
+
+/* Audio bubble — compact */
+.msg-bubble-audio {
+  padding: 8px 10px !important;
+}
+.msg-audio {
+  max-width: 240px; min-width: 180px;
+  height: 40px; display: block;
+  border-radius: var(--radius-md);
+  outline: none;
+}
+.msg-audio::-webkit-media-controls-panel {
+  background: var(--bg-elevated);
+}
 
 .msg-context {
   background: rgba(255,255,255,0.07);
