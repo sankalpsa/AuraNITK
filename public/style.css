@@ -1064,68 +1064,107 @@ select.input-field option { background: #1a1a22; }
    Desktop (>=768px): sidebar nav, two-panel layout
    ======================================================== */
 
-@media (min-width: 768px) {
-  /* Reset mobile-only constraints */
-  html, body { overflow: auto; }
+/* ========================================================
+   MOBILE BASE — phone layout (< 768px)
+   ======================================================== */
 
-  .app-container {
-    max-width: 100%;
-    height: 100vh;
+/* Mobile: app-container is full screen, nav fixed at bottom */
+.app-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ========================================================
+   RESPONSIVE DESKTOP LAYOUT  (>= 768px)
+   #layout becomes a side-by-side grid:
+     [240px sidebar nav] [1fr main content]
+   ======================================================== */
+@media (min-width: 768px) {
+  html, body { overflow: hidden; height: 100%; }
+
+  /* Layout wrapper becomes the grid */
+  #layout {
     display: grid;
     grid-template-columns: 240px 1fr;
-    grid-template-rows: 1fr;
+    grid-template-rows: 100vh;
+    height: 100vh;
+    width: 100vw;
     overflow: hidden;
   }
 
-  /* ---- Sidebar Nav (replaces bottom nav on desktop) ---- */
+  /* App content fills column 2 */
+  .app-container {
+    grid-column: 2;
+    grid-row: 1;
+    max-width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ---- Sidebar nav (column 1) ---- */
   .bottom-nav {
+    grid-column: 1;
+    grid-row: 1;
+    /* Override all mobile positioning */
     position: static !important;
     transform: none !important;
+    left: unset !important;
+    bottom: unset !important;
+    /* Sidebar dimensions */
     width: 240px !important;
     max-width: 240px !important;
     height: 100vh !important;
+    /* Layout */
+    display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
     justify-content: flex-start !important;
-    padding: 24px 12px !important;
     gap: 4px !important;
+    padding: 0 12px 24px !important;
+    /* Style */
     border-top: none !important;
     border-right: 1px solid var(--border) !important;
-    background: rgba(15,15,19,0.98) !important;
-    grid-column: 1;
-    grid-row: 1;
+    background: rgba(13,13,18,0.99) !important;
+    backdrop-filter: blur(20px) !important;
     overflow: hidden;
     z-index: 100;
   }
 
-  /* Logo in sidebar */
+  /* Logo at top of sidebar */
   .bottom-nav::before {
     content: '💕 NITKnot';
     display: block;
+    flex-shrink: 0;
     font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--primary);
-    padding: 8px 12px 20px;
+    padding: 24px 12px 20px;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     letter-spacing: -0.3px;
   }
 
+  /* Nav items as horizontal rows */
   .nav-item {
     flex-direction: row !important;
     justify-content: flex-start !important;
+    align-items: center !important;
     gap: 12px !important;
     padding: 12px 16px !important;
     border-radius: var(--radius-md) !important;
     width: 100% !important;
     min-height: unset !important;
     height: 48px !important;
+    flex: none !important;
     position: relative;
+    transition: background 0.15s;
   }
   .nav-item .material-symbols-outlined { font-size: 22px !important; }
   .nav-label {
-    font-size: 0.95rem !important;
+    font-size: 0.9rem !important;
     font-weight: 500 !important;
     opacity: 1 !important;
   }
@@ -1135,7 +1174,7 @@ select.input-field option { background: #1a1a22; }
   }
   .nav-item:hover:not(.active) { background: var(--bg-elevated); }
 
-  /* Badge repositioned for sidebar */
+  /* Unread badge pinned to right side in sidebar */
   .nav-badge {
     position: absolute !important;
     right: 12px !important;
@@ -1144,170 +1183,109 @@ select.input-field option { background: #1a1a22; }
     left: unset !important;
   }
 
-  /* ---- Main content area ---- */
-  #app {
-    grid-column: 2;
-    grid-row: 1;
-    overflow: hidden;
-    height: 100vh;
+  /* Spacer pushes nothing — sidebar items stack from top */
+  .bottom-nav::after {
+    content: '';
+    flex: 1;
+    display: block;
   }
 
-  /* Pages get more breathing room on desktop */
+  /* ---- Pages ---- */
   .page-scroll {
     height: 100vh !important;
     max-height: 100vh;
   }
 
-  /* Discover page — centered card with sidebar */
+  /* ---- Discover page: card centered with side info panel ---- */
   .discover-page {
     height: 100vh;
-    display: grid;
-    grid-template-rows: auto 1fr;
-  }
-  .discover-header {
-    display: none; /* sidebar already has logo/branding */
-  }
-  .swipe-area {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 48px;
-    padding: 32px 48px;
-    height: 100%;
+    flex-direction: column;
   }
+  .discover-header { display: none; }
+
+  .swipe-area {
+    flex: 1;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 40px !important;
+    padding: 32px 48px !important;
+    min-height: 0;
+  }
+
   .card-stack {
-    width: min(380px, 45vw);
-    height: min(560px, 80vh);
+    width: min(360px, 40vw) !important;
+    height: min(560px, 78vh) !important;
     flex-shrink: 0;
   }
-  .swipe-card { max-height: 100%; }
-  .card-photo-area { height: 360px; }
 
-  /* Action buttons go beside the card on desktop */
-  .swipe-actions {
-    flex-direction: column;
-    gap: 20px;
+  .swipe-card {
+    max-height: 100% !important;
   }
-  .action-btn.large { width: 72px; height: 72px; }
-  .action-btn.medium { width: 60px; height: 60px; }
-  .action-btn.small { width: 52px; height: 52px; }
+  .card-photo-area { height: clamp(240px, 35vh, 360px) !important; }
 
-  /* Likes page — grid layout */
-  .likes-page .page-header,
-  .connections-page .page-header,
-  .chat-page .page-header { padding: 24px 32px 16px; }
+  /* Action buttons column beside card */
+  .swipe-actions {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  .action-btn.large { width: 68px !important; height: 68px !important; }
+  .action-btn.medium { width: 56px !important; height: 56px !important; }
+  .action-btn.small { width: 50px !important; height: 50px !important; }
+
+  /* Side info panel (desktop only) */
+  .discover-side-info { display: flex; flex-direction: column; gap: 16px; max-width: 240px; width: 100%; }
+  .discover-tip-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-xl); padding: 20px;
+  }
+  .discover-tip-card h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 12px; }
+  .discover-tip-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; font-size: 0.82rem; color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+  }
+  .discover-tip-item:last-child { border: none; }
+  .discover-tip-item .material-symbols-outlined { font-size: 18px; flex-shrink: 0; }
+
+  /* ---- Chat page ---- */
+  .chat-convo-page { height: 100vh !important; }
+
+  /* ---- Connections / Likes grid ---- */
   .connections-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
     gap: 16px !important;
     padding: 0 32px 32px !important;
   }
 
-  /* Chat list — two-panel layout */
-  .chat-page {
-    display: grid !important;
-    grid-template-columns: 340px 1fr !important;
-    grid-template-rows: auto 1fr !important;
-    height: 100vh !important;
-  }
-  .chat-page .page-header {
-    grid-column: 1;
-    grid-row: 1;
-    border-bottom: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-  }
-  .chat-search-bar {
-    grid-column: 1;
-    grid-row: 2;
-    border-right: 1px solid var(--border);
-    overflow-y: auto;
-  }
-  /* Wait — the chat list needs a different structure for two-panel */
-  /* We'll handle this via JS */
-
-  /* Profile page wider */
+  /* ---- Profile page ---- */
   .profile-page { max-width: 680px; margin: 0 auto; }
   .profile-hero { height: 360px; }
-  .profile-stats { grid-template-columns: repeat(3, 1fr); }
 
-  /* Auth pages centered card */
-  .auth-container {
-    max-width: 420px !important;
-    margin: 40px auto !important;
-  }
+  /* ---- Auth pages ---- */
+  .auth-container { max-width: 420px !important; margin: 40px auto !important; }
 
-  /* Modals — larger on desktop */
+  /* ---- Modals ---- */
   .crop-modal-box { max-width: 520px; }
   .match-content { max-width: 460px; }
+
+  /* ---- Chat item hover ---- */
+  .chat-item:hover { background: var(--bg-elevated); }
 }
 
 @media (min-width: 1200px) {
-  .app-container {
-    grid-template-columns: 280px 1fr;
-  }
+  #layout { grid-template-columns: 280px 1fr; }
   .bottom-nav { width: 280px !important; max-width: 280px !important; }
-  .card-stack { width: 400px; height: min(600px, 80vh); }
-  .card-photo-area { height: 400px; }
+  .card-stack { width: min(400px, 38vw) !important; height: min(600px, 80vh) !important; }
   .connections-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
   }
 }
 
-/* ===== Desktop chat page two-panel ===== */
-@media (min-width: 768px) {
-  .chat-convo-page {
-    height: 100vh !important;
-  }
-  /* Chat convo header */
-  .chat-header {
-    border-bottom: 1px solid var(--border);
-  }
+/* Mobile: hide desktop-only elements */
+@media (max-width: 767px) {
+  .discover-side-info { display: none !important; }
+  #layout { display: contents; } /* transparent wrapper on mobile */
 }
-
-/* Undo button */
-.action-btn.undo { border-color: rgba(245,158,11,0.4); }
-.action-btn.undo:hover { border-color: rgba(245,158,11,0.8); }
-
-/* Desktop sidebar bottom section — user avatar */
-@media (min-width: 768px) {
-  .bottom-nav::after {
-    content: '';
-    flex: 1;
-  }
-  /* Chat list item hover on desktop */
-  .chat-item:hover { background: var(--bg-elevated); }
-  /* Connection card hover */
-  .connection-card:hover img { transform: scale(1.04); }
-  /* Discover info panel beside card on large screen */
-  .discover-side-info {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-width: 260px;
-    width: 100%;
-  }
-  .discover-tip-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
-    padding: 20px;
-  }
-  .discover-tip-card h4 {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 12px;
-  }
-  .discover-tip-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 0;
-    font-size: 0.82rem;
-    color: var(--text-secondary);
-    border-bottom: 1px solid var(--border);
-  }
-  .discover-tip-item:last-child { border: none; }
-  .discover-tip-item .material-symbols-outlined { font-size: 18px; flex-shrink: 0; }
-}
-
-/* Mobile — hide side info */
-.discover-side-info { display: none; }

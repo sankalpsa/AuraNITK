@@ -13,32 +13,39 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="app" class="app-container"></div>
 
-  <nav id="bottom-nav" class="bottom-nav hidden">
-    <button class="nav-item" data-view="discover" id="nav-discover">
-      <span class="material-symbols-outlined">style</span>
-      <span class="nav-label">Discover</span>
-    </button>
-    <button class="nav-item" data-view="connections" id="nav-connections">
-      <span class="material-symbols-outlined">people</span>
-      <span class="nav-label">Matches</span>
-    </button>
-    <button class="nav-item" data-view="chat" id="nav-chat">
-      <span class="material-symbols-outlined">chat_bubble</span>
-      <span class="nav-label">Messages</span>
-      <span class="nav-badge hidden" id="nav-chat-badge">0</span>
-    </button>
-    <button class="nav-item" data-view="likes" id="nav-likes">
-      <span class="material-symbols-outlined">favorite</span>
-      <span class="nav-label">Likes</span>
-    </button>
-    <button class="nav-item" data-view="profile" id="nav-profile">
-      <span class="material-symbols-outlined">person</span>
-      <span class="nav-label">Profile</span>
-    </button>
-  </nav>
+  <!-- Layout wrapper: on desktop becomes a grid (sidebar + content) -->
+  <div id="layout">
 
+    <nav id="bottom-nav" class="bottom-nav hidden">
+      <button class="nav-item" data-view="discover" id="nav-discover">
+        <span class="material-symbols-outlined">style</span>
+        <span class="nav-label">Discover</span>
+      </button>
+      <button class="nav-item" data-view="connections" id="nav-connections">
+        <span class="material-symbols-outlined">people</span>
+        <span class="nav-label">Matches</span>
+      </button>
+      <button class="nav-item" data-view="chat" id="nav-chat">
+        <span class="material-symbols-outlined">chat_bubble</span>
+        <span class="nav-label">Messages</span>
+        <span class="nav-badge hidden" id="nav-chat-badge">0</span>
+      </button>
+      <button class="nav-item" data-view="likes" id="nav-likes">
+        <span class="material-symbols-outlined">favorite</span>
+        <span class="nav-label">Likes</span>
+      </button>
+      <button class="nav-item" data-view="profile" id="nav-profile">
+        <span class="material-symbols-outlined">person</span>
+        <span class="nav-label">Profile</span>
+      </button>
+    </nav>
+
+    <div id="app" class="app-container"></div>
+
+  </div><!-- end #layout -->
+
+  <!-- These are outside the layout grid so they overlay everything -->
   <div id="toast" class="toast hidden"></div>
 
   <div id="match-overlay" class="match-overlay hidden">
@@ -76,14 +83,12 @@
     </div>
   </div>
 
-
   <div id="image-viewer" class="image-viewer-overlay hidden" onclick="closeImageViewer()">
     <img id="image-viewer-img" src="" alt="Full size">
     <button class="image-viewer-close" onclick="closeImageViewer()">✕</button>
   </div>
 
   <script>
-    // Socket.io loaded conditionally
     window._socketReady = false;
   </script>
   <script src="/socket.io/socket.io.js" onerror="console.warn('Socket.io not available')"></script>
