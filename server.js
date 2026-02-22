@@ -695,16 +695,23 @@ app.get('/api/matches', authenticate, async (req, res) => {
         for (const m of matches) {
             try {
                 const lastMsg = await db.queryOne(
-                    'SELECT text, created_at, sender_id FROM messages WHERE match_id = ? ORDER BY created_at DESC LIMIT 1',
+                    'SELECT text, image_url, voice_url, created_at, sender_id FROM messages WHERE match_id = ? ORDER BY created_at DESC LIMIT 1',
                     [m.match_id]
                 );
                 const unreadCount = await db.queryOne(
                     "SELECT COUNT(*) as c FROM messages WHERE match_id = ? AND sender_id != ? AND is_read = 0",
                     [m.match_id, userId]
                 );
+                // Determine preview text for last message
+                let lastMsgPreview = null;
+                if (lastMsg) {
+                    if (lastMsg.text) lastMsgPreview = lastMsg.text;
+                    else if (lastMsg.voice_url) lastMsgPreview = '🎤 Voice message';
+                    else if (lastMsg.image_url) lastMsgPreview = '📷 Photo';
+                }
                 result.push({
                     ...m,
-                    last_message: lastMsg ? lastMsg.text : null,
+                    last_message: lastMsgPreview,
                     last_message_time: lastMsg ? lastMsg.created_at : null,
                     last_message_mine: lastMsg ? lastMsg.sender_id === userId : false,
                     unread_count: unreadCount ? unreadCount.c : 0,
