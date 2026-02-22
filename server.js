@@ -292,18 +292,20 @@ const audioStorage = multer.diskStorage({
     filename: (req, file, cb) => cb(null, `voice-${Date.now()}-${Math.round(Math.random() * 1E6)}.webm`)
 });
 
+// Chat messages: use disk storage as temp, then manually upload to Cloudinary
+const msgDiskStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dir = path.join(__dirname, 'uploads');
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname) || (file.mimetype.startsWith('audio/') ? '.webm' : '.jpg');
+        cb(null, `${file.fieldname}-${Date.now()}${ext}`);
+    }
+});
 const uploadMsg = multer({
-    storage: multer.diskStorage({
-        destination: (req, file, cb) => {
-            const dir = path.join(__dirname, 'uploads');
-            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-            cb(null, dir);
-        },
-        filename: (req, file, cb) => {
-            const ext = path.extname(file.originalname) || (file.mimetype.startsWith('audio/') ? '.webm' : '.jpg');
-            cb(null, `${file.fieldname}-${Date.now()}${ext}`);
-        }
-    }),
+    storage: msgDiskStorage,
     limits: { fileSize: 15 * 1024 * 1024 },
     fileFilter: (req, file, cb) => cb(null, true)
 });
@@ -801,7 +803,24 @@ app.post('/api/messages/:matchId', authenticate,
                     imageUrl = `/uploads/${imageFile.filename}`;
                 }
             }
-            if (audioFile) voiceUrl = `/uploads/${audioFile.filename}`;
+            if (audioFile) {
+                if (useCloudinary) {
+                    try {
+                        const result = await cloudinary.uploader.upload(audioFile.path, {
+                            folder: 'nitknot-voice',
+                            resource_type: 'video', // Cloudinary uses 'video' for audio files
+                            format: 'webm'
+                        });
+                        voiceUrl = result.secure_url;
+                        fs.unlink(audioFile.path, () => {});
+                    } catch (err) {
+                        console.error('Cloudinary audio upload failed:', err);
+                        voiceUrl = `/uploads/${audioFile.filename}`;
+                    }
+                } else {
+                    voiceUrl = `/uploads/${audioFile.filename}`;
+                }
+            }
 
             const msgText = (text || '').trim();
             if (!msgText && !imageUrl && !voiceUrl)

@@ -1309,7 +1309,18 @@ function renderChatItems(matches) {
             <span>${m.last_message_time ? formatTime(m.last_message_time) : 'New'}</span>
           </div>
           <p class="chat-preview ${hasUnread ? 'unread' : ''}">
-            ${m.last_message ? (m.last_message_mine ? 'You: ' : '') + escapeHtml(m.last_message) : '<span style="color:var(--primary);font-weight:600">New match! Say hi 👋</span>'}
+            ${(()=>{
+              const msg = m.last_message;
+              if (!msg) return '<span style="color:var(--primary);font-weight:600">New match! Say hi 👋</span>';
+              if (msg.startsWith('/uploads/') || msg.startsWith('http') && msg.includes('/nitknot-')) {
+                // It's a file URL - show media indicator
+                const isVoice = msg.includes('voice') || msg.includes('webm') || msg.includes('nitknot-voice');
+                const isImg = msg.includes('image') || msg.includes('jpg') || msg.includes('png') || msg.includes('nitknot-chat');
+                const prefix = m.last_message_mine ? 'You: ' : '';
+                return prefix + (isVoice ? '🎤 Voice message' : isImg ? '📷 Photo' : '📎 Attachment');
+              }
+              return (m.last_message_mine ? 'You: ' : '') + escapeHtml(msg);
+            })()}
           </p>
         </div>
         ${hasUnread ? `<span class="chat-unread-badge">${m.unread_count > 9 ? '9+' : m.unread_count}</span>` : ''}
