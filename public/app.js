@@ -1670,7 +1670,7 @@ async function sendVoiceMsg(matchId, blob) {
   wrapper.id = tempId;
   wrapper.style.cssText = 'align-self:flex-end;margin-bottom:8px;opacity:0.7';
   wrapper.innerHTML = `
-    <div class="msg-bubble msg-sent">
+    <div class="msg-bubble msg-sent msg-bubble-audio">
       <audio controls src="${URL.createObjectURL(blob)}" class="msg-audio"></audio>
     </div>
     <div class="msg-time sent">Sending...</div>`;
