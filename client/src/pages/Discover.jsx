@@ -221,6 +221,11 @@ export default function Discover() {
                                 </div>
                                 <div className="card-body">
                                     <p className="card-bio">{p.bio || 'Hey there!'}</p>
+                                    {p.pickup_line && (
+                                        <p className="card-pickup" style={{ fontStyle: 'italic', color: 'var(--primary-light)', fontSize: '0.82rem', margin: '6px 0' }}>
+                                            💬 "{p.pickup_line}"
+                                        </p>
+                                    )}
                                     <div className="card-tags">
                                         {(p.interests || []).slice(0, 4).map(i => <span key={i} className="card-tag">{i}</span>)}
                                     </div>

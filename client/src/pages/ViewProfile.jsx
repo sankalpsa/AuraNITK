@@ -22,10 +22,13 @@ export default function ViewProfile() {
 
     const isMatch = !!profile.match_id;
 
-    // Build photo array
+    // Build photo array from user_photos data
     const photos = [];
-    if (profile.photo) photos.push(profile.photo);
-    if (profile.photos) photos.push(...profile.photos);
+    if (profile.photos && Array.isArray(profile.photos) && profile.photos.length > 0) {
+        photos.push(...profile.photos.map(p => typeof p === 'string' ? p : p.photo_url));
+    } else if (profile.photo) {
+        photos.push(profile.photo);
+    }
     if (photos.length === 0) photos.push(defaultAvatar(profile.name));
 
     const handleQuickSwipe = async (action) => {
@@ -97,6 +100,12 @@ export default function ViewProfile() {
                 <div className="vp-section">
                     <h3>About</h3>
                     <p className="vp-bio">{profile.bio || 'No bio yet'}</p>
+                    {profile.pickup_line && (
+                        <div className="pickup-line" style={{ marginTop: 12 }}>
+                            <span className="pickup-label">💬 Pickup Line</span>
+                            <p className="pickup-text">"{profile.pickup_line}"</p>
+                        </div>
+                    )}
                 </div>
 
                 {(profile.interests || []).length > 0 && (

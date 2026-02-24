@@ -310,6 +310,9 @@ export default function ChatConvo() {
                         }}>
                             <span className="material-symbols-outlined">person</span>View Profile
                         </button>
+                        <button className="msg-action-btn" onClick={() => { setShowMenu(false); setShowReport(true); }}>
+                            <span className="material-symbols-outlined">flag</span>Report User
+                        </button>
                         <button className="msg-action-btn delete" onClick={() => { setShowMenu(false); unmatch(); }}>
                             <span className="material-symbols-outlined">heart_broken</span>Unmatch
                         </button>

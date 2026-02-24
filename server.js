@@ -330,11 +330,15 @@ async function authenticate(req, res, next) {
     }
 }
 
-function sanitizeUser(u) {
+async function sanitizeUser(u) {
     const { password, ...safe } = u;
     try { safe.interests = typeof safe.interests === 'string' ? JSON.parse(safe.interests || '[]') : (safe.interests || []); } catch { safe.interests = []; }
     try { safe.green_flags = typeof safe.green_flags === 'string' ? JSON.parse(safe.green_flags || '[]') : (safe.green_flags || []); } catch { safe.green_flags = []; }
     try { safe.red_flags = typeof safe.red_flags === 'string' ? JSON.parse(safe.red_flags || '[]') : (safe.red_flags || []); } catch { safe.red_flags = []; }
+    // Attach user photos
+    try {
+        safe.photos = await db.query('SELECT id, photo_url, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [safe.id]);
+    } catch { safe.photos = []; }
     return safe;
 }
 
@@ -428,7 +432,7 @@ app.post('/api/auth/register', async (req, res) => {
         otpStore.delete(normalizedEmail);
         const token = jwt.sign({ userId: result.lastId }, JWT_SECRET, { expiresIn: '30d' });
         const user = await db.queryOne('SELECT * FROM users WHERE id = ?', [result.lastId]);
-        res.status(201).json({ token, user: sanitizeUser(user) });
+        res.status(201).json({ token, user: await sanitizeUser(user) });
     } catch (e) {
         console.error('Register error:', e);
         res.status(500).json({ error: 'Server error' });
@@ -446,7 +450,7 @@ app.post('/api/auth/login', async (req, res) => {
             user.is_active = 1;
         }
         const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
-        res.json({ token, user: sanitizeUser(user) });
+        res.json({ token, user: await sanitizeUser(user) });
     } catch (e) {
         console.error('Login error:', e);
         res.status(500).json({ error: 'Server error' });
@@ -474,8 +478,8 @@ app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
     }
 });
 
-app.get('/api/auth/me', authenticate, (req, res) => {
-    res.json({ user: sanitizeUser(req.user) });
+app.get('/api/auth/me', authenticate, async (req, res) => {
+    res.json({ user: await sanitizeUser(req.user) });
 });
 
 // ========================================
@@ -484,14 +488,15 @@ app.get('/api/auth/me', authenticate, (req, res) => {
 
 app.put('/api/profile', authenticate, async (req, res) => {
     try {
-        const { name, bio, branch, year, show_me, interests, green_flags, red_flags } = req.body;
+        const { name, bio, pickup_line, branch, year, show_me, interests, green_flags, red_flags } = req.body;
         await db.run(
-            `UPDATE users SET name=COALESCE(?,name), bio=COALESCE(?,bio), branch=COALESCE(?,branch),
-             year=COALESCE(?,year), show_me=COALESCE(?,show_me),
+            `UPDATE users SET name=COALESCE(?,name), bio=COALESCE(?,bio), pickup_line=COALESCE(?,pickup_line),
+             branch=COALESCE(?,branch), year=COALESCE(?,year), show_me=COALESCE(?,show_me),
              interests=COALESCE(?,interests), green_flags=COALESCE(?,green_flags), red_flags=COALESCE(?,red_flags)
              WHERE id=?`,
             [
-                name || null, bio || null, branch || null, year || null, show_me || null,
+                name || null, bio !== undefined ? bio : null, pickup_line !== undefined ? pickup_line : null,
+                branch || null, year || null, show_me || null,
                 interests ? JSON.stringify(interests) : null,
                 green_flags ? JSON.stringify(green_flags) : null,
                 red_flags ? JSON.stringify(red_flags) : null,
@@ -499,22 +504,100 @@ app.put('/api/profile', authenticate, async (req, res) => {
             ]
         );
         const updated = await db.queryOne('SELECT * FROM users WHERE id = ?', [req.user.id]);
-        res.json({ user: sanitizeUser(updated) });
+        res.json({ user: await sanitizeUser(updated) });
     } catch (e) {
         console.error('Update profile error:', e);
         res.status(500).json({ error: 'Server error' });
     }
 });
 
+// Upload a profile photo (max 4 per user)
 app.post('/api/profile/photo', authenticate, upload.single('photo'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+        // Check existing photo count
+        const countRow = await db.queryOne('SELECT COUNT(*) as c FROM user_photos WHERE user_id = ?', [req.user.id]);
+        if (countRow && countRow.c >= 4) return res.status(400).json({ error: 'Maximum 4 photos allowed. Delete one first.' });
+
         const photoUrl = req.file.path && req.file.path.startsWith('http') ? req.file.path : `/uploads/${req.file.filename}`;
-        await db.run('UPDATE users SET photo = ? WHERE id = ?', [photoUrl, req.user.id]);
-        res.json({ photo: photoUrl });
+
+        // If no photos yet, make this the primary and set as user's main photo
+        const isFirst = !countRow || countRow.c === 0;
+        const position = countRow ? countRow.c : 0;
+
+        await db.run(
+            'INSERT INTO user_photos (user_id, photo_url, is_primary, position) VALUES (?, ?, ?, ?)',
+            [req.user.id, photoUrl, isFirst ? 1 : 0, position]
+        );
+
+        if (isFirst) {
+            await db.run('UPDATE users SET photo = ? WHERE id = ?', [photoUrl, req.user.id]);
+        }
+
+        const photos = await db.query('SELECT id, photo_url, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
+        res.json({ photo: photoUrl, photos });
     } catch (e) {
         console.error('Upload error:', e);
         res.status(500).json({ error: 'Upload failed' });
+    }
+});
+
+// Delete a photo
+app.delete('/api/profile/photo/:photoId', authenticate, async (req, res) => {
+    try {
+        const photoId = parseInt(req.params.photoId);
+        const photo = await db.queryOne('SELECT * FROM user_photos WHERE id = ? AND user_id = ?', [photoId, req.user.id]);
+        if (!photo) return res.status(404).json({ error: 'Photo not found' });
+
+        await db.run('DELETE FROM user_photos WHERE id = ?', [photoId]);
+
+        // If deleted photo was primary, promote the next one
+        if (photo.is_primary) {
+            const nextPhoto = await db.queryOne('SELECT * FROM user_photos WHERE user_id = ? ORDER BY position ASC LIMIT 1', [req.user.id]);
+            if (nextPhoto) {
+                await db.run('UPDATE user_photos SET is_primary = 1 WHERE id = ?', [nextPhoto.id]);
+                await db.run('UPDATE users SET photo = ? WHERE id = ?', [nextPhoto.photo_url, req.user.id]);
+            } else {
+                await db.run("UPDATE users SET photo = '' WHERE id = ?", [req.user.id]);
+            }
+        }
+
+        const photos = await db.query('SELECT id, photo_url, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
+        res.json({ success: true, photos });
+    } catch (e) {
+        console.error('Delete photo error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Set a photo as primary
+app.put('/api/profile/photo/:photoId/primary', authenticate, async (req, res) => {
+    try {
+        const photoId = parseInt(req.params.photoId);
+        const photo = await db.queryOne('SELECT * FROM user_photos WHERE id = ? AND user_id = ?', [photoId, req.user.id]);
+        if (!photo) return res.status(404).json({ error: 'Photo not found' });
+
+        // Unset all primaries, then set the chosen one
+        await db.run('UPDATE user_photos SET is_primary = 0 WHERE user_id = ?', [req.user.id]);
+        await db.run('UPDATE user_photos SET is_primary = 1 WHERE id = ?', [photoId]);
+        await db.run('UPDATE users SET photo = ? WHERE id = ?', [photo.photo_url, req.user.id]);
+
+        const photos = await db.query('SELECT id, photo_url, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
+        res.json({ success: true, photos, photo: photo.photo_url });
+    } catch (e) {
+        console.error('Set primary error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get user photos
+app.get('/api/profile/photos', authenticate, async (req, res) => {
+    try {
+        const photos = await db.query('SELECT id, photo_url, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
+        res.json({ photos });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -549,15 +632,15 @@ app.get('/api/discover', authenticate, async (req, res) => {
         );
 
         const userInterests = req.user.interests ? JSON.parse(req.user.interests) : [];
-        const result = profiles.map(p => {
-            const s = sanitizeUser(p);
+        const result = await Promise.all(profiles.map(async (p) => {
+            const s = await sanitizeUser(p);
             const shared = s.interests.filter(i => userInterests.includes(i));
             s.match_percent = userInterests.length > 0
                 ? Math.min(99, Math.round((shared.length / Math.max(userInterests.length, 1)) * 100 + 40))
                 : Math.floor(60 + Math.random() * 30);
             s.shared_interests = shared;
             return s;
-        });
+        }));
 
         res.json({ profiles: result });
     } catch (e) {
@@ -606,7 +689,7 @@ app.post('/api/swipe', authenticate, async (req, res) => {
                 const result = await db.run('INSERT INTO matches (user1_id, user2_id) VALUES (?, ?)', [u1, u2]);
                 matchId = result.lastId;
                 matchedUser = await db.queryOne('SELECT id, name, photo, branch, year, bio FROM users WHERE id = ?', [targetId]);
-                const matchedUserSafe = sanitizeUser({ ...matchedUser, password: '' });
+                const matchedUserSafe = await sanitizeUser({ ...matchedUser, password: '' });
 
                 // Notify both users via socket with full data
                 io.to(userId.toString()).emit('match_found', {
@@ -630,7 +713,7 @@ app.post('/api/swipe', authenticate, async (req, res) => {
             success: true,
             match: isMatch,
             match_id: matchId,
-            matched_user: matchedUser ? sanitizeUser({ ...matchedUser, password: '' }) : null
+            matched_user: matchedUser ? await sanitizeUser({ ...matchedUser, password: '' }) : null
         });
     } catch (e) {
         console.error('Swipe error:', e);
@@ -659,7 +742,11 @@ app.get('/api/likes/received', authenticate, async (req, res) => {
              ORDER BY s.is_super_like DESC, s.created_at DESC`,
             [userId, userId, userId, userId]
         );
-        const result = likes.map(p => ({ ...sanitizeUser(p), is_super_like: p.is_super_like === 1 }));
+        const result = [];
+        for (const p of likes) {
+            const s = await sanitizeUser(p);
+            result.push({ ...s, is_super_like: p.is_super_like === 1 });
+        }
         res.json(result);
     } catch (e) {
         console.error('Likes error:', e);

@@ -7,317 +7,349 @@ import { defaultAvatar } from '../utils/helpers';
 
 export default function Profile() {
     const navigate = useNavigate();
-    const { user, updateUser, logout, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, updateUser, refreshUser } = useAuth();
     const { showToast } = useToast();
+
     const [stats, setStats] = useState({ matches: 0, likes_given: 0, likes_received: 0 });
     const [photos, setPhotos] = useState([]);
-    const [currentPhotoIdx, setCurrentPhotoIdx] = useState(0);
-    const [showCropModal, setShowCropModal] = useState(false);
-    const [cropImageUrl, setCropImageUrl] = useState(null);
-
-    // Canvas crop state
+    const [activePhoto, setActivePhoto] = useState(0);
+    const [uploading, setUploading] = useState(false);
+    const [showCrop, setShowCrop] = useState(false);
+    const [cropImg, setCropImg] = useState(null);
+    const fileInputRef = useRef(null);
     const canvasRef = useRef(null);
-    const cropRef = useRef({
-        img: null, imgX: 0, imgY: 0, imgW: 0, imgH: 0,
-        scale: 1, minScale: 1, maxScale: 4,
-        isDragging: false, lastX: 0, lastY: 0, lastPinchDist: 0,
-    });
+    const cropState = useRef({ offsetX: 0, offsetY: 0, scale: 1, dragging: false, lastX: 0, lastY: 0 });
 
     useEffect(() => {
         if (!isAuthenticated) return navigate('/', { replace: true });
-        loadProfile();
+        loadStats();
+        loadPhotos();
     }, [isAuthenticated]);
 
-    const loadProfile = async () => {
+    const loadStats = async () => {
         try {
-            const data = await apiFetch('/api/auth/me');
-            updateUser(data.user);
-            // Build photo gallery from user photo + additional photos
-            const photoList = [];
-            if (data.user.photo) photoList.push(data.user.photo);
-            if (data.user.photos) photoList.push(...data.user.photos);
-            setPhotos(photoList.length > 0 ? photoList : [defaultAvatar(data.user.name, 600)]);
-        } catch (e) {
-            if (e.message.includes('Session')) {
-                logout();
-                navigate('/', { replace: true });
-            }
-        }
-        try {
-            const s = await apiFetch('/api/stats');
-            setStats(s);
+            const data = await apiFetch('/api/stats');
+            setStats(data);
         } catch { }
     };
 
-    const handlePhotoUpload = (input) => {
-        if (!input.files?.[0]) return;
-        const file = input.files[0];
-        if (!file.type.startsWith('image/')) return showToast('Please select an image file', 'error');
+    const loadPhotos = async () => {
+        try {
+            const data = await apiFetch('/api/profile/photos');
+            setPhotos(data.photos || []);
+        } catch { }
+    };
+
+    const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (fileInputRef.current) fileInputRef.current.value = '';
         const reader = new FileReader();
-        reader.onload = (e) => {
-            setCropImageUrl(e.target.result);
-            setShowCropModal(true);
-            setTimeout(() => initCrop(e.target.result), 100);
+        reader.onload = (ev) => {
+            setCropImg(ev.target.result);
+            setShowCrop(true);
+            cropState.current = { offsetX: 0, offsetY: 0, scale: 1, dragging: false, lastX: 0, lastY: 0 };
         };
         reader.readAsDataURL(file);
-        input.value = '';
     };
 
-    const initCrop = (dataUrl) => {
+    // Canvas crop tool
+    useEffect(() => {
+        if (!showCrop || !cropImg || !canvasRef.current) return;
         const canvas = canvasRef.current;
-        if (!canvas) return;
         const ctx = canvas.getContext('2d');
-        const box = canvas.parentElement;
-        const size = Math.min(box?.clientWidth || 360, window.innerWidth - 32);
-        canvas.width = size;
-        canvas.height = size;
-        canvas.style.width = size + 'px';
-        canvas.style.height = size + 'px';
-
         const img = new Image();
+        img.crossOrigin = 'anonymous';
         img.onload = () => {
-            const c = cropRef.current;
-            c.img = img;
-            const scaleX = size / img.width;
-            const scaleY = size / img.height;
-            c.scale = Math.max(scaleX, scaleY);
-            c.minScale = c.scale;
-            c.maxScale = c.scale * 4;
-            c.imgW = img.naturalWidth;
-            c.imgH = img.naturalHeight;
-            c.imgX = (size - img.naturalWidth * c.scale) / 2;
-            c.imgY = (size - img.naturalHeight * c.scale) / 2;
-            cropClamp();
-            cropDraw(ctx, canvas.width);
+            const draw = () => {
+                const s = cropState.current;
+                ctx.clearRect(0, 0, 300, 300);
+                ctx.fillStyle = '#0d0d1a';
+                ctx.fillRect(0, 0, 300, 300);
+                const sc = Math.max(300 / img.width, 300 / img.height) * s.scale;
+                const w = img.width * sc, h = img.height * sc;
+                const x = (300 - w) / 2 + s.offsetX;
+                const y = (300 - h) / 2 + s.offsetY;
+                ctx.drawImage(img, x, y, w, h);
+            };
+            draw();
+            canvas._draw = draw;
+            canvas._img = img;
         };
-        img.src = dataUrl;
+        img.src = cropImg;
+    }, [showCrop, cropImg]);
+
+    const handleCropPointerDown = (e) => {
+        const s = cropState.current;
+        s.dragging = true;
+        s.lastX = e.clientX || (e.touches?.[0]?.clientX || 0);
+        s.lastY = e.clientY || (e.touches?.[0]?.clientY || 0);
     };
 
-    const cropClamp = () => {
-        const c = cropRef.current;
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const S = canvas.width;
-        const minX = S / c.imgW;
-        const minY = S / c.imgH;
-        c.minScale = Math.max(minX, minY);
-        if (c.scale < c.minScale) c.scale = c.minScale;
-        const nw = c.imgW * c.scale;
-        const nh = c.imgH * c.scale;
-        c.imgX = Math.min(0, Math.max(S - nw, c.imgX));
-        c.imgY = Math.min(0, Math.max(S - nh, c.imgY));
+    const handleCropPointerMove = (e) => {
+        const s = cropState.current;
+        if (!s.dragging) return;
+        const cx = e.clientX || (e.touches?.[0]?.clientX || 0);
+        const cy = e.clientY || (e.touches?.[0]?.clientY || 0);
+        s.offsetX += cx - s.lastX;
+        s.offsetY += cy - s.lastY;
+        s.lastX = cx;
+        s.lastY = cy;
+        canvasRef.current?._draw?.();
     };
 
-    const cropDraw = (ctx, S) => {
-        const c = cropRef.current;
-        if (!ctx || !c.img) return;
-        ctx.clearRect(0, 0, S, S);
-        ctx.drawImage(c.img, c.imgX, c.imgY, c.imgW * c.scale, c.imgH * c.scale);
-        ctx.fillStyle = 'rgba(0,0,0,0.55)';
-        ctx.beginPath();
-        ctx.rect(0, 0, S, S);
-        ctx.arc(S / 2, S / 2, S / 2 - 4, 0, Math.PI * 2, true);
-        ctx.fill('evenodd');
-        ctx.strokeStyle = 'rgba(238,43,157,0.9)';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(S / 2, S / 2, S / 2 - 4, 0, Math.PI * 2);
-        ctx.stroke();
+    const handleCropPointerUp = () => { cropState.current.dragging = false; };
+
+    const handleZoom = (dir) => {
+        const s = cropState.current;
+        s.scale = Math.max(0.3, Math.min(3, s.scale + dir * 0.15));
+        canvasRef.current?._draw?.();
     };
 
-    const handleCropMouseDown = (e) => {
-        cropRef.current.isDragging = true;
-        cropRef.current.lastX = e.clientX;
-        cropRef.current.lastY = e.clientY;
-    };
-    const handleCropMouseMove = (e) => {
-        const c = cropRef.current;
-        if (!c.isDragging) return;
-        c.imgX += e.clientX - c.lastX;
-        c.imgY += e.clientY - c.lastY;
-        c.lastX = e.clientX;
-        c.lastY = e.clientY;
-        cropClamp();
-        const canvas = canvasRef.current;
-        if (canvas) cropDraw(canvas.getContext('2d'), canvas.width);
-    };
-    const handleCropMouseUp = () => { cropRef.current.isDragging = false; };
-    const handleCropWheel = (e) => {
-        e.preventDefault();
-        const c = cropRef.current;
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const S = canvas.width;
-        const delta = e.deltaY > 0 ? 0.9 : 1.1;
-        const prevScale = c.scale;
-        c.scale = Math.min(c.maxScale, Math.max(c.minScale, c.scale * delta));
-        const ratio = c.scale / prevScale;
-        c.imgX = S / 2 - ratio * (S / 2 - c.imgX);
-        c.imgY = S / 2 - ratio * (S / 2 - c.imgY);
-        cropClamp();
-        cropDraw(canvas.getContext('2d'), S);
+    const uploadCroppedPhoto = async () => {
+        if (!canvasRef.current) return;
+        setUploading(true);
+        try {
+            const blob = await new Promise(r => canvasRef.current.toBlob(r, 'image/jpeg', 0.9));
+            const fd = new FormData();
+            fd.append('photo', blob, 'profile.jpg');
+            const data = await apiUpload('/api/profile/photo', fd);
+            setPhotos(data.photos || []);
+            showToast('Photo uploaded! 📸', 'success');
+            setShowCrop(false);
+            setCropImg(null);
+            refreshUser();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+        setUploading(false);
     };
 
-    const saveCrop = async () => {
-        const c = cropRef.current;
-        const canvas = canvasRef.current;
-        if (!c.img || !canvas) return showToast('No image to save', 'error');
-
-        const out = document.createElement('canvas');
-        out.width = 600; out.height = 600;
-        const octx = out.getContext('2d');
-        const S = canvas.width;
-        const ratio = 600 / S;
-        octx.drawImage(c.img, -c.imgX * ratio, -c.imgY * ratio, c.imgW * c.scale * ratio, c.imgH * c.scale * ratio);
-
-        out.toBlob(async (blob) => {
-            if (!blob) return showToast('Could not process image', 'error');
-            setShowCropModal(false);
-            showToast('Uploading photo...', 'info');
-            const form = new FormData();
-            form.append('photo', blob, 'profile.jpg');
-            try {
-                const data = await apiUpload('/api/profile/photo', form);
-                const updatedUser = { ...user, photo: data.photo };
-                updateUser(updatedUser);
-                showToast('Profile photo updated! 📸', 'success');
-                loadProfile();
-            } catch (e) {
-                showToast(e.message, 'error');
-            }
-        }, 'image/jpeg', 0.92);
+    const deletePhoto = async (photoId) => {
+        if (!window.confirm('Delete this photo?')) return;
+        try {
+            const data = await apiFetch(`/api/profile/photo/${photoId}`, { method: 'DELETE' });
+            setPhotos(data.photos || []);
+            setActivePhoto(0);
+            showToast('Photo deleted', 'success');
+            refreshUser();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     };
 
-    const doLogout = () => {
-        if (!window.confirm('Are you sure you want to logout?')) return;
-        logout();
-        showToast('Logged out. See you soon! 👋', 'success');
-        navigate('/', { replace: true });
+    const setPrimary = async (photoId) => {
+        try {
+            const data = await apiFetch(`/api/profile/photo/${photoId}/primary`, { method: 'PUT' });
+            setPhotos(data.photos || []);
+            showToast('Primary photo updated! ⭐', 'success');
+            refreshUser();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     };
 
     if (!user) return null;
 
+    const primaryPhoto = photos.find(p => p.is_primary) || photos[0];
+    const displayPhoto = primaryPhoto?.photo_url || user.photo || defaultAvatar(user.name);
+
     return (
         <div className="profile-page view-animate">
-            {/* Multi-photo hero carousel */}
+            <div className="page-header">
+                <h1 className="font-serif">Profile</h1>
+                <button className="btn-icon" style={{ position: 'absolute', right: 16, top: 16 }}
+                    onClick={() => navigate('/editProfile')}>
+                    <span className="material-symbols-outlined">edit</span>
+                </button>
+            </div>
+
+            {/* Main Photo Carousel */}
             <div className="profile-hero">
-                <div className="profile-photo-carousel">
-                    {photos.length > 1 && (
-                        <div className="photo-indicators">
-                            {photos.map((_, idx) => (
-                                <div key={idx} className={`photo-indicator ${idx === currentPhotoIdx ? 'active' : ''}`}
-                                    onClick={() => setCurrentPhotoIdx(idx)} />
-                            ))}
-                        </div>
-                    )}
-                    <img src={photos[currentPhotoIdx] || defaultAvatar(user.name, 600)} alt={user.name}
-                        onError={(e) => { e.target.src = defaultAvatar(user.name); }} />
-                    {photos.length > 1 && (
+                <div className="profile-carousel">
+                    {photos.length > 0 ? (
                         <>
-                            <button className="photo-nav-btn photo-prev" onClick={() => setCurrentPhotoIdx(Math.max(0, currentPhotoIdx - 1))}
-                                style={{ opacity: currentPhotoIdx === 0 ? 0.3 : 1 }}>
-                                <span className="material-symbols-outlined">chevron_left</span>
-                            </button>
-                            <button className="photo-nav-btn photo-next" onClick={() => setCurrentPhotoIdx(Math.min(photos.length - 1, currentPhotoIdx + 1))}
-                                style={{ opacity: currentPhotoIdx === photos.length - 1 ? 0.3 : 1 }}>
-                                <span className="material-symbols-outlined">chevron_right</span>
-                            </button>
+                            <img
+                                src={photos[activePhoto]?.photo_url || displayPhoto}
+                                alt={user.name}
+                                className="profile-hero-img"
+                                onError={(e) => { e.target.src = defaultAvatar(user.name); }}
+                            />
+                            {photos.length > 1 && (
+                                <div className="carousel-dots">
+                                    {photos.map((_, i) => (
+                                        <button key={i}
+                                            className={`carousel-dot ${i === activePhoto ? 'active' : ''}`}
+                                            onClick={() => setActivePhoto(i)} />
+                                    ))}
+                                </div>
+                            )}
+                            {photos.length > 1 && (
+                                <>
+                                    <button className="carousel-arrow left" onClick={() => setActivePhoto(p => (p - 1 + photos.length) % photos.length)}>
+                                        <span className="material-symbols-outlined">chevron_left</span>
+                                    </button>
+                                    <button className="carousel-arrow right" onClick={() => setActivePhoto(p => (p + 1) % photos.length)}>
+                                        <span className="material-symbols-outlined">chevron_right</span>
+                                    </button>
+                                </>
+                            )}
                         </>
+                    ) : (
+                        <img src={displayPhoto} alt={user.name} className="profile-hero-img"
+                            onError={(e) => { e.target.src = defaultAvatar(user.name); }} />
                     )}
-                </div>
-                <div className="profile-hero-gradient" />
-                <div className="profile-hero-info">
-                    <h1 className="font-serif">{user.name}, {user.age}</h1>
-                    <p>{user.branch} • {user.year}</p>
-                    <div className="profile-hero-badges">
-                        {user.is_verified
-                            ? <span className="profile-badge"><span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>verified</span>NITK Verified</span>
-                            : <span className="profile-badge"><span className="material-symbols-outlined" style={{ color: 'var(--warning)' }}>warning</span>Unverified</span>}
+                    <div className="profile-hero-overlay">
+                        <h2 className="font-serif">{user.name}, {user.age}</h2>
+                        <p>{user.branch} • {user.year}</p>
                     </div>
                 </div>
             </div>
 
-            <div className="profile-content">
-                <div className="profile-stats-card">
-                    <div className="stat-item"><div className="stat-number" style={{ color: 'var(--primary)' }}>{stats.matches}</div><div className="stat-label">Matches</div></div>
-                    <div className="stat-item"><div className="stat-number" style={{ color: 'var(--success)' }}>{stats.likes_given}</div><div className="stat-label">Liked</div></div>
-                    <div className="stat-item"><div className="stat-number" style={{ color: 'var(--info)' }}>{stats.likes_received}</div><div className="stat-label">Liked You</div></div>
-                </div>
-
-                <div className="profile-section">
-                    <h3>Profile Photos</h3>
-                    <div className="photo-gallery-grid">
-                        {photos.map((photo, idx) => (
-                            <div key={idx} className="photo-gallery-item">
-                                <img src={photo} alt={`Photo ${idx + 1}`} onError={(e) => { e.target.src = defaultAvatar(user.name); }} />
+            {/* Photo Management Grid */}
+            <div className="profile-section">
+                <h3 className="section-title">
+                    <span className="material-symbols-outlined">photo_library</span>
+                    My Photos ({photos.length}/4)
+                </h3>
+                <div className="photo-grid">
+                    {photos.map((p, i) => (
+                        <div key={p.id} className={`photo-grid-item ${p.is_primary ? 'primary' : ''}`}>
+                            <img src={p.photo_url} alt={`Photo ${i + 1}`}
+                                onError={(e) => { e.target.src = defaultAvatar(user.name); }} />
+                            {p.is_primary && <span className="primary-badge">★ Primary</span>}
+                            <div className="photo-actions">
+                                {!p.is_primary && (
+                                    <button className="photo-action-btn" onClick={() => setPrimary(p.id)}
+                                        title="Set as primary">
+                                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>star</span>
+                                    </button>
+                                )}
+                                <button className="photo-action-btn danger" onClick={() => deletePhoto(p.id)}
+                                    title="Delete">
+                                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
+                                </button>
                             </div>
-                        ))}
-                        <label className="photo-gallery-add">
-                            <span className="material-symbols-outlined">add_photo_alternate</span>
-                            <span>Add Photo</span>
-                            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handlePhotoUpload(e.target)} />
-                        </label>
+                        </div>
+                    ))}
+                    {photos.length < 4 && (
+                        <div className="photo-grid-item add-photo" onClick={() => fileInputRef.current?.click()}>
+                            <span className="material-symbols-outlined" style={{ fontSize: 32 }}>add_a_photo</span>
+                            <span style={{ fontSize: '0.75rem' }}>Add Photo</span>
+                        </div>
+                    )}
+                </div>
+                <input type="file" ref={fileInputRef} accept="image/*" style={{ display: 'none' }}
+                    onChange={handleFileSelect} />
+            </div>
+
+            {/* Bio & Pickup Line */}
+            <div className="profile-section">
+                <h3 className="section-title">
+                    <span className="material-symbols-outlined">format_quote</span>
+                    About Me
+                </h3>
+                <div className="profile-card glass-card">
+                    <p className="profile-bio">{user.bio || 'No bio yet — tap edit to add one!'}</p>
+                    {user.pickup_line && (
+                        <div className="pickup-line">
+                            <span className="pickup-label">💬 Pickup Line</span>
+                            <p className="pickup-text">"{user.pickup_line}"</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Interests */}
+            {(user.interests?.length > 0) && (
+                <div className="profile-section">
+                    <h3 className="section-title">
+                        <span className="material-symbols-outlined">interests</span>
+                        Interests
+                    </h3>
+                    <div className="interest-tags">
+                        {user.interests.map(i => <span key={i} className="interest-tag">{i}</span>)}
                     </div>
                 </div>
+            )}
 
+            {/* Flags */}
+            {(user.green_flags?.length > 0 || user.red_flags?.length > 0) && (
                 <div className="profile-section">
-                    <h3>Bio</h3>
-                    <p style={{
-                        color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.6,
-                        background: 'var(--bg-card)', padding: 14, borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)'
-                    }}>
-                        {user.bio || 'No bio yet'}
-                    </p>
+                    {user.green_flags?.length > 0 && (
+                        <div style={{ marginBottom: 12 }}>
+                            <h3 className="section-title" style={{ color: 'var(--success)' }}>
+                                <span className="material-symbols-outlined">flag</span>
+                                Green Flags
+                            </h3>
+                            <div className="interest-tags">
+                                {user.green_flags.map(f => <span key={f} className="interest-tag green">{f}</span>)}
+                            </div>
+                        </div>
+                    )}
+                    {user.red_flags?.length > 0 && (
+                        <div>
+                            <h3 className="section-title" style={{ color: 'var(--danger)' }}>
+                                <span className="material-symbols-outlined">flag</span>
+                                Red Flags
+                            </h3>
+                            <div className="interest-tags">
+                                {user.red_flags.map(f => <span key={f} className="interest-tag red">{f}</span>)}
+                            </div>
+                        </div>
+                    )}
                 </div>
+            )}
 
-                <div className="profile-section">
-                    <h3>Interests</h3>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                        {(user.interests || []).map(i => (
-                            <span key={i} style={{
-                                padding: '7px 14px', background: 'var(--primary-soft)',
-                                border: '1px solid rgba(238,43,157,0.2)', borderRadius: 'var(--radius-full)',
-                                fontSize: '0.83rem', fontWeight: 600, color: 'var(--primary)'
-                            }}>{i}</span>
-                        ))}
+            {/* Stats */}
+            <div className="profile-section">
+                <h3 className="section-title">
+                    <span className="material-symbols-outlined">monitoring</span>
+                    Stats
+                </h3>
+                <div className="stats-grid">
+                    <div className="stat-card glass-card">
+                        <span className="stat-number">{stats.matches}</span>
+                        <span className="stat-label">Matches</span>
+                    </div>
+                    <div className="stat-card glass-card">
+                        <span className="stat-number">{stats.likes_given}</span>
+                        <span className="stat-label">Likes Sent</span>
+                    </div>
+                    <div className="stat-card glass-card">
+                        <span className="stat-number">{stats.likes_received}</span>
+                        <span className="stat-label">Likes Received</span>
                     </div>
                 </div>
-
-                <div className="profile-section">
-                    <div className="profile-action-grid">
-                        <button className="profile-action-btn edit" onClick={() => navigate('/profile/edit')}>
-                            <span className="material-symbols-outlined">edit</span>Edit Profile
-                        </button>
-                        <button className="profile-action-btn logout" onClick={doLogout}>
-                            <span className="material-symbols-outlined">logout</span>Logout
-                        </button>
-                    </div>
-                </div>
-
-                <p className="profile-version">NITKnot v2.0 • Made with ❤️ for NITK</p>
             </div>
 
             {/* Crop Modal */}
-            {showCropModal && (
-                <div className="crop-modal">
-                    <div className="crop-modal-content">
+            {showCrop && (
+                <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowCrop(false)}>
+                    <div className="crop-modal glass-card">
                         <h3>Crop Photo</h3>
-                        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '4px 0 12px' }}>
-                            Drag to reposition • Scroll to zoom
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
+                            Drag to position. Pinch/scroll to zoom.
                         </p>
-                        <div className="crop-canvas-wrapper">
-                            <canvas ref={canvasRef} id="crop-canvas"
-                                onMouseDown={handleCropMouseDown}
-                                onMouseMove={handleCropMouseMove}
-                                onMouseUp={handleCropMouseUp}
-                                onMouseLeave={handleCropMouseUp}
-                                onWheel={handleCropWheel}
-                                style={{ cursor: 'grab', touchAction: 'none', display: 'block' }} />
+                        <canvas ref={canvasRef} width={300} height={300}
+                            className="crop-canvas"
+                            onMouseDown={handleCropPointerDown}
+                            onMouseMove={handleCropPointerMove}
+                            onMouseUp={handleCropPointerUp}
+                            onMouseLeave={handleCropPointerUp}
+                            onTouchStart={handleCropPointerDown}
+                            onTouchMove={handleCropPointerMove}
+                            onTouchEnd={handleCropPointerUp}
+                            onWheel={(e) => handleZoom(e.deltaY > 0 ? -1 : 1)}
+                        />
+                        <div style={{ display: 'flex', gap: 8, marginTop: 12, justifyContent: 'center' }}>
+                            <button className="btn-icon" onClick={() => handleZoom(-1)}><span className="material-symbols-outlined">remove</span></button>
+                            <button className="btn-icon" onClick={() => handleZoom(1)}><span className="material-symbols-outlined">add</span></button>
                         </div>
-                        <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                            <button className="btn-ghost" style={{ flex: 1 }} onClick={() => setShowCropModal(false)}>Cancel</button>
-                            <button className="btn-primary" style={{ flex: 1 }} onClick={saveCrop}>
-                                <span className="material-symbols-outlined">check_circle</span>Save Photo
+                        <div style={{ display: 'flex', gap: 12, marginTop: 16, justifyContent: 'center' }}>
+                            <button className="btn-ghost" onClick={() => { setShowCrop(false); setCropImg(null); }}>Cancel</button>
+                            <button className="btn-primary" onClick={uploadCroppedPhoto} disabled={uploading}>
+                                {uploading ? 'Uploading...' : '📸 Upload'}
                             </button>
                         </div>
                     </div>

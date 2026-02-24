@@ -13,6 +13,7 @@ export default function EditProfile() {
 
     const [name, setName] = useState(user?.name || '');
     const [bio, setBio] = useState(user?.bio || '');
+    const [pickupLine, setPickupLine] = useState(user?.pickup_line || '');
     const [branch, setBranch] = useState(user?.branch || '');
     const [year, setYear] = useState(user?.year || '');
     const [showMe, setShowMe] = useState(user?.show_me || 'all');
@@ -42,7 +43,8 @@ export default function EditProfile() {
             const data = await apiFetch('/api/profile', {
                 method: 'PUT',
                 body: JSON.stringify({
-                    name: name.trim(), bio: bio.trim(), branch, year, show_me: showMe,
+                    name: name.trim(), bio: bio.trim(), pickup_line: pickupLine.trim(),
+                    branch, year, show_me: showMe,
                     interests,
                     green_flags: greenFlags.split(',').map(s => s.trim()).filter(Boolean),
                     red_flags: redFlags.split(',').map(s => s.trim()).filter(Boolean),
@@ -92,7 +94,14 @@ export default function EditProfile() {
                         <input className="input-field" value={name} onChange={e => setName(e.target.value)} />
                     </div>
                     <div className="input-group"><label>Bio</label>
-                        <textarea className="textarea-field" value={bio} onChange={e => setBio(e.target.value)} />
+                        <textarea className="textarea-field" value={bio} onChange={e => setBio(e.target.value)}
+                            placeholder="Tell people about yourself..." maxLength={300} />
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right' }}>{bio.length}/300</span>
+                    </div>
+                    <div className="input-group"><label>💬 Pickup Line</label>
+                        <input className="input-field" value={pickupLine} onChange={e => setPickupLine(e.target.value)}
+                            placeholder="Your best pickup line..." maxLength={150} />
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right' }}>{pickupLine.length}/150</span>
                     </div>
                     <div className="input-group"><label>Branch</label>
                         <select className="input-field" value={branch} onChange={e => setBranch(e.target.value)}>
