@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { defaultAvatar, formatTime, escapeHtml } from '../utils/helpers';
+import { defaultAvatar, formatTime } from '../utils/helpers';
 
 export default function ChatList() {
     const navigate = useNavigate();
@@ -14,12 +14,7 @@ export default function ChatList() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
 
-    useEffect(() => {
-        if (!isAuthenticated) return navigate('/', { replace: true });
-        loadChats();
-    }, [isAuthenticated]);
-
-    const loadChats = async () => {
+    async function loadChats() {
         setLoading(true);
         try {
             const data = await apiFetch('/api/matches');
@@ -30,7 +25,13 @@ export default function ChatList() {
             showToast(e.message, 'error');
         }
         setLoading(false);
-    };
+    }
+
+    useEffect(() => {
+        if (!isAuthenticated) return navigate('/', { replace: true });
+        loadChats();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated]);
 
     const handleSearch = (q) => {
         setSearch(q);

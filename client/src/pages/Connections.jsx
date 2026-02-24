@@ -12,12 +12,7 @@ export default function Connections() {
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (!isAuthenticated) return navigate('/', { replace: true });
-        loadMatches();
-    }, [isAuthenticated]);
-
-    const loadMatches = async () => {
+    async function loadMatches() {
         setLoading(true);
         try {
             const data = await apiFetch('/api/matches');
@@ -26,7 +21,13 @@ export default function Connections() {
             showToast(e.message, 'error');
         }
         setLoading(false);
-    };
+    }
+
+    useEffect(() => {
+        if (!isAuthenticated) return navigate('/', { replace: true });
+        loadMatches();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated]);
 
     return (
         <div className="connections-page view-animate">

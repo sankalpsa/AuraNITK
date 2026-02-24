@@ -42,7 +42,7 @@ export default function ReportModal({ userId, userName, onClose }) {
 
                 {/* Options list */}
                 <div className="ig-modal-list">
-                    {REPORT_REASONS.map((reason, i) => (
+                    {REPORT_REASONS.map((reason) => (
                         <button
                             key={reason}
                             className="ig-modal-item"

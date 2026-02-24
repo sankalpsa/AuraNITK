@@ -2636,20 +2636,36 @@ select.input-field {
   margin-bottom: 20px;
 }
 
-.settings-section-title {
+.settings-search-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-secondary);
-  margin-bottom: 10px;
+  gap: 10px;
+  background: var(--bg-elevated);
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
 }
 
-.settings-section-title .material-symbols-outlined {
-  font-size: 18px;
+.settings-section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.settings-section-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.settings-section-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
 }
 
 .settings-item {
@@ -2677,14 +2693,25 @@ select.input-field {
 .settings-item-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+}
+
+.settings-item-left .material-symbols-outlined {
+  font-size: 24px;
+  color: var(--text-primary);
+}
+
+.settings-item-title {
+  display: block;
   font-size: 0.95rem;
   font-weight: 500;
 }
 
-.settings-item-left .material-symbols-outlined {
-  font-size: 20px;
+.settings-item-sub {
+  display: block;
+  font-size: 0.8rem;
   color: var(--text-secondary);
+  margin-top: 2px;
 }
 
 .settings-chevron {
@@ -2779,6 +2806,15 @@ select.input-field {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 6px;
+}
+
+.about-badge {
+  background: rgba(236, 72, 153, 0.1);
+  color: var(--primary);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 /* Logout Button */

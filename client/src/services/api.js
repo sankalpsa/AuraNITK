@@ -37,7 +37,7 @@ export async function apiFetch(path, opts = {}) {
     let res;
     try {
         res = await fetch(`${API}${path}`, { ...opts, headers });
-    } catch (e) {
+    } catch {
         throw new Error('Network error — check your connection');
     }
 
@@ -70,7 +70,7 @@ export async function apiUpload(path, formData) {
     let res;
     try {
         res = await fetch(`${API}${path}`, { method: 'POST', headers, body: formData });
-    } catch (e) {
+    } catch {
         throw new Error('Network error — check your connection');
     }
     let data;

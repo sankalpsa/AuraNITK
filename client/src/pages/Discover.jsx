@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { defaultAvatar, escapeHtml } from '../utils/helpers';
+import { defaultAvatar } from '../utils/helpers';
 import { BRANCHES, YEARS } from '../constants';
 import MatchOverlay from '../components/common/MatchOverlay';
 
@@ -23,12 +23,7 @@ export default function Discover() {
     const cardRef = useRef(null);
     const dragState = useRef({ isDragging: false, startX: 0, startY: 0, currentX: 0, startTime: 0 });
 
-    useEffect(() => {
-        if (!isAuthenticated) return navigate('/', { replace: true });
-        loadProfiles();
-    }, [isAuthenticated]);
-
-    const loadProfiles = async () => {
+    async function loadProfiles() {
         setLoading(true);
         try {
             let url = '/api/discover';
@@ -42,7 +37,13 @@ export default function Discover() {
             showToast(e.message, 'error');
         }
         setLoading(false);
-    };
+    }
+
+    useEffect(() => {
+        if (!isAuthenticated) return navigate('/', { replace: true });
+        loadProfiles();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated, filterBranch, filterYear]);
 
     const processSwipe = async (action) => {
         if (swipePending || cards.length === 0) return;
@@ -176,6 +177,7 @@ export default function Discover() {
             el.removeEventListener('touchmove', onMove);
             el.removeEventListener('touchend', onEnd);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     if (loading) {

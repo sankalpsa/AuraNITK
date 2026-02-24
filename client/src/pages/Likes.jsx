@@ -12,12 +12,7 @@ export default function Likes() {
     const [likes, setLikes] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (!isAuthenticated) return navigate('/', { replace: true });
-        loadLikes();
-    }, [isAuthenticated]);
-
-    const loadLikes = async () => {
+    async function loadLikes() {
         setLoading(true);
         try {
             const data = await apiFetch('/api/likes/received');
@@ -26,7 +21,13 @@ export default function Likes() {
             showToast(e.message, 'error');
         }
         setLoading(false);
-    };
+    }
+
+    useEffect(() => {
+        if (!isAuthenticated) return navigate('/', { replace: true });
+        loadLikes();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated]);
 
     return (
         <div className="likes-page view-animate">

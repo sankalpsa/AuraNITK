@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { getToken, setToken as storeToken, clearToken, getCachedUser, setCachedUser, apiFetch } from '../services/api';
 import { io } from 'socket.io-client';
@@ -63,6 +64,7 @@ export function AuthProvider({ children }) {
         });
 
         socketRef.current = s;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSocket(s);
 
         return () => {

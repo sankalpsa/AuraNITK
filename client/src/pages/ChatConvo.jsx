@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { apiFetch, apiUpload, markAsRead } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -42,6 +42,32 @@ export default function ChatConvo() {
     const lastTapRef = useRef({});
     const [reactions, setReactions] = useState({});
 
+    function scrollToBottom() {
+        if (messagesRef.current) {
+            messagesRef.current.scrollTo({ top: messagesRef.current.scrollHeight, behavior: 'smooth' });
+        }
+    }
+
+    async function loadMessages(silent = false) {
+        try {
+            const data = await apiFetch(`/api/messages/${matchId}`);
+            const msgs = data.messages || [];
+            if (silent && msgs.length === msgIdsRef.current.size && msgs.every(m => msgIdsRef.current.has(m.id))) return;
+            msgIdsRef.current = new Set(msgs.map(m => m.id));
+            setMessages(msgs);
+            if (!silent) setTimeout(() => scrollToBottom(), 100);
+        } catch (e) {
+            if (!silent) showToast(e.message, 'error');
+        }
+    }
+
+    async function loadReactionsForMessage(msgId) {
+        try {
+            const data = await apiFetch(`/api/messages/${msgId}/reactions`);
+            setReactions(prev => ({ ...prev, [msgId]: data.reactions || [] }));
+        } catch { /* ignore */ }
+    }
+
     useEffect(() => {
         if (!matchId) return navigate('/chat', { replace: true });
         loadMessages();
@@ -53,9 +79,10 @@ export default function ChatConvo() {
         }).catch(() => setOnlineStatus('Tap for profile'));
 
         // Polling
-        pollRef.current = setInterval(() => loadMessages(true), 10000);
+        pollRef.current = window.setInterval(() => loadMessages(true), 10000);
         return () => { if (pollRef.current) clearInterval(pollRef.current); };
-    }, [matchId]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [matchId, chatUserId]);
 
     // Socket listeners
     useEffect(() => {
@@ -96,29 +123,7 @@ export default function ChatConvo() {
         };
     }, [socket, matchId, chatUserId]);
 
-    const scrollToBottom = () => {
-        messagesRef.current?.scrollTo({ top: messagesRef.current.scrollHeight, behavior: 'smooth' });
-    };
 
-    const loadMessages = async (silent = false) => {
-        try {
-            const data = await apiFetch(`/api/messages/${matchId}`);
-            const msgs = data.messages || [];
-            if (silent && msgs.length === msgIdsRef.current.size && msgs.every(m => msgIdsRef.current.has(m.id))) return;
-            msgIdsRef.current = new Set(msgs.map(m => m.id));
-            setMessages(msgs);
-            if (!silent) setTimeout(() => scrollToBottom(), 100);
-        } catch (e) {
-            if (!silent) showToast(e.message, 'error');
-        }
-    };
-
-    const loadReactionsForMessage = async (msgId) => {
-        try {
-            const data = await apiFetch(`/api/messages/${msgId}/reactions`);
-            setReactions(prev => ({ ...prev, [msgId]: data.reactions || [] }));
-        } catch { /* ignore */ }
-    };
 
     const handleDoubleTap = async (msgId) => {
         try {
@@ -206,7 +211,7 @@ export default function ChatConvo() {
                             msgIdsRef.current.add(result.message.id);
                             setTimeout(() => scrollToBottom(), 50);
                         }
-                    } catch (e) {
+                    } catch {
                         showToast('Failed to send voice message', 'error');
                     }
                 };
@@ -258,7 +263,7 @@ export default function ChatConvo() {
                     </div>
                 )}
                 <div className={`msg-bubble ${m.image_url && !m.text && !m.voice_url ? 'msg-bubble-image-only' : m.voice_url && !m.text && !m.image_url ? `${isMine ? 'msg-sent' : 'msg-received'} msg-bubble-audio` : isMine ? 'msg-sent' : 'msg-received'}`}
-                    onClick={(e) => {
+                    onClick={() => {
                         const now = Date.now();
                         const lastTap = lastTapRef.current[m.id] || 0;
                         if (now - lastTap < 350) {

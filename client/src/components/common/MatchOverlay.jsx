@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { defaultAvatar } from '../../utils/helpers';
 import { useAuth } from '../../context/AuthContext';
 
-export default function MatchOverlay({ matchedUser, matchId, onClose, onChat }) {
+export default function MatchOverlay({ matchedUser, onClose, onChat }) {
     const { user } = useAuth();
-    const overlayRef = useRef(null);
+
 
     useEffect(() => {
         // Spawn confetti

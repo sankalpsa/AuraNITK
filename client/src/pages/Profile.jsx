@@ -7,7 +7,7 @@ import { defaultAvatar } from '../utils/helpers';
 
 export default function Profile() {
     const navigate = useNavigate();
-    const { user, isAuthenticated, updateUser, refreshUser } = useAuth();
+    const { user, isAuthenticated, refreshUser } = useAuth();
     const { showToast } = useToast();
 
     const [stats, setStats] = useState({ matches: 0, likes_given: 0, likes_received: 0 });
@@ -20,25 +20,26 @@ export default function Profile() {
     const canvasRef = useRef(null);
     const cropState = useRef({ offsetX: 0, offsetY: 0, scale: 1, dragging: false, lastX: 0, lastY: 0 });
 
+    async function loadStats() {
+        try {
+            const data = await apiFetch('/api/stats');
+            setStats(data);
+        } catch { /* ignore */ }
+    }
+
+    async function loadPhotos() {
+        try {
+            const data = await apiFetch('/api/profile/photos');
+            setPhotos(data.photos || []);
+        } catch { /* ignore */ }
+    }
+
     useEffect(() => {
         if (!isAuthenticated) return navigate('/', { replace: true });
         loadStats();
         loadPhotos();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
-
-    const loadStats = async () => {
-        try {
-            const data = await apiFetch('/api/stats');
-            setStats(data);
-        } catch { }
-    };
-
-    const loadPhotos = async () => {
-        try {
-            const data = await apiFetch('/api/profile/photos');
-            setPhotos(data.photos || []);
-        } catch { }
-    };
 
     const handleFileSelect = (e) => {
         const file = e.target.files[0];

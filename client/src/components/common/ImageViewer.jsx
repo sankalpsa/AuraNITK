@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React from 'react';
 
 export default function ImageViewer({ url, onClose }) {
     if (!url) return null;

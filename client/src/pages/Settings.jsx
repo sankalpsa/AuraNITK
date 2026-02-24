@@ -6,7 +6,7 @@ import { useToast } from '../context/ToastContext';
 
 export default function Settings() {
     const navigate = useNavigate();
-    const { user, logout, isAuthenticated, refreshUser } = useAuth();
+    const { user, logout, isAuthenticated } = useAuth();
     const { showToast } = useToast();
     const [reports, setReports] = useState([]);
     const [showChangePass, setShowChangePass] = useState(false);
@@ -14,18 +14,20 @@ export default function Settings() {
     const [newPass, setNewPass] = useState('');
     const [confirmPass, setConfirmPass] = useState('');
     const [passLoading, setPassLoading] = useState(false);
+    const [showSafety, setShowSafety] = useState(false);
 
     useEffect(() => {
         if (!isAuthenticated) navigate('/', { replace: true });
         loadReports();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
 
-    const loadReports = async () => {
+    async function loadReports() {
         try {
             const data = await apiFetch('/api/reports/me');
             setReports(data.reports || []);
-        } catch { /* will 404 if endpoint doesn't exist yet, that's fine */ }
-    };
+        } catch { /* endpoint may not exist yet */ }
+    }
 
     const handleLogout = () => {
         if (!window.confirm('Are you sure you want to log out?')) return;
@@ -76,30 +78,60 @@ export default function Settings() {
 
     return (
         <div className="settings-page view-animate">
+            {/* Instagram-style header */}
             <div className="settings-header">
                 <button className="btn-icon" onClick={() => navigate('/profile')}>
                     <span className="material-symbols-outlined">arrow_back</span>
                 </button>
-                <h2>Settings</h2>
+                <h2>Settings and activity</h2>
             </div>
 
             <div className="settings-body">
-                {/* Account Section */}
+                {/* Search-like top area (Instagram style) */}
+                <div className="settings-search-bar">
+                    <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--text-muted)' }}>search</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Search settings</span>
+                </div>
+
+                {/* Your Account — Instagram style */}
                 <div className="settings-section">
-                    <h3 className="settings-section-title">
-                        <span className="material-symbols-outlined">person</span> Account
-                    </h3>
+                    <div className="settings-section-header">
+                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>account_circle</span>
+                        <div>
+                            <h3>Your account</h3>
+                            <p className="settings-section-desc">Profile, password, activity and more</p>
+                        </div>
+                    </div>
+
                     <div className="settings-item" onClick={() => navigate('/profile/edit')}>
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined">edit</span>
-                            <span>Edit Profile</span>
+                            <span className="material-symbols-outlined">person</span>
+                            <div>
+                                <span className="settings-item-title">Edit Profile</span>
+                                <span className="settings-item-sub">Name, bio, interests, photos</span>
+                            </div>
                         </div>
                         <span className="material-symbols-outlined settings-chevron">chevron_right</span>
                     </div>
+
+                    <div className="settings-item" onClick={() => navigate('/profile')}>
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined">badge</span>
+                            <div>
+                                <span className="settings-item-title">View My Profile</span>
+                                <span className="settings-item-sub">See how others see you</span>
+                            </div>
+                        </div>
+                        <span className="material-symbols-outlined settings-chevron">chevron_right</span>
+                    </div>
+
                     <div className="settings-item" onClick={() => setShowChangePass(!showChangePass)}>
                         <div className="settings-item-left">
                             <span className="material-symbols-outlined">lock</span>
-                            <span>Change Password</span>
+                            <div>
+                                <span className="settings-item-title">Change Password</span>
+                                <span className="settings-item-sub">Update your login credentials</span>
+                            </div>
                         </div>
                         <span className="material-symbols-outlined settings-chevron">{showChangePass ? 'expand_less' : 'chevron_right'}</span>
                     </div>
@@ -119,32 +151,63 @@ export default function Settings() {
                     )}
                 </div>
 
-                {/* Safety & Privacy */}
+                {/* Privacy & Safety — Instagram style */}
                 <div className="settings-section">
-                    <h3 className="settings-section-title">
-                        <span className="material-symbols-outlined">shield</span> Safety & Privacy
-                    </h3>
-                    <div className="safety-tips-card">
-                        <h4>🛡️ NITKnot Safety Guidelines</h4>
-                        <ul className="safety-list">
-                            <li><strong>Never share</strong> your password, financial info, or personal ID numbers.</li>
-                            <li><strong>Meet in public</strong> — choose well-lit, busy spots on campus for first meetings.</li>
-                            <li><strong>Tell a friend</strong> where you're going when meeting someone new.</li>
-                            <li><strong>Trust your instincts</strong> — if something feels off, unmatch and report.</li>
-                            <li><strong>Report suspicious behavior</strong> — we auto-suspend accounts with multiple reports.</li>
-                            <li><strong>Don't rush</strong> — take your time getting to know someone before meeting up.</li>
-                        </ul>
+                    <div className="settings-section-header">
+                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>shield</span>
+                        <div>
+                            <h3>Privacy & safety</h3>
+                            <p className="settings-section-desc">Manage your campus safety</p>
+                        </div>
+                    </div>
+
+                    <div className="settings-item" onClick={() => setShowSafety(!showSafety)}>
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined">verified_user</span>
+                            <div>
+                                <span className="settings-item-title">Safety Guidelines</span>
+                                <span className="settings-item-sub">Tips for staying safe on campus</span>
+                            </div>
+                        </div>
+                        <span className="material-symbols-outlined settings-chevron">{showSafety ? 'expand_less' : 'chevron_right'}</span>
+                    </div>
+                    {showSafety && (
+                        <div className="safety-tips-card" style={{ margin: '0 0 8px 0' }}>
+                            <ul className="safety-list">
+                                <li>🔒 <strong>Never share</strong> your password, financial info, or personal ID numbers.</li>
+                                <li>📍 <strong>Meet in public</strong> — choose well-lit, busy spots on campus.</li>
+                                <li>👥 <strong>Tell a friend</strong> where you're going when meeting someone new.</li>
+                                <li>🚩 <strong>Trust your instincts</strong> — if something feels off, unmatch and report.</li>
+                                <li>⚠️ <strong>Report suspicious behavior</strong> — we auto-suspend after 3+ reports.</li>
+                                <li>⏳ <strong>Don't rush</strong> — take your time getting to know them first.</li>
+                            </ul>
+                        </div>
+                    )}
+
+                    <div className="settings-item" onClick={() => navigate('/connections')}>
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined">block</span>
+                            <div>
+                                <span className="settings-item-title">Blocked Profiles</span>
+                                <span className="settings-item-sub">Manage profiles you've blocked</span>
+                            </div>
+                        </div>
+                        <span className="material-symbols-outlined settings-chevron">chevron_right</span>
                     </div>
                 </div>
 
                 {/* Report History */}
                 {reports.length > 0 && (
                     <div className="settings-section">
-                        <h3 className="settings-section-title" style={{ color: 'var(--danger)' }}>
-                            <span className="material-symbols-outlined">warning</span> Reports Against You
-                        </h3>
-                        <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 10 }}>
-                            If you receive 3+ reports from different users, your account will be auto-suspended.
+                        <div className="settings-section-header" style={{ color: 'var(--danger)' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--danger)' }}>warning</span>
+                            <div>
+                                <h3 style={{ color: 'var(--danger)' }}>Community guidelines</h3>
+                                <p className="settings-section-desc">You have {reports.length} report{reports.length > 1 ? 's' : ''} against your account</p>
+                            </div>
+                        </div>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 10, padding: '0 4px' }}>
+                            3+ reports from different users will result in automatic suspension.
                         </p>
                         {reports.map((r, i) => (
                             <div key={i} className="report-item">
@@ -159,42 +222,123 @@ export default function Settings() {
                     </div>
                 )}
 
-                {/* App Info */}
+                {/* How to use NITKnot */}
                 <div className="settings-section">
-                    <h3 className="settings-section-title">
-                        <span className="material-symbols-outlined">info</span> About
-                    </h3>
-                    <div className="about-card">
-                        <div className="about-logo">NITKnot 💕</div>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                            The dating app made exclusively for NITK Surathkal students.
-                        </p>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginTop: 4 }}>
-                            Version 2.0 • Made with ❤️ for NITK
-                        </p>
+                    <div className="settings-section-header">
+                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>help</span>
+                        <div>
+                            <h3>How to use NITKnot</h3>
+                            <p className="settings-section-desc">Get the most out of the app</p>
+                        </div>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined">swipe</span>
+                            <div>
+                                <span className="settings-item-title">Swipe right to like</span>
+                                <span className="settings-item-sub">Left to pass, right to like someone</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="settings-item">
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined">favorite</span>
+                            <div>
+                                <span className="settings-item-title">Mutual likes = Match!</span>
+                                <span className="settings-item-sub">Both swipe right? You can chat now</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="settings-item">
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined">touch_app</span>
+                            <div>
+                                <span className="settings-item-title">Double-tap to react</span>
+                                <span className="settings-item-sub">Double-tap messages to send a ❤️</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="settings-item">
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined">timer</span>
+                            <div>
+                                <span className="settings-item-title">48h match timer</span>
+                                <span className="settings-item-sub">Send a message within 48h or the match expires</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Logout */}
+                {/* About NITKnot */}
                 <div className="settings-section">
+                    <div className="settings-section-header">
+                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>info</span>
+                        <div>
+                            <h3>About</h3>
+                            <p className="settings-section-desc">App info and credits</p>
+                        </div>
+                    </div>
+                    <div className="about-card">
+                        <div className="about-logo">NITKnot</div>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                            The dating app made exclusively for NITK Surathkal students.
+                        </p>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginTop: 6 }}>
+                            Version 2.0 • Made with ❤️ for NITK
+                        </p>
+                        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 12 }}>
+                            <span className="about-badge">🎓 Campus Only</span>
+                            <span className="about-badge">🔒 Secure</span>
+                            <span className="about-badge">💕 Free Forever</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Login section — Instagram-style "Log in" section */}
+                <div className="settings-section">
+                    <div className="settings-section-header">
+                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>login</span>
+                        <div>
+                            <h3>Logins</h3>
+                            <p className="settings-section-desc">Signed in as {user?.email || 'your account'}</p>
+                        </div>
+                    </div>
                     <button className="settings-logout-btn" onClick={handleLogout}>
                         <span className="material-symbols-outlined">logout</span>
-                        Log Out
+                        Log out
                     </button>
                 </div>
 
                 {/* Danger Zone */}
                 <div className="settings-section danger-zone">
-                    <h3 className="settings-section-title" style={{ color: 'var(--danger)' }}>
-                        <span className="material-symbols-outlined">dangerous</span> Danger Zone
-                    </h3>
-                    <button className="btn-secondary" onClick={deactivateAccount} style={{ marginBottom: 10, width: '100%' }}>
-                        <span className="material-symbols-outlined">pause_circle</span> Deactivate Account
-                    </button>
-                    <button className="btn-ghost" onClick={deleteAccount}
-                        style={{ color: 'var(--danger)', borderColor: 'rgba(239,68,68,0.4)', width: '100%' }}>
-                        <span className="material-symbols-outlined">delete_forever</span> Delete Account Permanently
-                    </button>
+                    <div className="settings-section-header">
+                        <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--danger)' }}>dangerous</span>
+                        <div>
+                            <h3 style={{ color: 'var(--danger)' }}>Danger zone</h3>
+                            <p className="settings-section-desc">These actions are irreversible</p>
+                        </div>
+                    </div>
+                    <div className="settings-item" onClick={deactivateAccount}>
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined" style={{ color: 'var(--warning, #f59e0b)' }}>pause_circle</span>
+                            <div>
+                                <span className="settings-item-title">Deactivate Account</span>
+                                <span className="settings-item-sub">Temporarily hide — reactivate by logging in again</span>
+                            </div>
+                        </div>
+                        <span className="material-symbols-outlined settings-chevron">chevron_right</span>
+                    </div>
+                    <div className="settings-item" onClick={deleteAccount}>
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined" style={{ color: 'var(--danger)' }}>delete_forever</span>
+                            <div>
+                                <span className="settings-item-title" style={{ color: 'var(--danger)' }}>Delete Account</span>
+                                <span className="settings-item-sub">Permanently remove all your data</span>
+                            </div>
+                        </div>
+                        <span className="material-symbols-outlined settings-chevron" style={{ color: 'var(--danger)' }}>chevron_right</span>
+                    </div>
                 </div>
             </div>
         </div>

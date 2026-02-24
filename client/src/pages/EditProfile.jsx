@@ -29,17 +29,18 @@ export default function EditProfile() {
     const [newPromptQ, setNewPromptQ] = useState('');
     const [newPromptA, setNewPromptA] = useState('');
 
-    useEffect(() => {
-        if (!isAuthenticated) navigate('/', { replace: true });
-        loadPrompts();
-    }, [isAuthenticated]);
-
-    const loadPrompts = async () => {
+    async function loadPrompts() {
         try {
             const data = await apiFetch('/api/profile/prompts');
             setPrompts(data.prompts || []);
         } catch { /* ignore */ }
-    };
+    }
+
+    useEffect(() => {
+        if (!isAuthenticated) navigate('/', { replace: true });
+        loadPrompts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated]);
 
     const toggleInterest = (i) => {
         if (interests.includes(i)) {

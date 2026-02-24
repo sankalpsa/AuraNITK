@@ -28,7 +28,7 @@ export default function Layout() {
                 const data = await apiFetch('/api/matches');
                 const total = (data.matches || []).reduce((s, m) => s + (m.unread_count || 0), 0);
                 setUnreadCount(total);
-            } catch { }
+            } catch { /* ignore */ }
         };
         updateBadge();
         const interval = setInterval(updateBadge, 15000);
