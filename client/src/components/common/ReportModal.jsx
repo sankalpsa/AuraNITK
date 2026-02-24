@@ -1,21 +1,19 @@
 import { useState } from 'react';
-import { defaultAvatar } from '../../utils/helpers';
 import { REPORT_REASONS } from '../../constants';
 import { apiFetch } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 
 export default function ReportModal({ userId, userName, onClose }) {
     const { showToast } = useToast();
-    const [details, setDetails] = useState('');
-    const [selectedReason, setSelectedReason] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
     const handleSubmit = async (reason) => {
+        if (submitting) return;
         setSubmitting(true);
         try {
             await apiFetch('/api/report', {
                 method: 'POST',
-                body: JSON.stringify({ reported_id: userId, reason, details }),
+                body: JSON.stringify({ reported_id: userId, reason }),
             });
             showToast('Report submitted. Thank you! 🛡️', 'success');
             onClose();
@@ -26,25 +24,36 @@ export default function ReportModal({ userId, userName, onClose }) {
     };
 
     return (
-        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-            <div className="report-modal">
-                <h3 style={{ marginBottom: 4 }}>Report {userName}</h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 16 }}>
-                    Select a reason:
-                </p>
-                {REPORT_REASONS.map(r => (
-                    <button
-                        key={r}
-                        className={`report-option ${selectedReason === r ? 'active' : ''}`}
-                        onClick={() => !submitting && handleSubmit(r)}
-                        disabled={submitting}
-                    >
-                        {r}
+        <div className="ig-modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+            <div className="ig-modal">
+                {/* Header */}
+                <div className="ig-modal-header">
+                    <span className="ig-modal-header-spacer" />
+                    <h3 className="ig-modal-title">Report</h3>
+                    <button className="ig-modal-close" onClick={onClose}>
+                        <span className="material-symbols-outlined">close</span>
                     </button>
-                ))}
-                <button className="btn-ghost" style={{ marginTop: 8 }} onClick={onClose}>
-                    Cancel
-                </button>
+                </div>
+
+                {/* Subtitle */}
+                <div className="ig-modal-subtitle">
+                    Why are you reporting {userName}?
+                </div>
+
+                {/* Options list */}
+                <div className="ig-modal-list">
+                    {REPORT_REASONS.map((reason, i) => (
+                        <button
+                            key={reason}
+                            className="ig-modal-item"
+                            onClick={() => handleSubmit(reason)}
+                            disabled={submitting}
+                        >
+                            <span>{reason}</span>
+                            <span className="material-symbols-outlined ig-modal-chevron">chevron_right</span>
+                        </button>
+                    ))}
+                </div>
             </div>
         </div>
     );

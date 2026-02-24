@@ -159,7 +159,7 @@ export default function Profile() {
             <div className="page-header">
                 <h1 className="font-serif">Profile</h1>
                 <button className="btn-icon" style={{ position: 'absolute', right: 16, top: 16 }}
-                    onClick={() => navigate('/editProfile')}>
+                    onClick={() => navigate('/profile/edit')}>
                     <span className="material-symbols-outlined">edit</span>
                 </button>
             </div>

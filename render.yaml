@@ -9,7 +9,7 @@ services:
     name: nitknot
     plan: free
     runtime: node
-    buildCommand: npm install
+    buildCommand: npm install && cd client && npm install --include=dev && npm run build && cd ..
     startCommand: node server.js
     envVars:
       - key: NODE_ENV

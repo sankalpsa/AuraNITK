@@ -506,6 +506,136 @@ select.input-field {
   border-color: var(--info);
 }
 
+/* ---------- Instagram-style Modal ---------- */
+.ig-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  animation: igFadeIn 0.2s ease;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+@keyframes igFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes igSlideUp {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.ig-modal {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 400px;
+  overflow: hidden;
+  animation: igSlideUp 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-light);
+}
+
+.ig-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ig-modal-header-spacer {
+  width: 32px;
+}
+
+.ig-modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  flex: 1;
+}
+
+.ig-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+
+.ig-modal-close:hover {
+  background: var(--bg-hover);
+}
+
+.ig-modal-close .material-symbols-outlined {
+  font-size: 22px;
+}
+
+.ig-modal-subtitle {
+  padding: 16px 20px 8px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.ig-modal-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.ig-modal-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.92rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: left;
+  width: 100%;
+}
+
+.ig-modal-item:hover {
+  background: var(--bg-hover);
+}
+
+.ig-modal-item:active {
+  background: var(--bg-elevated);
+}
+
+.ig-modal-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ig-modal-chevron {
+  font-size: 18px !important;
+  color: var(--text-muted);
+  transition: transform 0.15s;
+}
+
+.ig-modal-item:hover .ig-modal-chevron {
+  transform: translateX(2px);
+  color: var(--text-secondary);
+}
+
 /* ---------- Bottom Navigation ---------- */
 .bottom-nav {
   position: fixed;
