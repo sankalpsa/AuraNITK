@@ -215,8 +215,11 @@ app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static from public/ directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve React build if available, otherwise legacy public/
+const reactBuildPath = path.join(__dirname, 'client', 'dist');
+const legacyPublicPath = path.join(__dirname, 'public');
+const spaRoot = fs.existsSync(reactBuildPath) ? reactBuildPath : legacyPublicPath;
+app.use(express.static(spaRoot));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use((req, res, next) => {
@@ -804,7 +807,7 @@ app.post('/api/messages/:matchId', authenticate,
                             transformation: [{ width: 1200, quality: 'auto' }]
                         });
                         imageUrl = result.secure_url;
-                        fs.unlink(imageFile.path, () => {});
+                        fs.unlink(imageFile.path, () => { });
                     } catch { imageUrl = `/uploads/${imageFile.filename}`; }
                 } else {
                     imageUrl = `/uploads/${imageFile.filename}`;
@@ -819,7 +822,7 @@ app.post('/api/messages/:matchId', authenticate,
                             format: 'webm'
                         });
                         voiceUrl = result.secure_url;
-                        fs.unlink(audioFile.path, () => {});
+                        fs.unlink(audioFile.path, () => { });
                     } catch (err) {
                         console.error('Cloudinary audio upload failed:', err);
                         voiceUrl = `/uploads/${audioFile.filename}`;
@@ -1005,7 +1008,7 @@ app.get('/api/users/:id/online', authenticate, (req, res) => {
 // ========================================
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+        res.sendFile(path.join(spaRoot, 'index.html'));
     } else {
         res.status(404).json({ error: 'Not found' });
     }
