@@ -521,13 +521,25 @@ select.input-field {
 }
 
 @keyframes igFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes igSlideUp {
-  from { opacity: 0; transform: scale(0.95) translateY(10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .ig-modal {
@@ -2456,4 +2468,451 @@ select.input-field {
   .hero-logo {
     font-size: 3rem;
   }
+}
+
+/* ---------- Message Reactions ---------- */
+.msg-reactions {
+  display: flex;
+  gap: 2px;
+  margin-top: -4px;
+  padding: 0 4px;
+}
+
+.msg-reactions.sent {
+  justify-content: flex-end;
+}
+
+.msg-reaction-badge {
+  font-size: 0.85rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1px 6px;
+  cursor: default;
+  animation: reactionPop 0.3s ease;
+}
+
+@keyframes reactionPop {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.3);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ---------- Discover Filters ---------- */
+.discover-filters {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 0 0 12px 0;
+  animation: slideDown 0.25s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.filter-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  min-width: 55px;
+}
+
+.filter-select {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 0.9rem;
+  appearance: auto;
+}
+
+/* ---------- Profile Prompts ---------- */
+.prompt-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.prompt-question {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.prompt-answer {
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.prompt-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.prompt-delete:hover {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ---------- Spotify Card ---------- */
+.spotify-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-top: 6px;
+}
+
+/* ========================================
+   Settings Page
+   ======================================== */
+.settings-page {
+  padding-bottom: 100px;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-header h2 {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.settings-body {
+  padding: 12px 16px;
+}
+
+.settings-section {
+  margin-bottom: 20px;
+}
+
+.settings-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.settings-section-title .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-item:hover {
+  background: var(--bg-card);
+  transform: translateX(2px);
+}
+
+.settings-item:active {
+  transform: scale(0.98);
+}
+
+.settings-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.settings-item-left .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--text-secondary);
+}
+
+.settings-chevron {
+  font-size: 18px !important;
+  color: var(--text-muted) !important;
+}
+
+.settings-expand {
+  padding: 12px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 0 0 14px 14px;
+  margin-top: -7px;
+  margin-bottom: 6px;
+  animation: slideDown 0.25s ease;
+}
+
+/* Safety Tips */
+.safety-tips-card {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(59, 130, 246, 0.08));
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+
+.safety-tips-card h4 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.safety-list {
+  list-style: none;
+  padding: 0;
+}
+
+.safety-list li {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  line-height: 1.5;
+}
+
+.safety-list li:last-child {
+  border-bottom: none;
+}
+
+/* Report History */
+.report-item {
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.report-reason {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.report-details {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.report-date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 4px;
+}
+
+/* About Card */
+.about-card {
+  text-align: center;
+  padding: 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.about-logo {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+
+/* Logout Button */
+.settings-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  background: none;
+  border: 2px solid var(--danger);
+  color: var(--danger);
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-logout-btn:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* Danger Zone */
+.danger-zone {
+  border-top: 1px solid rgba(239, 68, 68, 0.2);
+  padding-top: 16px;
+}
+
+/* ========================================
+   Message Action Bottom Sheet
+   ======================================== */
+.msg-action-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border-radius: 20px 20px 0 0;
+  padding: 16px 16px 28px;
+  z-index: 1100;
+  animation: sheetSlideUp 0.3s ease;
+  border-top: 1px solid var(--border);
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+@keyframes sheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.msg-action-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.msg-action-reactions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+
+.reaction-pick-btn {
+  font-size: 1.4rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.reaction-pick-btn:hover {
+  transform: scale(1.2);
+  background: var(--bg-card);
+}
+
+.reaction-pick-btn:active {
+  transform: scale(0.9);
+}
+
+.msg-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.msg-action-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.15s;
+}
+
+.msg-action-item:hover {
+  background: var(--bg-elevated);
+}
+
+.msg-action-item .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--text-secondary);
+}
+
+.msg-action-item.danger {
+  color: var(--danger);
+}
+
+.msg-action-item.danger .material-symbols-outlined {
+  color: var(--danger);
 }

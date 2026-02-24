@@ -4,6 +4,7 @@ import { apiFetch } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { defaultAvatar, escapeHtml } from '../utils/helpers';
+import { BRANCHES, YEARS } from '../constants';
 import MatchOverlay from '../components/common/MatchOverlay';
 
 export default function Discover() {
@@ -16,6 +17,9 @@ export default function Discover() {
     const [matchData, setMatchData] = useState(null);
     const [swipePending, setSwipePending] = useState(false);
     const [undoProfile, setUndoProfile] = useState(null);
+    const [showFilters, setShowFilters] = useState(false);
+    const [filterBranch, setFilterBranch] = useState('all');
+    const [filterYear, setFilterYear] = useState('all');
     const cardRef = useRef(null);
     const dragState = useRef({ isDragging: false, startX: 0, startY: 0, currentX: 0, startTime: 0 });
 
@@ -27,7 +31,12 @@ export default function Discover() {
     const loadProfiles = async () => {
         setLoading(true);
         try {
-            const data = await apiFetch('/api/discover');
+            let url = '/api/discover';
+            const params = [];
+            if (filterBranch !== 'all') params.push(`branch=${encodeURIComponent(filterBranch)}`);
+            if (filterYear !== 'all') params.push(`year=${encodeURIComponent(filterYear)}`);
+            if (params.length > 0) url += '?' + params.join('&');
+            const data = await apiFetch(url);
             setCards(data.profiles || []);
         } catch (e) {
             showToast(e.message, 'error');
@@ -180,7 +189,35 @@ export default function Discover() {
 
     return (
         <div className="discover-page view-animate">
-            <div className="page-header"><h1 className="font-serif">Discover</h1></div>
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h1 className="font-serif">Discover</h1>
+                <button className="btn-icon" onClick={() => setShowFilters(!showFilters)}
+                    style={{ background: (filterBranch !== 'all' || filterYear !== 'all') ? 'var(--primary)' : 'var(--bg-elevated)', border: 'none', width: 38, height: 38, borderRadius: '50%' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 20, color: (filterBranch !== 'all' || filterYear !== 'all') ? '#fff' : 'var(--text-secondary)' }}>tune</span>
+                </button>
+            </div>
+
+            {showFilters && (
+                <div className="discover-filters">
+                    <div className="filter-row">
+                        <label className="filter-label">Branch</label>
+                        <select className="filter-select" value={filterBranch} onChange={(e) => { setFilterBranch(e.target.value); }}>
+                            <option value="all">All Branches</option>
+                            {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
+                        </select>
+                    </div>
+                    <div className="filter-row">
+                        <label className="filter-label">Year</label>
+                        <select className="filter-select" value={filterYear} onChange={(e) => { setFilterYear(e.target.value); }}>
+                            <option value="all">All Years</option>
+                            {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                        </select>
+                    </div>
+                    <button className="btn-primary" style={{ width: '100%', marginTop: 8, padding: '10px 0' }} onClick={() => { setShowFilters(false); loadProfiles(); }}>
+                        <span className="material-symbols-outlined">search</span> Apply Filters
+                    </button>
+                </div>
+            )}
 
             <div className="card-stack" id="card-stack">
                 {cards.length === 0 ? (

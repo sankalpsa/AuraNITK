@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { INTEREST_OPTIONS, BRANCHES, YEARS } from '../constants';
+import { INTEREST_OPTIONS, BRANCHES, YEARS, PROMPT_QUESTIONS } from '../constants';
 
 export default function EditProfile() {
     const navigate = useNavigate();
-    const { user, updateUser, logout, isAuthenticated } = useAuth();
+    const { user, updateUser, isAuthenticated } = useAuth();
     const { showToast } = useToast();
     const [loading, setLoading] = useState(false);
 
@@ -21,9 +21,25 @@ export default function EditProfile() {
     const [greenFlags, setGreenFlags] = useState((user?.green_flags || []).join(', '));
     const [redFlags, setRedFlags] = useState((user?.red_flags || []).join(', '));
 
+    // New feature states
+    const [isSnoozed, setIsSnoozed] = useState(user?.is_snoozed === 1);
+    const [spotifyArtist, setSpotifyArtist] = useState(user?.spotify_artist || '');
+    const [spotifySong, setSpotifySong] = useState(user?.spotify_song || '');
+    const [prompts, setPrompts] = useState([]);
+    const [newPromptQ, setNewPromptQ] = useState('');
+    const [newPromptA, setNewPromptA] = useState('');
+
     useEffect(() => {
         if (!isAuthenticated) navigate('/', { replace: true });
+        loadPrompts();
     }, [isAuthenticated]);
+
+    const loadPrompts = async () => {
+        try {
+            const data = await apiFetch('/api/profile/prompts');
+            setPrompts(data.prompts || []);
+        } catch { /* ignore */ }
+    };
 
     const toggleInterest = (i) => {
         if (interests.includes(i)) {
@@ -51,6 +67,15 @@ export default function EditProfile() {
                 }),
             });
             updateUser(data.user);
+
+            // Save Spotify info
+            if (spotifyArtist || spotifySong) {
+                await apiFetch('/api/profile/spotify', {
+                    method: 'PUT',
+                    body: JSON.stringify({ artist: spotifyArtist.trim(), song: spotifySong.trim() }),
+                });
+            }
+
             showToast('Profile updated! ✨', 'success');
             navigate('/profile');
         } catch (e) {
@@ -59,24 +84,35 @@ export default function EditProfile() {
         setLoading(false);
     };
 
-    const deactivateAccount = async () => {
-        if (!window.confirm('Deactivate your account? You can reactivate by logging in again.')) return;
+    const toggleSnooze = async () => {
         try {
-            await apiFetch('/api/account/deactivate', { method: 'POST' });
-            logout();
-            showToast('Account deactivated. See you soon! 👋', 'success');
-            navigate('/', { replace: true });
+            const data = await apiFetch('/api/profile/snooze', {
+                method: 'POST',
+                body: JSON.stringify({ enabled: !isSnoozed, hours: 24 }),
+            });
+            setIsSnoozed(!isSnoozed);
+            showToast(data.message, 'success');
         } catch (e) { showToast(e.message, 'error'); }
     };
 
-    const deleteAccount = async () => {
-        const conf = window.prompt('Type "DELETE" to permanently delete your account. This cannot be undone.');
-        if (conf !== 'DELETE') return showToast('Deletion cancelled', 'error');
+    const addPrompt = async () => {
+        if (!newPromptQ || !newPromptA.trim()) return showToast('Choose a question and write your answer', 'error');
         try {
-            await apiFetch('/api/account', { method: 'DELETE' });
-            logout();
-            showToast('Account deleted. Goodbye! 💔', 'success');
-            navigate('/', { replace: true });
+            const data = await apiFetch('/api/profile/prompts', {
+                method: 'POST',
+                body: JSON.stringify({ question: newPromptQ, answer: newPromptA.trim() }),
+            });
+            setPrompts(data.prompts || []);
+            setNewPromptQ('');
+            setNewPromptA('');
+            showToast('Prompt added! ✨', 'success');
+        } catch (e) { showToast(e.message, 'error'); }
+    };
+
+    const deletePrompt = async (id) => {
+        try {
+            const data = await apiFetch(`/api/profile/prompts/${id}`, { method: 'DELETE' });
+            setPrompts(data.prompts || []);
         } catch (e) { showToast(e.message, 'error'); }
     };
 
@@ -135,16 +171,77 @@ export default function EditProfile() {
                     <div className="input-group"><label>Red Flags (comma separated)</label>
                         <input className="input-field" value={redFlags} onChange={e => setRedFlags(e.target.value)} />
                     </div>
+
+                    {/* Spotify Section */}
+                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 6 }}>
+                        <h3 style={{ fontWeight: 700, marginBottom: 10 }}>🎵 Spotify Anthem</h3>
+                        <div className="input-group"><label>Favorite Artist</label>
+                            <input className="input-field" value={spotifyArtist} onChange={e => setSpotifyArtist(e.target.value)}
+                                placeholder="e.g. Arijit Singh, Taylor Swift" />
+                        </div>
+                        <div className="input-group" style={{ marginTop: 8 }}><label>Favorite Song</label>
+                            <input className="input-field" value={spotifySong} onChange={e => setSpotifySong(e.target.value)}
+                                placeholder="e.g. Tum Hi Ho, Love Story" />
+                        </div>
+                    </div>
+
                     <button className="btn-primary" type="submit" disabled={loading}>
                         {loading ? <div className="spinner" style={{ width: 18, height: 18 }} /> : <><span className="material-symbols-outlined">save</span>Save Changes</>}
                     </button>
                 </form>
 
+                {/* Profile Prompts */}
                 <div style={{ marginTop: 20, borderTop: '1px solid var(--border)', paddingTop: 20 }}>
-                    <h3 style={{ marginBottom: 12, fontWeight: 700 }}>Danger Zone</h3>
-                    <button className="btn-secondary" onClick={deactivateAccount} style={{ marginBottom: 10 }}>Deactivate Account</button>
-                    <button className="btn-ghost" onClick={deleteAccount} style={{ color: 'var(--danger)', borderColor: 'rgba(239,68,68,0.4)' }}>
-                        Delete Account Permanently
+                    <h3 style={{ fontWeight: 700, marginBottom: 12 }}>💬 Profile Prompts</h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>Add up to 3 conversation starters that appear on your profile.</p>
+
+                    {prompts.map(p => (
+                        <div key={p.id} className="prompt-card">
+                            <div className="prompt-question">{p.question}</div>
+                            <div className="prompt-answer">{p.answer}</div>
+                            <button className="prompt-delete" onClick={() => deletePrompt(p.id)}>
+                                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
+                            </button>
+                        </div>
+                    ))}
+
+                    {prompts.length < 3 && (
+                        <div style={{ marginTop: 12 }}>
+                            <select className="input-field" value={newPromptQ} onChange={e => setNewPromptQ(e.target.value)} style={{ marginBottom: 8 }}>
+                                <option value="">Choose a question...</option>
+                                {PROMPT_QUESTIONS.filter(q => !prompts.some(p => p.question === q)).map(q => (
+                                    <option key={q} value={q}>{q}</option>
+                                ))}
+                            </select>
+                            {newPromptQ && (
+                                <>
+                                    <textarea className="textarea-field" value={newPromptA} onChange={e => setNewPromptA(e.target.value)}
+                                        placeholder="Write your answer..." maxLength={200} style={{ marginBottom: 6 }} />
+                                    <button className="btn-secondary" onClick={addPrompt} style={{ width: '100%' }}>
+                                        <span className="material-symbols-outlined">add</span> Add Prompt
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Snooze Mode */}
+                <div style={{ marginTop: 20, borderTop: '1px solid var(--border)', paddingTop: 20 }}>
+                    <h3 style={{ fontWeight: 700, marginBottom: 12 }}>😴 Snooze Mode</h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
+                        Hide your profile from the swipe deck without deactivating your account.
+                    </p>
+                    <button className={isSnoozed ? "btn-primary" : "btn-secondary"} onClick={toggleSnooze} style={{ width: '100%' }}>
+                        <span className="material-symbols-outlined">{isSnoozed ? 'visibility' : 'visibility_off'}</span>
+                        {isSnoozed ? 'Turn Off Snooze (Be Visible)' : 'Snooze for 24 Hours'}
+                    </button>
+                </div>
+
+                {/* Link to Settings */}
+                <div style={{ marginTop: 20, paddingTop: 12 }}>
+                    <button className="btn-secondary" onClick={() => navigate('/settings')} style={{ width: '100%' }}>
+                        <span className="material-symbols-outlined">settings</span> Account Settings, Privacy & Safety
                     </button>
                 </div>
             </div>

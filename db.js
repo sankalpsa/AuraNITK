@@ -345,12 +345,33 @@ async function initTables() {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )`,
+            `CREATE TABLE IF NOT EXISTS message_reactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                message_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                reaction TEXT NOT NULL DEFAULT '❤️',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(message_id, user_id)
+            )`,
+            `CREATE TABLE IF NOT EXISTS profile_prompts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                question TEXT NOT NULL,
+                answer TEXT NOT NULL,
+                position INTEGER DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )`,
             `CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id)`,
             `CREATE INDEX IF NOT EXISTS idx_swipes_target ON swipes(target_id)`,
             `CREATE INDEX IF NOT EXISTS idx_matches_user1 ON matches(user1_id)`,
             `CREATE INDEX IF NOT EXISTS idx_matches_user2 ON matches(user2_id)`,
             `CREATE INDEX IF NOT EXISTS idx_messages_match ON messages(match_id)`,
-            `CREATE INDEX IF NOT EXISTS idx_user_photos_user ON user_photos(user_id)`
+            `CREATE INDEX IF NOT EXISTS idx_user_photos_user ON user_photos(user_id)`,
+            `CREATE INDEX IF NOT EXISTS idx_message_reactions_msg ON message_reactions(message_id)`,
+            `CREATE INDEX IF NOT EXISTS idx_profile_prompts_user ON profile_prompts(user_id)`
         ];
         for (const stmt of createStatements) {
             try { sqliteExec(stmt); } catch (e) { /* table/index may already exist */ }
@@ -367,12 +388,16 @@ async function initTables() {
         'ALTER TABLE messages ADD COLUMN image_url TEXT',
         'ALTER TABLE messages ADD COLUMN voice_url TEXT',
         "ALTER TABLE users ADD COLUMN pickup_line TEXT DEFAULT ''",
+        // New feature migrations
+        'ALTER TABLE users ADD COLUMN is_snoozed INTEGER DEFAULT 0',
+        'ALTER TABLE users ADD COLUMN snooze_until TEXT',
+        "ALTER TABLE users ADD COLUMN spotify_artist TEXT DEFAULT ''",
+        "ALTER TABLE users ADD COLUMN spotify_song TEXT DEFAULT ''",
     ];
 
     for (const migration of migrations) {
         try {
             if (isPostgres) {
-                // PostgreSQL supports IF NOT EXISTS for columns
                 const colName = migration.match(/ADD COLUMN (\w+)/)?.[1];
                 const tableName = migration.match(/ALTER TABLE (\w+)/)?.[1];
                 if (colName && tableName) {
@@ -393,4 +418,5 @@ async function initTables() {
 }
 
 module.exports = { query, queryOne, run, initTables, isPostgres };
+
 

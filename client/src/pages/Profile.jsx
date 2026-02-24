@@ -156,12 +156,18 @@ export default function Profile() {
 
     return (
         <div className="profile-page view-animate">
-            <div className="page-header">
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h1 className="font-serif">Profile</h1>
-                <button className="btn-icon" style={{ position: 'absolute', right: 16, top: 16 }}
-                    onClick={() => navigate('/profile/edit')}>
-                    <span className="material-symbols-outlined">edit</span>
-                </button>
+                <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn-icon" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', width: 38, height: 38, borderRadius: '50%' }}
+                        onClick={() => navigate('/settings')} title="Settings">
+                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>settings</span>
+                    </button>
+                    <button className="btn-icon" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', width: 38, height: 38, borderRadius: '50%' }}
+                        onClick={() => navigate('/profile/edit')} title="Edit Profile">
+                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>edit</span>
+                    </button>
+                </div>
             </div>
 
             {/* Main Photo Carousel */}

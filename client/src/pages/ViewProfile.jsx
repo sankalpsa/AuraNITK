@@ -108,6 +108,32 @@ export default function ViewProfile() {
                     )}
                 </div>
 
+                {/* Spotify Anthem */}
+                {(profile.spotify_artist || profile.spotify_song) && (
+                    <div className="vp-section">
+                        <h3>🎵 Anthem</h3>
+                        <div className="spotify-card">
+                            <span className="material-symbols-outlined" style={{ color: '#1DB954', fontSize: 28 }}>music_note</span>
+                            <div>
+                                {profile.spotify_song && <div style={{ fontWeight: 600 }}>{profile.spotify_song}</div>}
+                                {profile.spotify_artist && <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{profile.spotify_artist}</div>}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Profile Prompts */}
+                {(profile.prompts || []).length > 0 && (
+                    <div className="vp-section">
+                        {profile.prompts.map(p => (
+                            <div key={p.id} className="prompt-card" style={{ marginBottom: 12 }}>
+                                <div className="prompt-question">{p.question}</div>
+                                <div className="prompt-answer">{p.answer}</div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
                 {(profile.interests || []).length > 0 && (
                     <div className="vp-section">
                         <h3>Interests</h3>

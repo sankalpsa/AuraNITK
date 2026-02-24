@@ -11,7 +11,7 @@ const NAV_ITEMS = [
     { view: 'profile', icon: 'person', label: 'Profile', path: '/profile' },
 ];
 
-const MAIN_PATHS = ['/discover', '/connections', '/chat', '/likes', '/profile'];
+const MAIN_PATHS = ['/discover', '/connections', '/chat', '/likes', '/profile', '/settings'];
 
 export default function Layout() {
     const location = useLocation();

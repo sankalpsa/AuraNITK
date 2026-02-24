@@ -4,7 +4,7 @@ import { apiFetch, apiUpload, markAsRead } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { defaultAvatar, formatTime } from '../utils/helpers';
-import { COMMON_EMOJIS } from '../constants';
+import { COMMON_EMOJIS, REACTION_EMOJIS } from '../constants';
 import ImageViewer from '../components/common/ImageViewer';
 import ReportModal from '../components/common/ReportModal';
 
@@ -32,12 +32,15 @@ export default function ChatConvo() {
     const [showReport, setShowReport] = useState(false);
     const [mediaRecorder, setMediaRecorder] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
+    const [msgAction, setMsgAction] = useState(null); // { id, text, isMine, sender }
     const messagesRef = useRef(null);
     const pollRef = useRef(null);
     const msgIdsRef = useRef(new Set());
     const typingTimeoutRef = useRef(null);
     const audioChunksRef = useRef([]);
     const fileInputRef = useRef(null);
+    const lastTapRef = useRef({});
+    const [reactions, setReactions] = useState({});
 
     useEffect(() => {
         if (!matchId) return navigate('/chat', { replace: true });
@@ -78,10 +81,18 @@ export default function ChatConvo() {
         socket.on('typing_start', handleTypingStart);
         socket.on('typing_stop', handleTypingStop);
 
+        const handleReaction = (data) => {
+            if (data.match_id === matchId) {
+                loadReactionsForMessage(data.message_id);
+            }
+        };
+        socket.on('message_reaction', handleReaction);
+
         return () => {
             socket.off('new_message', handleNewMsg);
             socket.off('typing_start', handleTypingStart);
             socket.off('typing_stop', handleTypingStop);
+            socket.off('message_reaction', handleReaction);
         };
     }, [socket, matchId, chatUserId]);
 
@@ -100,6 +111,23 @@ export default function ChatConvo() {
         } catch (e) {
             if (!silent) showToast(e.message, 'error');
         }
+    };
+
+    const loadReactionsForMessage = async (msgId) => {
+        try {
+            const data = await apiFetch(`/api/messages/${msgId}/reactions`);
+            setReactions(prev => ({ ...prev, [msgId]: data.reactions || [] }));
+        } catch { /* ignore */ }
+    };
+
+    const handleDoubleTap = async (msgId) => {
+        try {
+            await apiFetch(`/api/messages/${msgId}/react`, {
+                method: 'POST',
+                body: JSON.stringify({ reaction: '❤️' })
+            });
+            loadReactionsForMessage(msgId);
+        } catch { /* ignore */ }
     };
 
     const handleTyping = () => {
@@ -230,18 +258,22 @@ export default function ChatConvo() {
                     </div>
                 )}
                 <div className={`msg-bubble ${m.image_url && !m.text && !m.voice_url ? 'msg-bubble-image-only' : m.voice_url && !m.text && !m.image_url ? `${isMine ? 'msg-sent' : 'msg-received'} msg-bubble-audio` : isMine ? 'msg-sent' : 'msg-received'}`}
-                    onClick={() => {
-                        // Show msg options
-                        const action = window.prompt(
-                            `Message options:\n1. Reply\n2. Copy\n${isMine ? '3. Delete' : '3. Report'}\nEnter 1, 2, or 3:`
-                        );
-                        if (action === '1') setReplyState({ id: m.id, text: m.text, sender: isMine ? 'You' : chatName });
-                        else if (action === '2' && m.text) { navigator.clipboard?.writeText(m.text); showToast('Copied!', 'success'); }
-                        else if (action === '3') {
-                            if (isMine) deleteMsg(m.id);
-                            else setShowReport(true);
+                    onClick={(e) => {
+                        const now = Date.now();
+                        const lastTap = lastTapRef.current[m.id] || 0;
+                        if (now - lastTap < 350) {
+                            handleDoubleTap(m.id);
+                            lastTapRef.current[m.id] = 0;
+                            return;
                         }
+                        lastTapRef.current[m.id] = now;
+                        setTimeout(() => {
+                            if (lastTapRef.current[m.id] !== 0 && Date.now() - lastTapRef.current[m.id] > 300) {
+                                setMsgAction({ id: m.id, text: m.text, isMine, sender: isMine ? 'You' : chatName });
+                            }
+                        }, 400);
                     }}>
+
                     {m.image_url && (
                         <img src={m.image_url} className="msg-image" loading="lazy"
                             onClick={(e) => { e.stopPropagation(); setImageViewer(m.image_url); }}
@@ -254,6 +286,14 @@ export default function ChatConvo() {
                     {formatTime(m.created_at)}{' '}
                     {isMine && <span className="msg-status" style={m.is_read ? { color: '#34b7f1' } : {}}>{m.is_read ? '✓✓' : '✓'}</span>}
                 </div>
+                {/* Message Reactions */}
+                {reactions[m.id] && reactions[m.id].length > 0 && (
+                    <div className={`msg-reactions ${isMine ? 'sent' : ''}`}>
+                        {reactions[m.id].map((r, i) => (
+                            <span key={i} className="msg-reaction-badge" title={r.name}>{r.reaction}</span>
+                        ))}
+                    </div>
+                )}
             </div>
         );
     };
@@ -394,6 +434,63 @@ export default function ChatConvo() {
 
             {imageViewer && <ImageViewer url={imageViewer} onClose={() => setImageViewer(null)} />}
             {showReport && <ReportModal userId={chatUserId} userName={chatName} onClose={() => setShowReport(false)} />}
+
+            {/* Message Action Bottom Sheet */}
+            {msgAction && (
+                <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setMsgAction(null); }}>
+                    <div className="msg-action-sheet">
+                        <div className="msg-action-header">
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                {msgAction.text ? `"${msgAction.text.slice(0, 50)}${msgAction.text.length > 50 ? '...' : ''}"` : 'Media message'}
+                            </span>
+                            <button className="btn-icon" onClick={() => setMsgAction(null)} style={{ width: 28, height: 28, minWidth: 28 }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
+                            </button>
+                        </div>
+                        {/* Quick Reactions */}
+                        <div className="msg-action-reactions">
+                            {REACTION_EMOJIS.map(emoji => (
+                                <button key={emoji} className="reaction-pick-btn"
+                                    onClick={() => { handleDoubleTap(msgAction.id); setMsgAction(null); }}>
+                                    {emoji}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="msg-action-list">
+                            <button className="msg-action-item" onClick={() => {
+                                setReplyState({ id: msgAction.id, text: msgAction.text, sender: msgAction.sender });
+                                setMsgAction(null);
+                            }}>
+                                <span className="material-symbols-outlined">reply</span>Reply
+                            </button>
+                            {msgAction.text && (
+                                <button className="msg-action-item" onClick={() => {
+                                    navigator.clipboard?.writeText(msgAction.text);
+                                    showToast('Copied!', 'success');
+                                    setMsgAction(null);
+                                }}>
+                                    <span className="material-symbols-outlined">content_copy</span>Copy Text
+                                </button>
+                            )}
+                            {msgAction.isMine ? (
+                                <button className="msg-action-item danger" onClick={() => {
+                                    deleteMsg(msgAction.id);
+                                    setMsgAction(null);
+                                }}>
+                                    <span className="material-symbols-outlined">delete</span>Delete Message
+                                </button>
+                            ) : (
+                                <button className="msg-action-item danger" onClick={() => {
+                                    setShowReport(true);
+                                    setMsgAction(null);
+                                }}>
+                                    <span className="material-symbols-outlined">flag</span>Report User
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

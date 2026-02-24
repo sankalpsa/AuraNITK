@@ -339,6 +339,10 @@ async function sanitizeUser(u) {
     try {
         safe.photos = await db.query('SELECT id, photo_url, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [safe.id]);
     } catch { safe.photos = []; }
+    // Attach profile prompts
+    try {
+        safe.prompts = await db.query('SELECT id, question, answer FROM profile_prompts WHERE user_id = ? ORDER BY position ASC', [safe.id]);
+    } catch { safe.prompts = []; }
     return safe;
 }
 
@@ -478,6 +482,38 @@ app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
     }
 });
 
+// Change password (must verify current password first)
+app.post('/api/auth/change-password', authenticate, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Both passwords required' });
+        if (newPassword.length < 4) return res.status(400).json({ error: 'New password must be at least 4 characters' });
+
+        if (!bcrypt.compareSync(currentPassword, req.user.password)) {
+            return res.status(401).json({ error: 'Current password is incorrect' });
+        }
+
+        const hash = bcrypt.hashSync(newPassword, 10);
+        await db.run('UPDATE users SET password = ? WHERE id = ?', [hash, req.user.id]);
+        res.json({ success: true, message: 'Password changed successfully' });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Reports against the current user (so they know why they were reported)
+app.get('/api/reports/me', authenticate, async (req, res) => {
+    try {
+        const reports = await db.query(
+            'SELECT reason, details, created_at FROM reports WHERE reported_id = ? ORDER BY created_at DESC',
+            [req.user.id]
+        );
+        res.json({ reports, count: reports.length });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 app.get('/api/auth/me', authenticate, async (req, res) => {
     res.json({ user: await sanitizeUser(req.user) });
 });
@@ -550,6 +586,18 @@ app.delete('/api/profile/photo/:photoId', authenticate, async (req, res) => {
         const photo = await db.queryOne('SELECT * FROM user_photos WHERE id = ? AND user_id = ?', [photoId, req.user.id]);
         if (!photo) return res.status(404).json({ error: 'Photo not found' });
 
+        // Delete from Cloudinary if applicable
+        if (useCloudinary && photo.photo_url && photo.photo_url.includes('cloudinary')) {
+            try {
+                const publicId = photo.photo_url.split('/').slice(-2).join('/').split('.')[0];
+                await cloudinary.uploader.destroy(publicId);
+            } catch (cloudErr) { console.error('Cloudinary delete error:', cloudErr.message); }
+        } else if (photo.photo_url && photo.photo_url.startsWith('/uploads/')) {
+            // Delete from local disk
+            const filePath = path.join(__dirname, photo.photo_url);
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        }
+
         await db.run('DELETE FROM user_photos WHERE id = ?', [photoId]);
 
         // If deleted photo was primary, promote the next one
@@ -613,22 +661,30 @@ app.get('/api/discover', authenticate, async (req, res) => {
         if (showMe === 'male') genderFilter = "AND u.gender = 'male'";
         else if (showMe === 'female') genderFilter = "AND u.gender = 'female'";
 
-        // Cross-DB compatible random ordering
-        const randomFn = db.isPostgres ? 'RANDOM()' : 'RANDOM()';
+        // Campus filters from query params
+        const { branch, year } = req.query;
+        let campusFilter = '';
+        const extraParams = [];
+        if (branch && branch !== 'all') { campusFilter += ' AND u.branch = ?'; extraParams.push(branch); }
+        if (year && year !== 'all') { campusFilter += ' AND u.year = ?'; extraParams.push(year); }
+
+        const randomFn = 'RANDOM()';
 
         const profiles = await db.query(
             `SELECT u.* FROM users u
              WHERE u.id != ?
                AND u.is_active = 1
+               AND (u.is_snoozed = 0 OR u.is_snoozed IS NULL)
                AND u.id NOT IN (SELECT target_id FROM swipes WHERE user_id = ?)
                AND u.id NOT IN (
                  SELECT CASE WHEN user1_id = ? THEN user2_id ELSE user1_id END
                  FROM matches WHERE user1_id = ? OR user2_id = ?
                )
                ${genderFilter}
+               ${campusFilter}
              ORDER BY ${randomFn}
              LIMIT 20`,
-            [userId, userId, userId, userId, userId]
+            [userId, userId, userId, userId, userId, ...extraParams]
         );
 
         const userInterests = req.user.interests ? JSON.parse(req.user.interests) : [];
@@ -639,6 +695,8 @@ app.get('/api/discover', authenticate, async (req, res) => {
                 ? Math.min(99, Math.round((shared.length / Math.max(userInterests.length, 1)) * 100 + 40))
                 : Math.floor(60 + Math.random() * 30);
             s.shared_interests = shared;
+            // Attach profile prompts
+            try { s.prompts = await db.query('SELECT id, question, answer FROM profile_prompts WHERE user_id = ? ORDER BY position ASC', [s.id]); } catch { s.prompts = []; }
             return s;
         }));
 
@@ -1007,6 +1065,17 @@ app.post('/api/report', authenticate, async (req, res) => {
         if (!reported_id || !reason) return res.status(400).json({ error: 'Missing fields' });
         await db.run('INSERT INTO reports (reporter_id, reported_id, reason, details) VALUES (?, ?, ?, ?)',
             [req.user.id, reported_id, reason, details || '']);
+
+        // Auto-suspend: if 3+ unique reporters, deactivate the user
+        const reportCount = await db.queryOne(
+            'SELECT COUNT(DISTINCT reporter_id) as c FROM reports WHERE reported_id = ?',
+            [reported_id]
+        );
+        if (reportCount && reportCount.c >= 3) {
+            await db.run('UPDATE users SET is_active = 0 WHERE id = ?', [reported_id]);
+            console.log(`⚠️ Auto-suspended user ${reported_id} (${reportCount.c} unique reports)`);
+        }
+
         res.json({ success: true, message: 'Report submitted. We\'ll review it soon.' });
     } catch (e) {
         res.status(500).json({ error: 'Server error' });
@@ -1091,6 +1160,166 @@ app.get('/api/users/:id/online', authenticate, (req, res) => {
 });
 
 // ========================================
+// SNOOZE / GHOST MODE
+// ========================================
+
+app.post('/api/profile/snooze', authenticate, async (req, res) => {
+    try {
+        const { enabled, hours } = req.body;
+        if (enabled) {
+            const until = hours ? new Date(Date.now() + hours * 3600000).toISOString() : null;
+            await db.run('UPDATE users SET is_snoozed = 1, snooze_until = ? WHERE id = ?', [until, req.user.id]);
+            res.json({ success: true, message: `Snooze mode on${hours ? ` for ${hours}h` : ''}. Your profile is hidden.` });
+        } else {
+            await db.run('UPDATE users SET is_snoozed = 0, snooze_until = NULL WHERE id = ?', [req.user.id]);
+            res.json({ success: true, message: 'Welcome back! You are visible again.' });
+        }
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// ========================================
+// MESSAGE REACTIONS (Instagram-style)
+// ========================================
+
+app.post('/api/messages/:messageId/react', authenticate, async (req, res) => {
+    try {
+        const messageId = parseInt(req.params.messageId);
+        const { reaction } = req.body;
+        const emoji = reaction || '❤️';
+
+        // Check if already reacted
+        const existing = await db.queryOne('SELECT id FROM message_reactions WHERE message_id = ? AND user_id = ?', [messageId, req.user.id]);
+        if (existing) {
+            // Toggle off
+            await db.run('DELETE FROM message_reactions WHERE id = ?', [existing.id]);
+            res.json({ success: true, removed: true });
+        } else {
+            await db.run('INSERT INTO message_reactions (message_id, user_id, reaction) VALUES (?, ?, ?)', [messageId, req.user.id, emoji]);
+            // Notify the message sender via socket
+            const msg = await db.queryOne('SELECT sender_id, match_id FROM messages WHERE id = ?', [messageId]);
+            if (msg && msg.sender_id !== req.user.id) {
+                io.to(msg.sender_id.toString()).emit('message_reaction', {
+                    message_id: messageId,
+                    match_id: msg.match_id,
+                    reaction: emoji,
+                    from: req.user.name
+                });
+            }
+            res.json({ success: true, removed: false, reaction: emoji });
+        }
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.get('/api/messages/:messageId/reactions', authenticate, async (req, res) => {
+    try {
+        const reactions = await db.query(
+            'SELECT mr.reaction, mr.user_id, u.name FROM message_reactions mr JOIN users u ON mr.user_id = u.id WHERE mr.message_id = ?',
+            [parseInt(req.params.messageId)]
+        );
+        res.json({ reactions });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// ========================================
+// PROFILE PROMPTS
+// ========================================
+
+app.get('/api/profile/prompts', authenticate, async (req, res) => {
+    try {
+        const prompts = await db.query('SELECT id, question, answer, position FROM profile_prompts WHERE user_id = ? ORDER BY position ASC', [req.user.id]);
+        res.json({ prompts });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/api/profile/prompts', authenticate, async (req, res) => {
+    try {
+        const { question, answer } = req.body;
+        if (!question || !answer) return res.status(400).json({ error: 'Question and answer required' });
+
+        // Max 3 prompts per user
+        const countRow = await db.queryOne('SELECT COUNT(*) as c FROM profile_prompts WHERE user_id = ?', [req.user.id]);
+        if (countRow && countRow.c >= 3) return res.status(400).json({ error: 'Maximum 3 prompts allowed. Delete one first.' });
+
+        const position = countRow ? countRow.c : 0;
+        await db.run('INSERT INTO profile_prompts (user_id, question, answer, position) VALUES (?, ?, ?, ?)',
+            [req.user.id, question, answer, position]);
+
+        const prompts = await db.query('SELECT id, question, answer, position FROM profile_prompts WHERE user_id = ? ORDER BY position ASC', [req.user.id]);
+        res.json({ success: true, prompts });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.delete('/api/profile/prompts/:id', authenticate, async (req, res) => {
+    try {
+        const promptId = parseInt(req.params.id);
+        await db.run('DELETE FROM profile_prompts WHERE id = ? AND user_id = ?', [promptId, req.user.id]);
+        const prompts = await db.query('SELECT id, question, answer, position FROM profile_prompts WHERE user_id = ? ORDER BY position ASC', [req.user.id]);
+        res.json({ success: true, prompts });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// ========================================
+// SPOTIFY PROFILE INFO
+// ========================================
+
+app.put('/api/profile/spotify', authenticate, async (req, res) => {
+    try {
+        const { artist, song } = req.body;
+        await db.run('UPDATE users SET spotify_artist = ?, spotify_song = ? WHERE id = ?',
+            [artist || '', song || '', req.user.id]);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// ========================================
+// MATCH EXPIRATION (48h auto-cleanup)
+// ========================================
+
+// Run every hour: expire matches with no messages after 48h
+setInterval(async () => {
+    try {
+        const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+        // Find matches older than 48h with zero messages
+        const expiredMatches = await db.query(
+            `SELECT m.id FROM matches m
+             WHERE m.created_at < ?
+               AND NOT EXISTS (SELECT 1 FROM messages msg WHERE msg.match_id = m.id)`,
+            [cutoff]
+        );
+        for (const match of expiredMatches) {
+            await db.run('DELETE FROM matches WHERE id = ?', [match.id]);
+        }
+        if (expiredMatches.length > 0) {
+            console.log(`🕐 Expired ${expiredMatches.length} idle matches (48h no messages)`);
+        }
+    } catch (e) {
+        // Silently ignore — timer will retry
+    }
+}, 60 * 60 * 1000); // Every hour
+
+// Auto un-snooze users whose snooze expired
+setInterval(async () => {
+    try {
+        const now = new Date().toISOString();
+        await db.run('UPDATE users SET is_snoozed = 0, snooze_until = NULL WHERE is_snoozed = 1 AND snooze_until IS NOT NULL AND snooze_until < ?', [now]);
+    } catch (e) { /* ignore */ }
+}, 5 * 60 * 1000); // Every 5 minutes
+
+// ========================================
 // SPA fallback
 // ========================================
 app.get('*', (req, res) => {
@@ -1102,12 +1331,26 @@ app.get('*', (req, res) => {
 });
 
 // ========================================
+// Graceful Shutdown
+// ========================================
+process.on('SIGTERM', () => {
+    console.log('📴 SIGTERM received. Shutting down gracefully...');
+    // Save sql.js DB before exit
+    try { if (typeof saveSqlJsDb === 'function') saveSqlJsDb(); } catch (e) { /* ignore */ }
+    server.close(() => { process.exit(0); });
+});
+
+process.on('SIGINT', () => {
+    console.log('📴 SIGINT received. Shutting down...');
+    try { if (typeof saveSqlJsDb === 'function') saveSqlJsDb(); } catch (e) { /* ignore */ }
+    server.close(() => { process.exit(0); });
+});
+
+// ========================================
 // Start
 // ========================================
 async function start() {
-    // Email MUST be configured — it's how we verify NITK students
     checkEmailConfig();
-
     await db.initTables();
     server.listen(PORT, () => {
         console.log(`\n🚀 NITKnot running at http://localhost:${PORT}`);
