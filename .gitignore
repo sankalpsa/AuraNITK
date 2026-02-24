@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+client/node_modules/
+client/dist/
 
 # Environment (NEVER commit this - has passwords!)
 .env

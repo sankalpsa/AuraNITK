@@ -162,11 +162,21 @@ async function initTables() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
+            CREATE TABLE IF NOT EXISTS user_photos (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                photo_url TEXT NOT NULL,
+                is_primary INTEGER DEFAULT 0,
+                position INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
             CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id);
             CREATE INDEX IF NOT EXISTS idx_swipes_target ON swipes(target_id);
             CREATE INDEX IF NOT EXISTS idx_matches_user1 ON matches(user1_id);
             CREATE INDEX IF NOT EXISTS idx_matches_user2 ON matches(user2_id);
             CREATE INDEX IF NOT EXISTS idx_messages_match ON messages(match_id);
+            CREATE INDEX IF NOT EXISTS idx_user_photos_user ON user_photos(user_id);
         `);
     } else {
         sqlite.exec(`
@@ -237,11 +247,22 @@ async function initTables() {
                 FOREIGN KEY (reported_id) REFERENCES users(id)
             );
 
+            CREATE TABLE IF NOT EXISTS user_photos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                photo_url TEXT NOT NULL,
+                is_primary INTEGER DEFAULT 0,
+                position INTEGER DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
+
             CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id);
             CREATE INDEX IF NOT EXISTS idx_swipes_target ON swipes(target_id);
             CREATE INDEX IF NOT EXISTS idx_matches_user1 ON matches(user1_id);
             CREATE INDEX IF NOT EXISTS idx_matches_user2 ON matches(user2_id);
             CREATE INDEX IF NOT EXISTS idx_messages_match ON messages(match_id);
+            CREATE INDEX IF NOT EXISTS idx_user_photos_user ON user_photos(user_id);
         `);
     }
 
@@ -301,6 +322,45 @@ async function initTables() {
         } else {
             sqlite.prepare('ALTER TABLE messages ADD COLUMN image_url TEXT').run();
             sqlite.prepare('ALTER TABLE messages ADD COLUMN voice_url TEXT').run();
+        }
+    } catch (e) { }
+
+    // Auto-migration for pickup_line
+    try {
+        if (isPostgres) {
+            await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS pickup_line TEXT DEFAULT ''");
+        } else {
+            sqlite.prepare("ALTER TABLE users ADD COLUMN pickup_line TEXT DEFAULT ''").run();
+        }
+    } catch (e) { }
+
+    // Auto-migration for user_photos table
+    try {
+        if (isPostgres) {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS user_photos (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    photo_url TEXT NOT NULL,
+                    is_primary INTEGER DEFAULT 0,
+                    position INTEGER DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE INDEX IF NOT EXISTS idx_user_photos_user ON user_photos(user_id);
+            `);
+        } else {
+            sqlite.exec(`
+                CREATE TABLE IF NOT EXISTS user_photos (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    photo_url TEXT NOT NULL,
+                    is_primary INTEGER DEFAULT 0,
+                    position INTEGER DEFAULT 0,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                );
+                CREATE INDEX IF NOT EXISTS idx_user_photos_user ON user_photos(user_id);
+            `);
         }
     } catch (e) { }
 
