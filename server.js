@@ -249,11 +249,9 @@ if (useCloudinary) {
     });
     storage = new CloudinaryStorage({
         cloudinary,
-        params: {
-            folder: 'nitknot-photos',
-            allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-            transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }]
-        }
+        folder: 'nitknot-photos',
+        allowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
+        transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }]
     });
     console.log('📸 Using Cloudinary for image storage');
 } else {
