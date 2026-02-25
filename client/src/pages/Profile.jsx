@@ -491,7 +491,7 @@ export default function Profile() {
 
             {/* Crop Modal */}
             {showCrop && (
-                <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowCrop(false)}>
+                <div className="crop-modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowCrop(false)}>
                     <div className="crop-modal glass-card">
                         <h3>Crop Photo</h3>
                         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 12 }}>

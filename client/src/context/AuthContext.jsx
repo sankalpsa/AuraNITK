@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { getToken, setToken as storeToken, clearToken, getCachedUser, setCachedUser, apiFetch } from '../services/api';
 import { io } from 'socket.io-client';
+import { useToast } from './ToastContext';
 
 const AuthContext = createContext(null);
 
@@ -8,6 +9,7 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => getCachedUser());
     const [token, setTokenState] = useState(() => getToken());
     const [socket, setSocket] = useState(null);
+    const { showToast } = useToast();
     const socketRef = useRef(null);
 
     const login = useCallback((tokenVal, userData) => {
@@ -47,7 +49,7 @@ export function AuthProvider({ children }) {
         }
     }, [logout]);
 
-    // Socket initialization
+    // Socket initialization and Global Listeners
     useEffect(() => {
         if (!token || socketRef.current) return;
 
@@ -62,14 +64,37 @@ export function AuthProvider({ children }) {
             if (u) s.emit('register', u.id);
         });
 
+        // Global Listeners for Toasts / Notifications
+        s.on('match_found', (data) => {
+            showToast(`💖 Match! You and ${data.user.name} liked each other!`, 'success', 5000);
+        });
+
+        s.on('super_like_received', ({ name }) => {
+            showToast(`⭐ ${name} super-liked you! Check your likes!`, 'info', 5000);
+        });
+
+        s.on('new_message', (msg) => {
+            // Only show toast if not in that specific chat conversation
+            const isChatConvo = window.location.pathname === '/chat/convo';
+            if (!isChatConvo) {
+                showToast(`💬 ${msg.sender_name}: ${msg.text || '📷 Photo'}`, 'info');
+            }
+        });
+
         socketRef.current = s;
         setSocket(s);
 
         return () => {
-            s.disconnect();
+            if (s) {
+                s.off('connect');
+                s.off('match_found');
+                s.off('super_like_received');
+                s.off('new_message');
+                s.disconnect();
+            }
             socketRef.current = null;
         };
-    }, [token]);
+    }, [token, showToast]);
 
     const value = {
         user,

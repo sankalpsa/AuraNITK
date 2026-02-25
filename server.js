@@ -225,10 +225,11 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve React build if available, otherwise legacy public/
-const reactBuildPath = path.join(__dirname, 'client', 'dist');
-const legacyPublicPath = path.join(__dirname, 'public');
-const spaRoot = fs.existsSync(reactBuildPath) ? reactBuildPath : legacyPublicPath;
+// Serve React build
+const spaRoot = path.join(__dirname, 'client', 'dist');
+if (!fs.existsSync(spaRoot) && process.env.NODE_ENV === 'production') {
+    console.warn('⚠️  React build directory not found. Please run "npm run build" in the client folder.');
+}
 app.use(express.static(spaRoot));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

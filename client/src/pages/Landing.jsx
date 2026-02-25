@@ -11,26 +11,35 @@ export default function Landing() {
     }, [isAuthenticated, navigate]);
 
     useEffect(() => {
-        // Floating particles
-        const hero = document.querySelector('.hero-section');
-        if (!hero) return;
+        // Floating particles for the whole screen
+        const container = document.createElement('div');
+        container.className = 'global-particles';
+        document.body.appendChild(container);
+
         const emojis = ['💕', '💖', '✨', '💫', '🌸', '💝', '🎀', '💗'];
-        hero.querySelectorAll('.particle').forEach(p => p.remove());
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 40; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
             p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            const size = 0.8 + Math.random() * 2;
             p.style.cssText = `
-        left: ${Math.random() * 100}%;
-        top: ${20 + Math.random() * 70}%;
-        --dur: ${4 + Math.random() * 6}s;
-        --delay: ${-Math.random() * 6}s;
-        font-size: ${0.7 + Math.random() * 1.2}rem;
-        animation-delay: var(--delay);
-        animation-duration: var(--dur);
-      `;
-            hero.appendChild(p);
+                left: ${Math.random() * 100}vw;
+                top: ${Math.random() * 100}vh;
+                --dur: ${8 + Math.random() * 12}s;
+                --delay: ${-Math.random() * 10}s;
+                font-size: ${size}rem;
+                filter: blur(${Math.random() > 0.8 ? '1px' : '0'});
+                animation-delay: var(--delay);
+                animation-duration: var(--dur);
+            `;
+            container.appendChild(p);
         }
+
+        return () => {
+            if (document.body.contains(container)) {
+                document.body.removeChild(container);
+            }
+        };
     }, []);
 
     return (
@@ -48,16 +57,14 @@ export default function Landing() {
                         <span className="material-symbols-outlined fill-icon">favorite</span>
                         Start Swiping
                     </button>
-                    <button className="btn-secondary" onClick={() => navigate('/login')}>
+                    <button className="btn-ghost" onClick={() => navigate('/login')}>
                         <span className="material-symbols-outlined">login</span>
                         Log In
                     </button>
                 </div>
             </div>
-            <div className="landing-features" style={{ padding: '32px 20px 60px' }}>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: 16, textAlign: 'center' }}>
-                    Why NITKnot?
-                </h3>
+            <div className="landing-features">
+                <h3>Why NITKnot?</h3>
                 <div className="features-grid">
                     <div className="feature-card">
                         <span className="material-symbols-outlined fill-icon">verified_user</span>

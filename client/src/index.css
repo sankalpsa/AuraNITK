@@ -141,21 +141,40 @@ h4 {
   width: 100%;
   margin: 0 auto;
   position: relative;
-  padding-bottom: 80px;
-  transition: max-width 0.3s ease;
+  z-index: 2;
+  /* In front of particles */
+  padding-bottom: env(safe-area-inset-bottom, 100px);
+  /* Increased for taller nav */
+  transition: all 0.3s ease;
+}
+
+.landing-wrapper {
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
 }
 
 /* Responsiveness: Tablet/Desktop */
 @media (min-width: 768px) {
   .app-container {
-    max-width: 800px;
-    padding-bottom: 40px;
+    max-width: 720px;
+    padding-bottom: 110px;
+    /* Match taller nav */
+    margin-top: 0;
+    margin-bottom: 0;
+    background: transparent;
+    box-shadow: none;
+    height: auto;
+    min-height: calc(100vh - 80px);
+    display: block;
+    overflow: visible;
   }
 }
 
 @media (min-width: 1024px) {
   .app-container {
-    max-width: 1100px;
+    max-width: 1000px;
   }
 }
 
@@ -700,14 +719,42 @@ select.input-field {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: 68px;
-  background: rgba(10, 10, 15, 0.92);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+  height: clamp(75px, 12vh, 85px);
+  /* Increased height */
+  background: var(--bg-card);
+  /* Theme aware */
+  -webkit-backdrop-filter: blur(25px);
+  backdrop-filter: blur(25px);
   border-top: 1px solid var(--border);
   z-index: 1000;
-  padding: 0 8px;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding: 0 10px;
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+  opacity: 0.98;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* On desktop app-container, we might want the nav inside it? 
+   No, bottom fixed is fine, but we can limit its width on desktop if it's too wide. */
+@media (min-width: 768px) {
+  .bottom-nav {
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 800px;
+    /* Wider than before */
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    bottom: 0px;
+    margin-bottom: 0;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    height: 90px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bottom-nav {
+    max-width: 1100px;
+    /* Expansive desktop feel */
+  }
 }
 
 .nav-item {
@@ -738,9 +785,11 @@ select.input-field {
 }
 
 .nav-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
+  font-size: 0.72rem;
+  /* Slightly larger */
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin-top: 2px;
 }
 
 .nav-badge {
@@ -762,11 +811,12 @@ select.input-field {
   padding: 16px 20px 12px;
   position: sticky;
   top: 0;
-  background: rgba(10, 10, 15, 0.85);
+  background: var(--bg-card);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   z-index: 100;
   border-bottom: 1px solid var(--border);
+  opacity: 0.98;
 }
 
 .page-header h1 {
@@ -809,19 +859,22 @@ select.input-field {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 80px 24px 50px;
+  padding: 60px 20px 40px;
+  /* Reduced for mobile */
   position: relative;
   overflow: hidden;
-  min-height: 80vh;
+  min-height: 85vh;
+  /* slightly taller on mobile */
   justify-content: center;
-  background: radial-gradient(ellipse at 50% 10%, rgba(238, 43, 157, 0.12), transparent 60%),
-    radial-gradient(ellipse at 80% 80%, rgba(33, 212, 253, 0.08), transparent 50%);
+  background: radial-gradient(ellipse at 50% 10%, rgba(238, 43, 157, 0.15), transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(33, 212, 253, 0.1), transparent 50%);
   transition: min-height 0.3s ease;
 }
 
 @media (min-width: 768px) {
   .hero-section {
-    min-height: 60vh;
+    min-height: 55vh;
+    /* Reduced from 60vh to allow more space for features */
     padding: 100px 48px;
   }
 }
@@ -837,42 +890,33 @@ select.input-field {
 
 .hero-logo {
   font-family: 'Cormorant Garamond', 'Playfair Display', serif;
-  font-size: 4rem;
+  font-size: clamp(3.5rem, 15vw, 6rem);
+  /* Fluid typography */
   font-weight: 300;
   font-style: italic;
   background: var(--gradient-primary);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 12px;
-  line-height: 1.1;
-}
-
-@media (min-width: 768px) {
-  .hero-logo {
-    font-size: 6rem;
-  }
+  margin-bottom: 8px;
+  line-height: 1;
 }
 
 .hero-tagline {
   font-weight: 800;
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 6vw, 2.2rem);
+  /* Fluid tagline */
   color: var(--text);
-  margin-bottom: 8px;
-}
-
-@media (min-width: 768px) {
-  .hero-tagline {
-    font-size: 2.2rem;
-  }
+  margin-bottom: 12px;
+  max-width: 280px;
 }
 
 .hero-subtext {
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
-  max-width: 320px;
+  max-width: 300px;
   margin-bottom: 32px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 @media (min-width: 768px) {
@@ -908,11 +952,24 @@ select.input-field {
 }
 
 /* Particles */
+.global-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  /* Over everything */
+  overflow: hidden;
+}
+
 .particle {
   position: absolute;
   pointer-events: none;
   animation: float var(--dur, 6s) var(--delay, 0s) infinite ease-in-out;
-  opacity: 0.5;
+  opacity: 0.6;
+  /* Increased opacity */
 }
 
 /* Confetti */
@@ -923,17 +980,39 @@ select.input-field {
   animation: confettiFall var(--duration, 2s) var(--delay, 0s) forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* ---------- Features Grid ---------- */
-.features-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+.landing-features {
+  padding: 60px 24px 100px;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
-@media (min-width: 768px) {
+.landing-features h3 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 40px;
+  text-align: center;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 480px) {
+  .features-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 992px) {
   .features-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 32px;
   }
 }
 
@@ -941,21 +1020,28 @@ select.input-field {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 20px 14px;
+  padding: 32px 20px;
   text-align: center;
-  transition: all 0.3s;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 180px;
+  /* Adjusted for better mobile scaling */
 }
 
 .feature-card:hover {
   border-color: var(--primary);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
 }
 
 .feature-card .material-symbols-outlined {
-  font-size: 32px;
+  font-size: 48px;
+  /* Bigger icons */
   color: var(--primary);
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 
 .feature-card h4 {
@@ -1027,7 +1113,11 @@ select.input-field {
 
 /* ---------- Discover / Card Stack ---------- */
 .discover-page {
-  padding-bottom: 120px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 90px);
+  /* Match taller bottom-nav */
+  padding-bottom: 20px;
 }
 
 @media (min-width: 768px) {
@@ -1039,7 +1129,11 @@ select.input-field {
 .card-stack {
   position: relative;
   width: 100%;
-  height: 520px;
+  flex: 1;
+  /* Dynamic height based on viewport to avoid overflow on short phones */
+  min-height: 400px;
+  height: 65vh;
+  max-height: 620px;
   max-width: 420px;
   margin: 0 auto;
   padding: 0 16px;
@@ -1048,7 +1142,16 @@ select.input-field {
 @media (min-width: 768px) {
   .card-stack {
     height: 600px;
-    max-width: 480px;
+    max-width: 520px;
+    /* Larger cards on tablet */
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-stack {
+    height: 700px;
+    max-width: 600px;
+    /* Even larger on desktop */
   }
 }
 
@@ -1551,7 +1654,8 @@ select.input-field {
 .msg-bubble {
   padding: 10px 14px;
   border-radius: 18px;
-  max-width: 100%;
+  max-width: 85%;
+  /* Don't take full width to distinguish speaker */
   word-wrap: break-word;
   cursor: pointer;
   transition: background 0.2s;
@@ -1586,7 +1690,9 @@ select.input-field {
 }
 
 .msg-image {
-  max-width: 220px;
+  max-width: 100%;
+  /* Flexible with bubble */
+  width: min(220px, 70vw);
   border-radius: var(--radius-md);
   cursor: pointer;
 }
@@ -1790,7 +1896,9 @@ select.input-field {
 .profile-carousel {
   position: relative;
   width: 100%;
-  height: 400px;
+  aspect-ratio: 1;
+  /* Square is safer for various screens */
+  max-height: 450px;
   overflow: hidden;
 }
 
@@ -2143,7 +2251,8 @@ select.input-field {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
+  /* Slightly tighter */
 }
 
 .stat-card {
@@ -2153,7 +2262,8 @@ select.input-field {
 
 .stat-number {
   display: block;
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 5vw, 1.5rem);
+  /* Fluid number */
   font-weight: 800;
   background: var(--gradient-primary);
   -webkit-background-clip: text;
@@ -2173,11 +2283,19 @@ select.input-field {
 
 /* Crop Modal */
 .crop-modal {
-  max-width: 360px;
-  width: 90%;
+  max-width: 440px;
+  width: 95%;
   margin: auto;
-  padding: 24px;
-  text-align: center;
+  padding: 30px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: visible;
 }
 
 .crop-canvas {
@@ -3232,10 +3350,10 @@ select.input-field {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  z-index: 6000;
+  background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  z-index: 8000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3328,18 +3446,20 @@ select.input-field {
 }
 
 /* ---------- Crop Modal ---------- */
-.crop-modal {
+.crop-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 7000;
+  background: rgba(0, 0, 0, 0.85);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  z-index: 9000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 24px;
 }
 
 .crop-modal-content {
