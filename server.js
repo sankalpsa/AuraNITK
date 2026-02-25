@@ -1674,6 +1674,15 @@ process.on('SIGINT', () => {
 async function start() {
     checkEmailConfig();
     await db.initTables();
+
+    // Ensure main developer account has admin privileges in production
+    try {
+        await db.run('UPDATE users SET is_admin = 1 WHERE email = ?', ['sankalpbeerappa.253it002@nitk.edu.in']);
+        console.log('🛡️ Admin status verified for main operator');
+    } catch (e) {
+        console.error('Failed to set admin status:', e.message);
+    }
+
     server.listen(PORT, () => {
         console.log(`\n🚀 NITKnot running at http://localhost:${PORT}`);
         console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}\n`);
