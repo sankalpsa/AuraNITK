@@ -1083,6 +1083,134 @@ app.post('/api/report', authenticate, async (req, res) => {
 });
 
 // ========================================
+// ANONYMOUS QUESTIONS
+// ========================================
+
+// Send an anonymous question to a user
+app.post('/api/anonymous-question', authenticate, async (req, res) => {
+    try {
+        const { receiver_id, question } = req.body;
+        if (!receiver_id || !question || !question.trim())
+            return res.status(400).json({ error: 'Question is required' });
+        if (question.trim().length > 300)
+            return res.status(400).json({ error: 'Question too long (max 300 chars)' });
+        if (receiver_id === req.user.id)
+            return res.status(400).json({ error: 'Cannot ask yourself a question' });
+
+        // Limit: max 3 unanswered questions per sender per receiver
+        const existing = await db.queryOne(
+            'SELECT COUNT(*) as c FROM anonymous_questions WHERE sender_id = ? AND receiver_id = ? AND answer IS NULL',
+            [req.user.id, receiver_id]
+        );
+        if (existing && existing.c >= 3)
+            return res.status(400).json({ error: 'You already have 3 pending questions for this person' });
+
+        await db.run(
+            'INSERT INTO anonymous_questions (sender_id, receiver_id, question) VALUES (?, ?, ?)',
+            [req.user.id, receiver_id, question.trim()]
+        );
+
+        res.json({ success: true, message: 'Question sent anonymously! 🕵️' });
+    } catch (e) {
+        console.error('Anon question error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get answered questions for a specific user's profile (public - visible to anyone viewing profile)
+app.get('/api/anonymous-questions/profile/:userId', authenticate, async (req, res) => {
+    try {
+        const questions = await db.query(
+            `SELECT id, question, answer, created_at FROM anonymous_questions
+             WHERE receiver_id = ? AND answer IS NOT NULL
+             ORDER BY created_at DESC LIMIT 10`,
+            [req.params.userId]
+        );
+        res.json({ questions });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get questions I've received (for my own profile management)
+app.get('/api/anonymous-questions/received', authenticate, async (req, res) => {
+    try {
+        const questions = await db.query(
+            `SELECT id, question, answer, is_read, created_at FROM anonymous_questions
+             WHERE receiver_id = ?
+             ORDER BY answer IS NULL DESC, created_at DESC`,
+            [req.user.id]
+        );
+        // Mark unread as read
+        await db.run(
+            'UPDATE anonymous_questions SET is_read = 1 WHERE receiver_id = ? AND is_read = 0',
+            [req.user.id]
+        );
+        res.json({ questions });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get questions I've sent (to see answers)
+app.get('/api/anonymous-questions/sent', authenticate, async (req, res) => {
+    try {
+        const questions = await db.query(
+            `SELECT aq.id, aq.question, aq.answer, aq.created_at, u.name as receiver_name
+             FROM anonymous_questions aq
+             JOIN users u ON aq.receiver_id = u.id
+             WHERE aq.sender_id = ?
+             ORDER BY aq.created_at DESC`,
+            [req.user.id]
+        );
+        res.json({ questions });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Answer a question I've received
+app.put('/api/anonymous-questions/:id/answer', authenticate, async (req, res) => {
+    try {
+        const { answer } = req.body;
+        if (!answer || !answer.trim())
+            return res.status(400).json({ error: 'Answer is required' });
+        if (answer.trim().length > 500)
+            return res.status(400).json({ error: 'Answer too long (max 500 chars)' });
+
+        const question = await db.queryOne(
+            'SELECT * FROM anonymous_questions WHERE id = ? AND receiver_id = ?',
+            [req.params.id, req.user.id]
+        );
+        if (!question) return res.status(404).json({ error: 'Question not found' });
+
+        await db.run(
+            'UPDATE anonymous_questions SET answer = ? WHERE id = ?',
+            [answer.trim(), req.params.id]
+        );
+        res.json({ success: true, message: 'Answer posted! 💬' });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Delete a question I've received
+app.delete('/api/anonymous-questions/:id', authenticate, async (req, res) => {
+    try {
+        const question = await db.queryOne(
+            'SELECT * FROM anonymous_questions WHERE id = ? AND receiver_id = ?',
+            [req.params.id, req.user.id]
+        );
+        if (!question) return res.status(404).json({ error: 'Question not found' });
+
+        await db.run('DELETE FROM anonymous_questions WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// ========================================
 // STATS
 // ========================================
 

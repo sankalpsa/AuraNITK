@@ -20,10 +20,17 @@ export default function Profile() {
     const canvasRef = useRef(null);
     const cropState = useRef({ offsetX: 0, offsetY: 0, scale: 1, dragging: false, lastX: 0, lastY: 0 });
 
+    // Anonymous Questions state
+    const [anonQuestions, setAnonQuestions] = useState([]);
+    const [answeringId, setAnsweringId] = useState(null);
+    const [answerText, setAnswerText] = useState('');
+    const [submittingAnswer, setSubmittingAnswer] = useState(false);
+
     useEffect(() => {
         if (!isAuthenticated) return navigate('/', { replace: true });
         loadStats();
         loadPhotos();
+        loadAnonQuestions();
     }, [isAuthenticated]);
 
     const loadStats = async () => {
@@ -38,6 +45,42 @@ export default function Profile() {
             const data = await apiFetch('/api/profile/photos');
             setPhotos(data.photos || []);
         } catch { }
+    };
+
+    const loadAnonQuestions = async () => {
+        try {
+            const data = await apiFetch('/api/anonymous-questions/received');
+            setAnonQuestions(data.questions || []);
+        } catch { }
+    };
+
+    const answerQuestion = async (id) => {
+        if (!answerText.trim() || submittingAnswer) return;
+        setSubmittingAnswer(true);
+        try {
+            await apiFetch(`/api/anonymous-questions/${id}/answer`, {
+                method: 'PUT',
+                body: JSON.stringify({ answer: answerText.trim() }),
+            });
+            showToast('Answer posted! 💬', 'success');
+            setAnsweringId(null);
+            setAnswerText('');
+            loadAnonQuestions();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+        setSubmittingAnswer(false);
+    };
+
+    const deleteQuestion = async (id) => {
+        if (!window.confirm('Delete this question?')) return;
+        try {
+            await apiFetch(`/api/anonymous-questions/${id}`, { method: 'DELETE' });
+            setAnonQuestions(prev => prev.filter(q => q.id !== id));
+            showToast('Question removed', 'success');
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     };
 
     const handleFileSelect = (e) => {
@@ -328,6 +371,65 @@ export default function Profile() {
                     </div>
                 </div>
             </div>
+
+            {/* Anonymous Questions Inbox */}
+            {anonQuestions.length > 0 && (
+                <div className="profile-section">
+                    <h3 className="section-title" style={{ color: '#a78bfa' }}>
+                        <span className="material-symbols-outlined">forum</span>
+                        Anonymous Questions
+                        <span className="anon-inbox-badge">{anonQuestions.filter(q => !q.answer).length} new</span>
+                    </h3>
+                    <div className="anon-inbox-list">
+                        {anonQuestions.map(q => (
+                            <div key={q.id} className={`anon-inbox-card ${!q.answer ? 'unanswered' : ''}`}>
+                                <div className="anon-inbox-q">
+                                    <span className="anon-inbox-icon">🕵️</span>
+                                    <p>{q.question}</p>
+                                </div>
+                                {q.answer ? (
+                                    <div className="anon-inbox-a">
+                                        <span className="anon-inbox-you">Your answer</span>
+                                        <p>{q.answer}</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {answeringId === q.id ? (
+                                            <div className="anon-inbox-reply">
+                                                <textarea
+                                                    rows={2}
+                                                    className="anon-textarea"
+                                                    placeholder="Write your answer..."
+                                                    value={answerText}
+                                                    onChange={(e) => setAnswerText(e.target.value)}
+                                                    maxLength={500}
+                                                    autoFocus
+                                                />
+                                                <div className="anon-inbox-reply-actions">
+                                                    <button className="anon-cancel-btn" onClick={() => { setAnsweringId(null); setAnswerText(''); }}>Cancel</button>
+                                                    <button className="anon-send-btn" onClick={() => answerQuestion(q.id)} disabled={!answerText.trim() || submittingAnswer}>
+                                                        {submittingAnswer ? '...' : 'Post Answer'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="anon-inbox-actions">
+                                                <button className="anon-reply-btn" onClick={() => { setAnsweringId(q.id); setAnswerText(''); }}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>reply</span>
+                                                    Answer
+                                                </button>
+                                                <button className="anon-dismiss-btn" onClick={() => deleteQuestion(q.id)}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Crop Modal */}
             {showCrop && (
