@@ -31,6 +31,7 @@ export default function Profile() {
         loadStats();
         loadPhotos();
         loadAnonQuestions();
+        refreshUser(); // Always fetch freshest identity data on profile visit
     }, [isAuthenticated]);
 
     const loadStats = async () => {
@@ -149,6 +150,25 @@ export default function Profile() {
         canvasRef.current?._draw?.();
     };
 
+    const idInputRef = useRef(null);
+    const [uploadingID, setUploadingID] = useState(false);
+
+    const handleIDUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setUploadingID(true);
+        try {
+            const fd = new FormData();
+            fd.append('photo', file);
+            await apiUpload('/api/profile/id-card', fd);
+            showToast('ID uploaded for verification! 🪪', 'success');
+            refreshUser();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+        setUploadingID(false);
+    };
+
     const uploadCroppedPhoto = async () => {
         if (!canvasRef.current) return;
         setUploading(true);
@@ -249,8 +269,46 @@ export default function Profile() {
                             onError={(e) => { e.target.src = defaultAvatar(user.name); }} />
                     )}
                     <div className="profile-hero-overlay">
-                        <h2 className="font-serif">{user.name}, {user.age}</h2>
+                        <h2 className="font-serif">
+                            {user.name}, {user.age}
+                            {user.is_verified === 1 && (
+                                <span className="material-symbols-outlined verified-badge-inline" title="Verified Account">
+                                    verified
+                                </span>
+                            )}
+                        </h2>
                         <p>{user.branch} • {user.year}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* ID Verification Section */}
+            <div className="profile-section">
+                <div className={`verification-card ${user.verification_status || 'unverified'}`}>
+                    <div className="verification-icon">
+                        <span className="material-symbols-outlined">
+                            {user.verification_status === 'verified' ? 'verified_user' :
+                                user.verification_status === 'pending' ? 'pending' : 'shield_person'}
+                        </span>
+                    </div>
+                    <div className="verification-info">
+                        <h4>
+                            {user.verification_status === 'verified' ? 'Verified Account' :
+                                user.verification_status === 'pending' ? 'Verification Pending' : 'Verify Your Identity'}
+                        </h4>
+                        <p>
+                            {user.verification_status === 'verified' ? 'Your NITK identity is confirmed. Enjoy full access!' :
+                                user.verification_status === 'pending' ? 'We are reviewing your ID card. This usually takes 24 hours.' : 'Upload your NITK ID card (Image or PDF) to get the blue tick and increase trust.'}
+                        </p>
+
+                        {(user.verification_status === 'unverified' || !user.verification_status) && (
+                            <>
+                                <button className="btn-verify" onClick={() => idInputRef.current?.click()} disabled={uploadingID}>
+                                    {uploadingID ? 'Uploading...' : 'Upload ID Card (Image/PDF)'}
+                                </button>
+                                <input type="file" ref={idInputRef} accept="image/*,application/pdf" style={{ display: 'none' }} onChange={handleIDUpload} />
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

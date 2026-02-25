@@ -30,3 +30,5 @@ services:
         sync: false
       - key: SMTP_PASSWORD
         sync: false
+      - key: ADMIN_MASTER_PASSWORD
+        sync: false

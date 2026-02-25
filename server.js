@@ -17,6 +17,7 @@ const { Server } = require('socket.io');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const db = require('./db');
+console.log('✅ Modules loaded');
 
 // ========================================
 // OTP Storage
@@ -215,6 +216,15 @@ app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Debug logger
+app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+        console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+        if (req.method === 'POST') console.log('Body keys:', Object.keys(req.body));
+    }
+    next();
+});
+
 // Serve React build if available, otherwise legacy public/
 const reactBuildPath = path.join(__dirname, 'client', 'dist');
 const legacyPublicPath = path.join(__dirname, 'public');
@@ -251,8 +261,11 @@ if (useCloudinary) {
         cloudinary,
         params: {
             folder: 'nitknot-photos',
-            allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-            transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }]
+            allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
+            transformation: (req, file) => {
+                if (file.format === 'pdf') return [];
+                return [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }];
+            }
         }
     });
     console.log('📸 Using Cloudinary for image storage');
@@ -267,15 +280,19 @@ if (useCloudinary) {
 }
 
 const fileFilter = (req, file, cb) => {
-    const allowedImage = /jpeg|jpg|png|webp/;
+    const allowedImage = /jpeg|jpg|png|webp|gif/;
+    const allowedDocs = /pdf/;
     const allowedAudio = /webm|mp4|ogg|wav|mpeg|mp3/;
     const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
+
     if (file.fieldname === 'audio' && (allowedAudio.test(ext) || file.mimetype.startsWith('audio/'))) {
         cb(null, true);
-    } else if (allowedImage.test(ext) && allowedImage.test(file.mimetype.split('/')[1])) {
+    } else if (allowedImage.test(ext) || (file.mimetype && file.mimetype.startsWith('image/'))) {
+        cb(null, true);
+    } else if (allowedDocs.test(ext) || file.mimetype === 'application/pdf') {
         cb(null, true);
     } else {
-        cb(null, false); // Silently skip instead of error
+        cb(null, false);
     }
 };
 
@@ -544,6 +561,37 @@ app.put('/api/profile', authenticate, async (req, res) => {
     } catch (e) {
         console.error('Update profile error:', e);
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Upload ID Card for verification
+app.post('/api/profile/id-card', authenticate, (req, res, next) => {
+    // Force local disk storage for IDs in development for better control and PDF reliability
+    if (process.env.NODE_ENV === 'development') {
+        const uploadsDir = path.join(__dirname, 'uploads');
+        if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+        const storage = multer.diskStorage({
+            destination: (req, file, cb) => cb(null, uploadsDir),
+            filename: (req, file, cb) => cb(null, `id-${req.user.id}-${Date.now()}${path.extname(file.originalname)}`)
+        });
+        const uploadLocal = multer({ storage, fileFilter });
+        return uploadLocal.single('photo')(req, res, next);
+    }
+    upload.single('photo')(req, res, next);
+}, async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'ID card file is required' });
+
+        // Use relative path for local, Cloudinary path for production
+        const photoUrl = (req.file.path && req.file.path.startsWith('http'))
+            ? req.file.path
+            : `/uploads/${req.file.filename}`;
+
+        await db.run('UPDATE users SET id_card_url = ?, verification_status = \'pending\' WHERE id = ?', [photoUrl, req.user.id]);
+        res.json({ success: true, id_card_url: photoUrl });
+    } catch (e) {
+        console.error('ID Upload Error:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
@@ -1211,6 +1259,145 @@ app.delete('/api/anonymous-questions/:id', authenticate, async (req, res) => {
 });
 
 // ========================================
+// ADMIN SYSTEM
+// ========================================
+
+const isAdmin = (req, res, next) => {
+    if (req.user && req.user.is_admin === 1) {
+        next();
+    } else {
+        res.status(403).json({ error: 'Admin access required' });
+    }
+};
+
+// 2FA / Vault Unlock for Admin
+app.post('/api/admin/unlock', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { masterPassword } = req.body;
+        const correct = process.env.ADMIN_MASTER_PASSWORD || 'nitknot_admin_secure_2024';
+        if (masterPassword === correct) {
+            res.json({ success: true, message: 'Vault Unlocked' });
+        } else {
+            res.status(401).json({ error: 'Invalid Master Password' });
+        }
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Admin Dashboard - Get all reports and pending verifications
+app.get('/api/admin/dashboard', authenticate, isAdmin, async (req, res) => {
+    try {
+        const reports = await db.query(`
+            SELECT r.*, u1.name as reporter_name, u2.name as reported_name 
+            FROM reports r
+            JOIN users u1 ON r.reporter_id = u1.id
+            JOIN users u2 ON r.reported_id = u2.id
+            ORDER BY r.created_at DESC
+        `);
+
+        const pendingVerifications = await db.query(`
+            SELECT id, name, branch, year, id_card_url, verification_status 
+            FROM users 
+            WHERE (id_card_url IS NOT NULL AND verification_status = 'pending')
+               OR verification_status = 'unverified'
+            ORDER BY created_at ASC
+        `);
+
+        const stats = await db.queryOne(`
+            SELECT 
+                (SELECT COUNT(*) FROM users) as total_users,
+                (SELECT COUNT(*) FROM users WHERE is_verified = 1) as verified_users,
+                (SELECT COUNT(*) FROM reports) as total_reports
+        `);
+
+        res.json({ reports, pendingVerifications, stats });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Admin: Update User Verification Status
+app.put('/api/admin/users/:id/verify', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { status } = req.body; // 'verified' or 'rejected'
+        await db.run('UPDATE users SET verification_status = ?, is_verified = ? WHERE id = ?',
+            [status, status === 'verified' ? 1 : 0, req.params.id]);
+        res.json({ success: true, status });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Admin: Ban User
+app.put('/api/admin/users/:id/ban', authenticate, isAdmin, async (req, res) => {
+    try {
+        await db.run('UPDATE users SET is_active = 0 WHERE id = ?', [req.params.id]);
+        res.json({ success: true, message: 'User banned' });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Admin: Dismiss a report (false flag / resolved)
+app.delete('/api/admin/reports/:id/dismiss', authenticate, isAdmin, async (req, res) => {
+    try {
+        await db.run('DELETE FROM reports WHERE id = ?', [req.params.id]);
+        res.json({ success: true, message: 'Report dismissed' });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Admin: Change Master Password
+app.put('/api/admin/change-master-password', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const correct = process.env.ADMIN_MASTER_PASSWORD || 'nitknot_admin_secure_2024';
+
+        if (currentPassword !== correct) {
+            return res.status(401).json({ error: 'Current Master Key is incorrect' });
+        }
+        if (!newPassword || newPassword.length < 8) {
+            return res.status(400).json({ error: 'New key must be at least 8 characters' });
+        }
+
+        // Update in-memory for immediate effect
+        process.env.ADMIN_MASTER_PASSWORD = newPassword;
+
+        // Persist to .env file on disk
+        const envPath = path.join(__dirname, '.env');
+        if (fs.existsSync(envPath)) {
+            let envContent = fs.readFileSync(envPath, 'utf-8');
+            if (envContent.includes('ADMIN_MASTER_PASSWORD=')) {
+                envContent = envContent.replace(
+                    /ADMIN_MASTER_PASSWORD=.*/,
+                    `ADMIN_MASTER_PASSWORD=${newPassword}`
+                );
+            } else {
+                envContent += `\nADMIN_MASTER_PASSWORD=${newPassword}\n`;
+            }
+            fs.writeFileSync(envPath, envContent, 'utf-8');
+        }
+
+        res.json({ success: true, message: 'Master Key rotated successfully' });
+    } catch (e) {
+        console.error('Change master password error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Admin: Make someone an admin (You can use this to promote your own account via DB first)
+app.put('/api/admin/promote/:id', authenticate, isAdmin, async (req, res) => {
+    try {
+        await db.run('UPDATE users SET is_admin = 1 WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// ========================================
 // STATS
 // ========================================
 
@@ -1446,6 +1633,13 @@ setInterval(async () => {
         await db.run('UPDATE users SET is_snoozed = 0, snooze_until = NULL WHERE is_snoozed = 1 AND snooze_until IS NOT NULL AND snooze_until < ?', [now]);
     } catch (e) { /* ignore */ }
 }, 5 * 60 * 1000); // Every 5 minutes
+
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error('--- GLOBAL ERROR ---');
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+});
 
 // ========================================
 // SPA fallback

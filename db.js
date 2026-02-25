@@ -418,6 +418,9 @@ async function initTables() {
         'ALTER TABLE users ADD COLUMN snooze_until TEXT',
         "ALTER TABLE users ADD COLUMN spotify_artist TEXT DEFAULT ''",
         "ALTER TABLE users ADD COLUMN spotify_song TEXT DEFAULT ''",
+        "ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN id_card_url TEXT",
+        "ALTER TABLE users ADD COLUMN verification_status TEXT DEFAULT 'unverified'",
     ];
 
     for (const migration of migrations) {
