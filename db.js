@@ -264,12 +264,24 @@ async function initTables() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
+            CREATE TABLE IF NOT EXISTS anonymous_questions (
+                id SERIAL PRIMARY KEY,
+                sender_id INTEGER NOT NULL REFERENCES users(id),
+                receiver_id INTEGER NOT NULL REFERENCES users(id),
+                question TEXT NOT NULL,
+                answer TEXT,
+                is_read INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
             CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id);
             CREATE INDEX IF NOT EXISTS idx_swipes_target ON swipes(target_id);
             CREATE INDEX IF NOT EXISTS idx_matches_user1 ON matches(user1_id);
             CREATE INDEX IF NOT EXISTS idx_matches_user2 ON matches(user2_id);
             CREATE INDEX IF NOT EXISTS idx_messages_match ON messages(match_id);
             CREATE INDEX IF NOT EXISTS idx_user_photos_user ON user_photos(user_id);
+            CREATE INDEX IF NOT EXISTS idx_anon_q_receiver ON anonymous_questions(receiver_id);
+            CREATE INDEX IF NOT EXISTS idx_anon_q_sender ON anonymous_questions(sender_id);
         `);
     } else {
         // Use whichever SQLite engine is available
@@ -364,6 +376,17 @@ async function initTables() {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )`,
+            `CREATE TABLE IF NOT EXISTS anonymous_questions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                sender_id INTEGER NOT NULL,
+                receiver_id INTEGER NOT NULL,
+                question TEXT NOT NULL,
+                answer TEXT,
+                is_read INTEGER DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (sender_id) REFERENCES users(id),
+                FOREIGN KEY (receiver_id) REFERENCES users(id)
+            )`,
             `CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id)`,
             `CREATE INDEX IF NOT EXISTS idx_swipes_target ON swipes(target_id)`,
             `CREATE INDEX IF NOT EXISTS idx_matches_user1 ON matches(user1_id)`,
@@ -371,7 +394,9 @@ async function initTables() {
             `CREATE INDEX IF NOT EXISTS idx_messages_match ON messages(match_id)`,
             `CREATE INDEX IF NOT EXISTS idx_user_photos_user ON user_photos(user_id)`,
             `CREATE INDEX IF NOT EXISTS idx_message_reactions_msg ON message_reactions(message_id)`,
-            `CREATE INDEX IF NOT EXISTS idx_profile_prompts_user ON profile_prompts(user_id)`
+            `CREATE INDEX IF NOT EXISTS idx_profile_prompts_user ON profile_prompts(user_id)`,
+            `CREATE INDEX IF NOT EXISTS idx_anon_q_receiver ON anonymous_questions(receiver_id)`,
+            `CREATE INDEX IF NOT EXISTS idx_anon_q_sender ON anonymous_questions(sender_id)`
         ];
         for (const stmt of createStatements) {
             try { sqliteExec(stmt); } catch (e) { /* table/index may already exist */ }
@@ -393,6 +418,9 @@ async function initTables() {
         'ALTER TABLE users ADD COLUMN snooze_until TEXT',
         "ALTER TABLE users ADD COLUMN spotify_artist TEXT DEFAULT ''",
         "ALTER TABLE users ADD COLUMN spotify_song TEXT DEFAULT ''",
+        "ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN id_card_url TEXT",
+        "ALTER TABLE users ADD COLUMN verification_status TEXT DEFAULT 'unverified'",
     ];
 
     for (const migration of migrations) {

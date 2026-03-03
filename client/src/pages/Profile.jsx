@@ -20,26 +20,70 @@ export default function Profile() {
     const canvasRef = useRef(null);
     const cropState = useRef({ offsetX: 0, offsetY: 0, scale: 1, dragging: false, lastX: 0, lastY: 0 });
 
-    async function loadStats() {
-        try {
-            const data = await apiFetch('/api/stats');
-            setStats(data);
-        } catch { /* ignore */ }
-    }
-
-    async function loadPhotos() {
-        try {
-            const data = await apiFetch('/api/profile/photos');
-            setPhotos(data.photos || []);
-        } catch { /* ignore */ }
-    }
+    // Anonymous Questions state
+    const [anonQuestions, setAnonQuestions] = useState([]);
+    const [answeringId, setAnsweringId] = useState(null);
+    const [answerText, setAnswerText] = useState('');
+    const [submittingAnswer, setSubmittingAnswer] = useState(false);
 
     useEffect(() => {
         if (!isAuthenticated) return navigate('/', { replace: true });
         loadStats();
         loadPhotos();
+        loadAnonQuestions();
+        refreshUser(); // Always fetch freshest identity data on profile visit
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
+
+    const loadStats = async () => {
+        try {
+            const data = await apiFetch('/api/stats');
+            setStats(data);
+        } catch { }
+    };
+
+    const loadPhotos = async () => {
+        try {
+            const data = await apiFetch('/api/profile/photos');
+            setPhotos(data.photos || []);
+        } catch { }
+    };
+
+    const loadAnonQuestions = async () => {
+        try {
+            const data = await apiFetch('/api/anonymous-questions/received');
+            setAnonQuestions(data.questions || []);
+        } catch { }
+    };
+
+    const answerQuestion = async (id) => {
+        if (!answerText.trim() || submittingAnswer) return;
+        setSubmittingAnswer(true);
+        try {
+            await apiFetch(`/api/anonymous-questions/${id}/answer`, {
+                method: 'PUT',
+                body: JSON.stringify({ answer: answerText.trim() }),
+            });
+            showToast('Answer posted! 💬', 'success');
+            setAnsweringId(null);
+            setAnswerText('');
+            loadAnonQuestions();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+        setSubmittingAnswer(false);
+    };
+
+    const deleteQuestion = async (id) => {
+        if (!window.confirm('Delete this question?')) return;
+        try {
+            await apiFetch(`/api/anonymous-questions/${id}`, { method: 'DELETE' });
+            setAnonQuestions(prev => prev.filter(q => q.id !== id));
+            showToast('Question removed', 'success');
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+    };
 
     const handleFileSelect = (e) => {
         const file = e.target.files[0];
@@ -105,6 +149,25 @@ export default function Profile() {
         const s = cropState.current;
         s.scale = Math.max(0.3, Math.min(3, s.scale + dir * 0.15));
         canvasRef.current?._draw?.();
+    };
+
+    const idInputRef = useRef(null);
+    const [uploadingID, setUploadingID] = useState(false);
+
+    const handleIDUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setUploadingID(true);
+        try {
+            const fd = new FormData();
+            fd.append('photo', file);
+            await apiUpload('/api/profile/id-card', fd);
+            showToast('ID uploaded for verification! 🪪', 'success');
+            refreshUser();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+        setUploadingID(false);
     };
 
     const uploadCroppedPhoto = async () => {
@@ -207,8 +270,46 @@ export default function Profile() {
                             onError={(e) => { e.target.src = defaultAvatar(user.name); }} />
                     )}
                     <div className="profile-hero-overlay">
-                        <h2 className="font-serif">{user.name}, {user.age}</h2>
+                        <h2 className="font-serif">
+                            {user.name}, {user.age}
+                            {user.is_verified === 1 && (
+                                <span className="material-symbols-outlined verified-badge-inline" title="Verified Account">
+                                    verified
+                                </span>
+                            )}
+                        </h2>
                         <p>{user.branch} • {user.year}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* ID Verification Section */}
+            <div className="profile-section">
+                <div className={`verification-card ${user.verification_status || 'unverified'}`}>
+                    <div className="verification-icon">
+                        <span className="material-symbols-outlined">
+                            {user.verification_status === 'verified' ? 'verified_user' :
+                                user.verification_status === 'pending' ? 'pending' : 'shield_person'}
+                        </span>
+                    </div>
+                    <div className="verification-info">
+                        <h4>
+                            {user.verification_status === 'verified' ? 'Verified Account' :
+                                user.verification_status === 'pending' ? 'Verification Pending' : 'Verify Your Identity'}
+                        </h4>
+                        <p>
+                            {user.verification_status === 'verified' ? 'Your NITK identity is confirmed. Enjoy full access!' :
+                                user.verification_status === 'pending' ? 'We are reviewing your ID card. This usually takes 24 hours.' : 'Upload your NITK ID card (Image or PDF) to get the blue tick and increase trust.'}
+                        </p>
+
+                        {(user.verification_status === 'unverified' || !user.verification_status) && (
+                            <>
+                                <button className="btn-verify" onClick={() => idInputRef.current?.click()} disabled={uploadingID}>
+                                    {uploadingID ? 'Uploading...' : 'Upload ID Card (Image/PDF)'}
+                                </button>
+                                <input type="file" ref={idInputRef} accept="image/*,application/pdf" style={{ display: 'none' }} onChange={handleIDUpload} />
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
@@ -330,9 +431,68 @@ export default function Profile() {
                 </div>
             </div>
 
+            {/* Anonymous Questions Inbox */}
+            {anonQuestions.length > 0 && (
+                <div className="profile-section">
+                    <h3 className="section-title" style={{ color: '#a78bfa' }}>
+                        <span className="material-symbols-outlined">forum</span>
+                        Anonymous Questions
+                        <span className="anon-inbox-badge">{anonQuestions.filter(q => !q.answer).length} new</span>
+                    </h3>
+                    <div className="anon-inbox-list">
+                        {anonQuestions.map(q => (
+                            <div key={q.id} className={`anon-inbox-card ${!q.answer ? 'unanswered' : ''}`}>
+                                <div className="anon-inbox-q">
+                                    <span className="anon-inbox-icon">🕵️</span>
+                                    <p>{q.question}</p>
+                                </div>
+                                {q.answer ? (
+                                    <div className="anon-inbox-a">
+                                        <span className="anon-inbox-you">Your answer</span>
+                                        <p>{q.answer}</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {answeringId === q.id ? (
+                                            <div className="anon-inbox-reply">
+                                                <textarea
+                                                    rows={2}
+                                                    className="anon-textarea"
+                                                    placeholder="Write your answer..."
+                                                    value={answerText}
+                                                    onChange={(e) => setAnswerText(e.target.value)}
+                                                    maxLength={500}
+                                                    autoFocus
+                                                />
+                                                <div className="anon-inbox-reply-actions">
+                                                    <button className="anon-cancel-btn" onClick={() => { setAnsweringId(null); setAnswerText(''); }}>Cancel</button>
+                                                    <button className="anon-send-btn" onClick={() => answerQuestion(q.id)} disabled={!answerText.trim() || submittingAnswer}>
+                                                        {submittingAnswer ? '...' : 'Post Answer'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="anon-inbox-actions">
+                                                <button className="anon-reply-btn" onClick={() => { setAnsweringId(q.id); setAnswerText(''); }}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>reply</span>
+                                                    Answer
+                                                </button>
+                                                <button className="anon-dismiss-btn" onClick={() => deleteQuestion(q.id)}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Crop Modal */}
             {showCrop && (
-                <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowCrop(false)}>
+                <div className="crop-modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowCrop(false)}>
                     <div className="crop-modal glass-card">
                         <h3>Crop Photo</h3>
                         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 12 }}>

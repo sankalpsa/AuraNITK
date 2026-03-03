@@ -289,13 +289,13 @@ export default function Discover() {
                         <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--warning)', fontSize: 20 }}>undo</span>
                     </button>
                     <button className="action-btn medium" onClick={() => handleSwipeAction('pass')} title="Pass">
-                        <span className="material-symbols-outlined fill-icon" style={{ color: '#ef4444', fontSize: 28 }}>close</span>
+                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--danger)', fontSize: 28 }}>close</span>
                     </button>
                     <button className="action-btn large" onClick={() => handleSwipeAction('like')} title="Like">
-                        <span className="material-symbols-outlined fill-icon" style={{ color: '#22c55e', fontSize: 32 }}>favorite</span>
+                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--success)', fontSize: 32 }}>favorite</span>
                     </button>
                     <button className="action-btn medium" onClick={() => handleSwipeAction('super_like')} title="Super Like">
-                        <span className="material-symbols-outlined fill-icon" style={{ color: '#3b82f6', fontSize: 28 }}>star</span>
+                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--info)', fontSize: 28 }}>star</span>
                     </button>
                 </div>
             )}

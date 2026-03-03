@@ -14,6 +14,7 @@ import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
 import ViewProfile from './pages/ViewProfile';
 import Settings from './pages/Settings';
+import AdminDashboard from './pages/AdminDashboard';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -46,6 +47,7 @@ function AppRoutes() {
         <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
         <Route path="/profile/view" element={<ProtectedRoute><ViewProfile /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -57,11 +59,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
+      <ToastProvider>
+        <AuthProvider>
           <AppRoutes />
-        </ToastProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </ToastProvider>
     </BrowserRouter>
   );
 }

@@ -35,6 +35,8 @@ export default function Layout() {
         return () => clearInterval(interval);
     }, [isAuthenticated, location.pathname]);
 
+    const isLanding = location.pathname === '/';
+
     return (
         <div id="layout">
             {showNav && (
@@ -54,7 +56,7 @@ export default function Layout() {
                     ))}
                 </nav>
             )}
-            <div className="app-container">
+            <div className={isLanding ? 'landing-wrapper' : 'app-container'}>
                 <Outlet />
             </div>
         </div>
