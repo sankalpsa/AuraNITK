@@ -29,6 +29,7 @@ export default function AdminDashboard() {
         } else if (user && user.is_admin === 1) {
             setLoading(false);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, isUnlocked]);
 
     const handleUnlock = async (e) => {

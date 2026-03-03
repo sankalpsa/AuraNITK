@@ -184,7 +184,7 @@ export default function Settings() {
                         </div>
                     )}
 
-                    <div className="settings-item" onClick={() => navigate('/connections')}>
+                    <div className="settings-item" onClick={() => showToast('Blocked Profiles coming soon!', 'info')}>
                         <div className="settings-item-left">
                             <span className="material-symbols-outlined">block</span>
                             <div>

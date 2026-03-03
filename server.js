@@ -355,7 +355,7 @@ async function sanitizeUser(u) {
     try { safe.red_flags = typeof safe.red_flags === 'string' ? JSON.parse(safe.red_flags || '[]') : (safe.red_flags || []); } catch { safe.red_flags = []; }
     // Attach user photos
     try {
-        safe.photos = await db.query('SELECT id, photo_url, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [safe.id]);
+        safe.photos = await db.query('SELECT id, photo_url, caption, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [safe.id]);
     } catch { safe.photos = []; }
     // Attach profile prompts
     try {
@@ -620,7 +620,7 @@ app.post('/api/profile/photo', authenticate, upload.single('photo'), async (req,
             await db.run('UPDATE users SET photo = ? WHERE id = ?', [photoUrl, req.user.id]);
         }
 
-        const photos = await db.query('SELECT id, photo_url, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
+        const photos = await db.query('SELECT id, photo_url, caption, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
         res.json({ photo: photoUrl, photos });
     } catch (e) {
         console.error('Upload error:', e);
@@ -660,7 +660,7 @@ app.delete('/api/profile/photo/:photoId', authenticate, async (req, res) => {
             }
         }
 
-        const photos = await db.query('SELECT id, photo_url, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
+        const photos = await db.query('SELECT id, photo_url, caption, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
         res.json({ success: true, photos });
     } catch (e) {
         console.error('Delete photo error:', e);
@@ -680,7 +680,7 @@ app.put('/api/profile/photo/:photoId/primary', authenticate, async (req, res) =>
         await db.run('UPDATE user_photos SET is_primary = 1 WHERE id = ?', [photoId]);
         await db.run('UPDATE users SET photo = ? WHERE id = ?', [photo.photo_url, req.user.id]);
 
-        const photos = await db.query('SELECT id, photo_url, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
+        const photos = await db.query('SELECT id, photo_url, caption, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
         res.json({ success: true, photos, photo: photo.photo_url });
     } catch (e) {
         console.error('Set primary error:', e);
@@ -691,9 +691,47 @@ app.put('/api/profile/photo/:photoId/primary', authenticate, async (req, res) =>
 // Get user photos
 app.get('/api/profile/photos', authenticate, async (req, res) => {
     try {
-        const photos = await db.query('SELECT id, photo_url, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
+        const photos = await db.query('SELECT id, photo_url, caption, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
         res.json({ photos });
     } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Update photo caption
+app.patch('/api/profile/photo/:photoId/caption', authenticate, async (req, res) => {
+    try {
+        const photoId = parseInt(req.params.photoId);
+        const { caption } = req.body;
+        const photo = await db.queryOne('SELECT * FROM user_photos WHERE id = ? AND user_id = ?', [photoId, req.user.id]);
+        if (!photo) return res.status(404).json({ error: 'Photo not found' });
+        await db.run('UPDATE user_photos SET caption = ? WHERE id = ?', [caption || '', photoId]);
+        const photos = await db.query('SELECT id, photo_url, caption, is_primary, position FROM user_photos WHERE user_id = ? ORDER BY is_primary DESC, position ASC', [req.user.id]);
+        res.json({ success: true, photos });
+    } catch (e) {
+        console.error('Caption update error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get another user's public profile by ID
+app.get('/api/users/:id/profile', authenticate, async (req, res) => {
+    try {
+        const targetId = parseInt(req.params.id);
+        if (!targetId || isNaN(targetId)) return res.status(400).json({ error: 'Invalid user ID' });
+        const user = await db.queryOne('SELECT * FROM users WHERE id = ? AND is_active = 1', [targetId]);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        const safeUser = await sanitizeUser(user);
+        // Calculate shared interests
+        const myInterests = req.user.interests ? JSON.parse(req.user.interests) : [];
+        const shared = safeUser.interests.filter(i => myInterests.includes(i));
+        safeUser.shared_interests = shared;
+        safeUser.match_percent = myInterests.length > 0
+            ? Math.min(99, Math.round((shared.length / Math.max(myInterests.length, 1)) * 100 + 40))
+            : Math.floor(60 + Math.random() * 30);
+        res.json({ user: safeUser });
+    } catch (e) {
+        console.error('Get user profile error:', e);
         res.status(500).json({ error: 'Server error' });
     }
 });
