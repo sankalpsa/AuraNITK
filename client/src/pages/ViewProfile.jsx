@@ -18,7 +18,6 @@ export default function ViewProfile() {
     const [headerShrunk, setHeaderShrunk] = useState(false);
     const [activePhoto, setActivePhoto] = useState(0);
     const [imgViewerOpen, setImgViewerOpen] = useState(false);
-    const scrollRef = useRef(null);
 
     // Anonymous Q&A
     const [anonQuestion, setAnonQuestion] = useState('');
@@ -44,13 +43,13 @@ export default function ViewProfile() {
         }
     }, [passedProfile]);
 
-    // Scroll listener for sticky header
+    // Scroll listener for sticky header — uses window so normal doc-flow scroll works
     useEffect(() => {
-        const el = scrollRef.current;
-        if (!el) return;
-        const onScroll = () => setHeaderShrunk(el.scrollTop > 260);
-        el.addEventListener('scroll', onScroll, { passive: true });
-        return () => el.removeEventListener('scroll', onScroll);
+        const onScroll = () => setHeaderShrunk(window.scrollY > 260);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        // Scroll to top when page mounts
+        window.scrollTo(0, 0);
+        return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
     // Load answered questions
@@ -128,7 +127,7 @@ export default function ViewProfile() {
     const firstName = profile.name?.split(' ')[0] || profile.name;
 
     return (
-        <div className="vp-page" ref={scrollRef}>
+        <div className="vp-page">
 
             {/* ── Floating Top Bar ── */}
             <div className={`vp-topbar ${headerShrunk ? 'shrunk' : ''}`}>

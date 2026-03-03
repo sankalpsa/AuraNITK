@@ -12,6 +12,8 @@ const NAV_ITEMS = [
 ];
 
 const MAIN_PATHS = ['/discover', '/connections', '/chat', '/likes', '/profile', '/settings'];
+// Full-screen pages that have their own action bars — hide the bottom nav on these
+const NO_NAV_PATHS = ['/profile/view', '/chat/convo'];
 
 export default function Layout() {
     const location = useLocation();
@@ -19,7 +21,8 @@ export default function Layout() {
     const { isAuthenticated } = useAuth();
     const [unreadCount, setUnreadCount] = useState(0);
 
-    const showNav = isAuthenticated && MAIN_PATHS.some(p => location.pathname.startsWith(p));
+    const isNoNav = NO_NAV_PATHS.some(p => location.pathname.startsWith(p));
+    const showNav = isAuthenticated && !isNoNav && MAIN_PATHS.some(p => location.pathname.startsWith(p));
 
     useEffect(() => {
         if (!isAuthenticated) return;
