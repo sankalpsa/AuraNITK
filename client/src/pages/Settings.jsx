@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Settings() {
     const navigate = useNavigate();
     const { user, logout, isAuthenticated } = useAuth();
     const { showToast } = useToast();
+    const { theme, toggleTheme } = useTheme();
     const [reports, setReports] = useState([]);
     const [showChangePass, setShowChangePass] = useState(false);
     const [currentPass, setCurrentPass] = useState('');
@@ -238,6 +240,22 @@ export default function Settings() {
                                 setReadReceipts(e.target.checked);
                                 showToast(e.target.checked ? 'Read Receipts ON' : 'Read Receipts OFF', 'info');
                             }} />
+                            <span className="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item" style={{ cursor: 'default' }}>
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>
+                                {theme === 'light' ? 'light_mode' : 'dark_mode'}
+                            </span>
+                            <div>
+                                <span className="settings-item-title">Dark Mode</span>
+                                <span className="settings-item-sub">Switch between light and dark themes</span>
+                            </div>
+                        </div>
+                        <label className="toggle-switch">
+                            <input type="checkbox" checked={theme === 'dark'} onChange={toggleTheme} />
                             <span className="toggle-slider"></span>
                         </label>
                     </div>

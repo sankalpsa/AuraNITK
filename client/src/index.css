@@ -42,7 +42,20 @@ body {
   --danger: #ef4444;
   --info: #3b82f6;
 
-  /* Default Dark Mode (Legacy Fallback) */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  --gradient-primary: linear-gradient(135deg, #ee2b9d 0%, #b721ff 50%, #21d4fd 100%);
+
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ---------- Dark Theme (Default) ---------- */
+[data-theme='dark'],
+:root:not([data-theme='light']) {
   --bg: #0a0a0f;
   --bg-card: #141420;
   --bg-elevated: #1c1c2e;
@@ -56,15 +69,8 @@ body {
   --border: rgba(255, 255, 255, 0.08);
   --border-light: rgba(255, 255, 255, 0.12);
 
-  --gradient-primary: linear-gradient(135deg, #ee2b9d 0%, #b721ff 50%, #21d4fd 100%);
   --gradient-card: linear-gradient(145deg, #141420, #1c1c2e);
   --gradient-hero: linear-gradient(180deg, transparent, rgba(10, 10, 15, 0.9));
-
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --radius-full: 9999px;
 
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
@@ -72,30 +78,31 @@ body {
   --shadow-glow: 0 0 30px rgba(238, 43, 157, 0.3);
 }
 
-/* ---------- Auto Detect Display (Light Mode) ---------- */
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f8f9fc;
-    --bg-card: #ffffff;
-    --bg-elevated: #f1f3f9;
-    --bg-hover: #eceef4;
-    --bg-input: #eff2f7;
+/* ---------- Light Theme ---------- */
+[data-theme='light'] {
+  --bg: #f8f9fc;
+  --bg-card: #ffffff;
+  --bg-elevated: #f1f3f9;
+  --bg-hover: #eceef4;
+  --bg-input: #eff2f7;
 
-    --text: #1a1a2e;
-    --text-secondary: #4a4a68;
-    --text-muted: #80809b;
+  --text: #1a1a2e;
+  --text-secondary: #4a4a68;
+  --text-muted: #80809b;
 
-    --border: rgba(0, 0, 0, 0.08);
-    --border-light: rgba(0, 0, 0, 0.12);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-light: rgba(0, 0, 0, 0.12);
 
-    --gradient-card: linear-gradient(145deg, #ffffff, #f1f3f9);
-    --gradient-hero: linear-gradient(180deg, transparent, rgba(248, 249, 252, 0.9));
+  --gradient-card: linear-gradient(145deg, #ffffff, #f1f3f9);
+  --gradient-hero: linear-gradient(180deg, transparent, rgba(248, 249, 252, 0.9));
 
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.1);
-  }
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 30px rgba(238, 43, 157, 0.1);
 }
+
+/* ---------- Theme Support Removed Auto Logic in favor of manual toggle ---------- */
 
 /* ---------- Typography ---------- */
 .font-serif {
