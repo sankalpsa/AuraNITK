@@ -1334,25 +1334,6 @@ app.put('/api/anonymous-questions/:id/answer', authenticate, async (req, res) =>
     }
 });
 
-// Broadcast announcement to all users
-app.post('/api/admin/broadcast', authenticate, isAdmin, async (req, res) => {
-    try {
-        const { title, message, type } = req.body; // type: info, warning, success
-        if (!title || !message) return res.status(400).json({ error: 'Title and message required' });
-
-        io.emit('admin_announcement', {
-            title,
-            message,
-            type: type || 'info',
-            timestamp: new Date()
-        });
-
-        res.json({ success: true, message: 'Broadcast sent successfully' });
-    } catch (e) {
-        res.status(500).json({ error: 'Failed to send broadcast' });
-    }
-});
-
 // Delete a question I've received
 app.delete('/api/anonymous-questions/:id', authenticate, async (req, res) => {
     try {
