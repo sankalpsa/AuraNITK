@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -17,10 +17,22 @@ export default function Settings() {
     const [confirmPass, setConfirmPass] = useState('');
     const [passLoading, setPassLoading] = useState(false);
     const [showSafety, setShowSafety] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Premium Features state
     const [incognito, setIncognito] = useState(false);
     const [readReceipts, setReadReceipts] = useState(true);
+
+    // Search filter helper — returns true if the section should be visible
+    const q = searchQuery.toLowerCase().trim();
+    const show = useMemo(() => ({
+        account: !q || ['account', 'edit', 'profile', 'password', 'view', 'change'].some(k => k.includes(q) || q.includes(k)),
+        privacy: !q || ['privacy', 'safety', 'block', 'premium', 'incognito', 'read', 'receipt', 'dark', 'mode', 'theme'].some(k => k.includes(q) || q.includes(k)),
+        howTo: !q || ['how', 'use', 'swipe', 'like', 'match', 'tap', 'timer', 'help'].some(k => k.includes(q) || q.includes(k)),
+        about: !q || ['about', 'version', 'info', 'nitknot', 'credit'].some(k => k.includes(q) || q.includes(k)),
+        logins: !q || ['login', 'logout', 'log', 'admin', 'sign'].some(k => k.includes(q) || q.includes(k)),
+        danger: !q || ['danger', 'deactivate', 'delete', 'account', 'remove'].some(k => k.includes(q) || q.includes(k)),
+    }), [q]);
 
     useEffect(() => {
         if (!isAuthenticated) navigate('/', { replace: true });
@@ -89,18 +101,29 @@ export default function Settings() {
                 <button className="btn-icon" onClick={() => navigate('/profile')}>
                     <span className="material-symbols-outlined">arrow_back</span>
                 </button>
-                <h2>Settings & Activity </h2>
+                <h2>Settings & Activity</h2>
             </div>
 
             <div className="settings-body">
-                {/* Search-like top area (Instagram style) */}
+                {/* Functional search bar */}
                 <div className="settings-search-bar">
                     <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--text-muted)' }}>search</span>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Search settings</span>
+                    <input
+                        type="text"
+                        placeholder="Search settings..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="settings-search-input"
+                    />
+                    {searchQuery && (
+                        <button className="btn-icon" onClick={() => setSearchQuery('')} style={{ padding: 2 }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--text-muted)' }}>close</span>
+                        </button>
+                    )}
                 </div>
 
                 {/* Your Account — Instagram style */}
-                <div className="settings-section">
+                {show.account && <div className="settings-section">
                     <div className="settings-section-header">
                         <span className="material-symbols-outlined" style={{ fontSize: 20 }}>account_circle</span>
                         <div>
@@ -155,10 +178,10 @@ export default function Settings() {
                             </button>
                         </div>
                     )}
-                </div>
+                </div>}
 
                 {/* Privacy & Safety — Instagram style */}
-                <div className="settings-section">
+                {show.privacy && <div className="settings-section">
                     <div className="settings-section-header">
                         <span className="material-symbols-outlined" style={{ fontSize: 20 }}>shield</span>
                         <div>
@@ -259,7 +282,7 @@ export default function Settings() {
                             <span className="toggle-slider"></span>
                         </label>
                     </div>
-                </div>
+                </div>}
 
                 {/* Report History */}
                 {reports.length > 0 && (
@@ -288,7 +311,7 @@ export default function Settings() {
                 )}
 
                 {/* How to use NITKnot */}
-                <div className="settings-section">
+                {show.howTo && <div className="settings-section">
                     <div className="settings-section-header">
                         <span className="material-symbols-outlined" style={{ fontSize: 20 }}>help</span>
                         <div>
@@ -333,10 +356,10 @@ export default function Settings() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>}
 
                 {/* About NITKnot */}
-                <div className="settings-section">
+                {show.about && <div className="settings-section">
                     <div className="settings-section-header">
                         <span className="material-symbols-outlined" style={{ fontSize: 20 }}>info</span>
                         <div>
@@ -358,10 +381,10 @@ export default function Settings() {
                             <span className="about-badge">💕 Free Forever</span>
                         </div>
                     </div>
-                </div>
+                </div>}
 
                 {/* Login section — Instagram-style "Log in" section */}
-                <div className="settings-section">
+                {show.logins && <div className="settings-section">
                     <div className="settings-section-header">
                         <span className="material-symbols-outlined" style={{ fontSize: 20 }}>login</span>
                         <div>
@@ -387,10 +410,10 @@ export default function Settings() {
                         <span className="material-symbols-outlined">logout</span>
                         Log out
                     </button>
-                </div>
+                </div>}
 
                 {/* Danger Zone */}
-                <div className="settings-section danger-zone">
+                {show.danger && <div className="settings-section danger-zone">
                     <div className="settings-section-header">
                         <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--danger)' }}>dangerous</span>
                         <div>
@@ -418,7 +441,7 @@ export default function Settings() {
                         </div>
                         <span className="material-symbols-outlined settings-chevron" style={{ color: 'var(--danger)' }}>chevron_right</span>
                     </div>
-                </div>
+                </div>}
             </div>
         </div>
     );

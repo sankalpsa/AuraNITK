@@ -3796,6 +3796,20 @@ select.input-field {
   border: 1px solid var(--border);
 }
 
+.settings-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.settings-search-input::placeholder {
+  color: var(--text-muted);
+}
+
 .settings-section-header {
   display: flex;
   align-items: flex-start;
