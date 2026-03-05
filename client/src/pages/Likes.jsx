@@ -63,7 +63,7 @@ export default function Likes() {
                                             )}
                                         </div>
                                         <div className="connection-card-overlay">
-                                            <h3>{isBlur ? 'Someone special' : u.name}, {isBlur ? '??' : u.age} {u.is_verified && !isBlur ? '✅' : ''}</h3>
+                                            <h3>{isBlur ? 'Someone special' : u.name}, {isBlur ? '??' : u.age} {u.is_verified === 1 && !isBlur ? '✅' : ''}</h3>
                                             <p>{isBlur ? 'Matched by interest' : u.branch}</p>
                                         </div>
                                         <span className="connection-card-badge" style={u.is_super_like ? { background: 'var(--info)' } : {}}>

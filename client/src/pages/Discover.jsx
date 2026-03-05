@@ -292,7 +292,7 @@ export default function Discover() {
                                     <div className="card-info-overlay">
                                         <div className="card-name-row">
                                             <span className="card-name font-serif">{p.name}, {p.age}</span>
-                                            {p.is_verified && <span className="material-symbols-outlined fill-icon" style={{ color: '#ee2b9d', fontSize: 20 }}>verified</span>}
+                                            {p.is_verified === 1 && <span className="material-symbols-outlined fill-icon" style={{ color: '#ee2b9d', fontSize: 20 }}>verified</span>}
                                         </div>
                                         <div className="card-detail">{p.branch} • {p.year}</div>
                                         <div className="card-location"><span className="material-symbols-outlined">location_on</span>NITK Surathkal</div>

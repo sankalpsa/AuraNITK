@@ -423,6 +423,7 @@ async function initTables() {
         "ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0",
         "ALTER TABLE users ADD COLUMN id_card_url TEXT",
         "ALTER TABLE users ADD COLUMN verification_status TEXT DEFAULT 'unverified'",
+        "ALTER TABLE user_photos ADD COLUMN caption TEXT DEFAULT ''",
     ];
 
     for (const migration of migrations) {

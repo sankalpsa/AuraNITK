@@ -28,13 +28,13 @@ export default function AdminDashboard() {
     const [sendingBroadcast, setSendingBroadcast] = useState(false);
 
     useEffect(() => {
-        if (user && user.is_admin === 1 && isUnlocked) {
+        if (isAuthenticated && user && user.is_admin === 1 && isUnlocked) {
             loadDashboardData();
-        } else if (user && user.is_admin === 1) {
+        } else if (isAuthenticated && user && user.is_admin === 1) {
             setLoading(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user, isUnlocked]);
+    }, [user, isUnlocked, isAuthenticated]);
 
     const handleUnlock = async (e) => {
         e.preventDefault();
@@ -339,7 +339,7 @@ export default function AdminDashboard() {
                                     <div className="item-footer">
                                         <div className="user-pair">
                                             <span className="user-chip">
-                                                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>person</span>
+                                                {p.is_verified === 1 && <span className="material-symbols-outlined fill-icon" style={{ color: '#ee2b9d', fontSize: 20 }}>verified</span>}
                                                 {r.reporter_name}
                                             </span>
                                             <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--text-muted)' }}>arrow_forward</span>
@@ -393,6 +393,7 @@ export default function AdminDashboard() {
                                             </div>
                                         ) : (
                                             <div className="id-preview" onClick={() => window.open(u.id_card_url, '_blank')}>
+                                                <h3>{isBlur ? 'Someone special' : u.name}, {isBlur ? '??' : u.age} {u.is_verified === 1 && !isBlur ? '✅' : ''}</h3>
                                                 <img src={u.id_card_url} alt="ID Card" />
                                                 <div className="id-overlay">
                                                     <span className="material-symbols-outlined">open_in_new</span>

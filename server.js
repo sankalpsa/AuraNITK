@@ -465,7 +465,10 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(400).json({ error: 'Only @nitk.edu.in emails allowed.' });
 
         const otpData = otpStore.get(normalizedEmail);
-        if (!normalizedEmail.startsWith('test') && (!otpData || !otpData.verified))
+        const isProd = process.env.NODE_ENV === 'production';
+        const isTestEmail = normalizedEmail.startsWith('test');
+
+        if ((isProd || !isTestEmail) && (!otpData || !otpData.verified))
             return res.status(403).json({ error: 'Email not verified. Verify OTP first.' });
 
 
@@ -488,7 +491,7 @@ app.post('/api/auth/register', async (req, res) => {
                 JSON.stringify(interests || []),
                 JSON.stringify(green_flags || []),
                 JSON.stringify(red_flags || []),
-                1
+                0
             ]
         );
 

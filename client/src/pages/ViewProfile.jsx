@@ -199,7 +199,7 @@ export default function ViewProfile() {
                             {profile.name}
                             <span className="vp-age">, {profile.age}</span>
                         </h1>
-                        {profile.is_verified && (
+                        {profile.is_verified === 1 && (
                             <span className="material-symbols-outlined fill-icon vp-verified">verified</span>
                         )}
                     </div>
