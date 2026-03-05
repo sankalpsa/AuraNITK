@@ -259,6 +259,7 @@ async function initTables() {
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 photo_url TEXT NOT NULL,
+                caption TEXT DEFAULT '',
                 is_primary INTEGER DEFAULT 0,
                 position INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -352,6 +353,7 @@ async function initTables() {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 photo_url TEXT NOT NULL,
+                caption TEXT DEFAULT '',
                 is_primary INTEGER DEFAULT 0,
                 position INTEGER DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

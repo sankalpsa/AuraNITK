@@ -339,7 +339,7 @@ export default function Profile() {
                             <div className="pf-section-title-row">
                                 <span className="material-symbols-outlined" style={{ color: '#a78bfa' }}>forum</span>
                                 <h3>Anonymous Questions</h3>
-                                {pendingQs.length > 0 && <span className="pf-badge-pill">{pendingQs.length} new</span>}
+                                {anonQuestions.filter(q => !q.answer).length > 0 && <span className="pf-badge-pill">{anonQuestions.filter(q => !q.answer).length} new</span>}
                             </div>
                         </div>
                         <div className="pf-anon-list">
@@ -454,8 +454,8 @@ export default function Profile() {
                                         setEditingCaptionId(photos[activePhoto]?.id);
                                         setCaptionText(photos[activePhoto]?.caption || '');
                                     }}>
-                                        {currentPhoto?.caption
-                                            ? <span className="pf-caption-text">"{currentPhoto.caption}"</span>
+                                        {photos[activePhoto]?.caption
+                                            ? <span className="pf-caption-text">"{photos[activePhoto].caption}"</span>
                                             : <span className="pf-caption-placeholder">
                                                 <span className="material-symbols-outlined" style={{ fontSize: 14 }}>edit</span>
                                                 Add caption...
@@ -485,13 +485,13 @@ export default function Profile() {
 
                             {/* Photo actions */}
                             <div className="pf-photo-actions">
-                                {!currentPhoto?.is_primary && (
-                                    <button className="pf-photo-action-btn" onClick={() => setPrimary(currentPhoto?.id)}>
+                                {!photos[activePhoto]?.is_primary && (
+                                    <button className="pf-photo-action-btn" onClick={() => setPrimary(photos[activePhoto]?.id)}>
                                         <span className="material-symbols-outlined" style={{ fontSize: 16 }}>star</span>
                                         Set Cover
                                     </button>
                                 )}
-                                <button className="pf-photo-action-btn danger" onClick={() => deletePhoto(currentPhoto?.id)}>
+                                <button className="pf-photo-action-btn danger" onClick={() => deletePhoto(photos[activePhoto]?.id)}>
                                     <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
                                     Delete
                                 </button>
