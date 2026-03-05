@@ -1720,6 +1720,202 @@ app.put('/api/profile/spotify', authenticate, async (req, res) => {
 });
 
 // ========================================
+// PREMIUM PAYMENT SYSTEM
+// ========================================
+
+// --- User Routes ---
+
+// Check premium status
+app.get('/api/premium/status', authenticate, async (req, res) => {
+    try {
+        const user = await db.queryOne('SELECT is_premium, premium_until FROM users WHERE id = ?', [req.user.id]);
+        // Check if premium has expired
+        if (user && user.is_premium === 1 && user.premium_until) {
+            const expiry = new Date(user.premium_until);
+            if (expiry < new Date()) {
+                // Premium expired — downgrade
+                await db.run('UPDATE users SET is_premium = 0, premium_until = NULL WHERE id = ?', [req.user.id]);
+                return res.json({ is_premium: 0, premium_until: null });
+            }
+        }
+        res.json({
+            is_premium: user?.is_premium || 0,
+            premium_until: user?.premium_until || null
+        });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get active payment methods (for users to see QR codes)
+app.get('/api/premium/methods', authenticate, async (req, res) => {
+    try {
+        const methods = await db.query('SELECT id, label, type, qr_image_url, upi_id FROM payment_methods WHERE is_active = 1 ORDER BY id DESC');
+        res.json({ methods });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Submit premium payment request
+app.post('/api/premium/subscribe', authenticate, upload.single('screenshot'), async (req, res) => {
+    try {
+        const { transaction_id, payment_method_id, amount } = req.body;
+        if (!transaction_id) return res.status(400).json({ error: 'Transaction ID is required' });
+
+        // Check if user already has a pending request
+        const existing = await db.queryOne(
+            "SELECT id FROM premium_requests WHERE user_id = ? AND status = 'pending'",
+            [req.user.id]
+        );
+        if (existing) return res.status(400).json({ error: 'You already have a pending premium request. Please wait for admin review.' });
+
+        // Handle screenshot upload
+        let screenshotUrl = null;
+        if (req.file) {
+            screenshotUrl = req.file.path || req.file.secure_url || req.file.url || `/uploads/${req.file.filename}`;
+        }
+
+        await db.run(
+            'INSERT INTO premium_requests (user_id, payment_method_id, transaction_id, screenshot_url, amount) VALUES (?, ?, ?, ?, ?)',
+            [req.user.id, payment_method_id || null, transaction_id, screenshotUrl, amount || '49']
+        );
+
+        res.json({ success: true, message: 'Payment submitted! Admin will review within 24 hours.' });
+    } catch (e) {
+        console.error('Premium subscribe error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get user's premium requests history
+app.get('/api/premium/requests', authenticate, async (req, res) => {
+    try {
+        const requests = await db.query(
+            'SELECT id, transaction_id, amount, status, admin_note, created_at, reviewed_at FROM premium_requests WHERE user_id = ? ORDER BY created_at DESC',
+            [req.user.id]
+        );
+        res.json({ requests });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// --- Admin Routes ---
+
+// Get all payment methods (active + inactive)
+app.get('/api/admin/payment-methods', authenticate, isAdmin, async (req, res) => {
+    try {
+        const methods = await db.query('SELECT * FROM payment_methods ORDER BY id DESC');
+        res.json({ methods });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Add a new payment method
+app.post('/api/admin/payment-methods', authenticate, isAdmin, upload.single('qr_image'), async (req, res) => {
+    try {
+        const { label, type, upi_id } = req.body;
+        if (!label) return res.status(400).json({ error: 'Label is required' });
+
+        let qrImageUrl = null;
+        if (req.file) {
+            qrImageUrl = req.file.path || req.file.secure_url || req.file.url || `/uploads/${req.file.filename}`;
+        }
+
+        await db.run(
+            'INSERT INTO payment_methods (label, type, qr_image_url, upi_id) VALUES (?, ?, ?, ?)',
+            [label, type || 'qr', qrImageUrl, upi_id || null]
+        );
+
+        const methods = await db.query('SELECT * FROM payment_methods ORDER BY id DESC');
+        res.json({ success: true, methods });
+    } catch (e) {
+        console.error('Add payment method error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Toggle payment method active/inactive
+app.put('/api/admin/payment-methods/:id/toggle', authenticate, isAdmin, async (req, res) => {
+    try {
+        const method = await db.queryOne('SELECT is_active FROM payment_methods WHERE id = ?', [parseInt(req.params.id)]);
+        if (!method) return res.status(404).json({ error: 'Payment method not found' });
+        await db.run('UPDATE payment_methods SET is_active = ? WHERE id = ?', [method.is_active === 1 ? 0 : 1, parseInt(req.params.id)]);
+        const methods = await db.query('SELECT * FROM payment_methods ORDER BY id DESC');
+        res.json({ success: true, methods });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Delete payment method
+app.delete('/api/admin/payment-methods/:id', authenticate, isAdmin, async (req, res) => {
+    try {
+        await db.run('DELETE FROM payment_methods WHERE id = ?', [parseInt(req.params.id)]);
+        const methods = await db.query('SELECT * FROM payment_methods ORDER BY id DESC');
+        res.json({ success: true, methods });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get all premium requests (admin)
+app.get('/api/admin/premium-requests', authenticate, isAdmin, async (req, res) => {
+    try {
+        const requests = await db.query(
+            `SELECT pr.*, u.name as user_name, u.email as user_email, u.branch as user_branch
+             FROM premium_requests pr
+             JOIN users u ON pr.user_id = u.id
+             ORDER BY CASE WHEN pr.status = 'pending' THEN 0 ELSE 1 END, pr.created_at DESC`
+        );
+        res.json({ requests });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Approve premium request
+app.put('/api/admin/premium-requests/:id/approve', authenticate, isAdmin, async (req, res) => {
+    try {
+        const request = await db.queryOne('SELECT * FROM premium_requests WHERE id = ?', [parseInt(req.params.id)]);
+        if (!request) return res.status(404).json({ error: 'Request not found' });
+        if (request.status !== 'pending') return res.status(400).json({ error: 'Request already processed' });
+
+        // Set premium for 30 days from now
+        const premiumUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+        await db.run('UPDATE premium_requests SET status = ?, admin_note = ?, reviewed_at = ? WHERE id = ?',
+            ['approved', req.body.note || 'Approved', new Date().toISOString(), parseInt(req.params.id)]);
+
+        await db.run('UPDATE users SET is_premium = 1, premium_until = ? WHERE id = ?',
+            [premiumUntil, request.user_id]);
+
+        res.json({ success: true, message: 'User upgraded to premium!' });
+    } catch (e) {
+        console.error('Approve premium error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Reject premium request
+app.put('/api/admin/premium-requests/:id/reject', authenticate, isAdmin, async (req, res) => {
+    try {
+        const request = await db.queryOne('SELECT * FROM premium_requests WHERE id = ?', [parseInt(req.params.id)]);
+        if (!request) return res.status(404).json({ error: 'Request not found' });
+        if (request.status !== 'pending') return res.status(400).json({ error: 'Request already processed' });
+
+        await db.run('UPDATE premium_requests SET status = ?, admin_note = ?, reviewed_at = ? WHERE id = ?',
+            ['rejected', req.body.note || 'Rejected', new Date().toISOString(), parseInt(req.params.id)]);
+
+        res.json({ success: true, message: 'Request rejected' });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// ========================================
 // MATCH EXPIRATION (48h auto-cleanup)
 // ========================================
 

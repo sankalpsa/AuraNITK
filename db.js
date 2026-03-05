@@ -283,6 +283,32 @@ async function initTables() {
             CREATE INDEX IF NOT EXISTS idx_user_photos_user ON user_photos(user_id);
             CREATE INDEX IF NOT EXISTS idx_anon_q_receiver ON anonymous_questions(receiver_id);
             CREATE INDEX IF NOT EXISTS idx_anon_q_sender ON anonymous_questions(sender_id);
+
+            CREATE TABLE IF NOT EXISTS payment_methods (
+                id SERIAL PRIMARY KEY,
+                label TEXT NOT NULL,
+                type TEXT NOT NULL DEFAULT 'qr',
+                qr_image_url TEXT,
+                upi_id TEXT,
+                is_active INTEGER DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS premium_requests (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                payment_method_id INTEGER REFERENCES payment_methods(id),
+                transaction_id TEXT,
+                screenshot_url TEXT,
+                amount TEXT DEFAULT '49',
+                status TEXT DEFAULT 'pending',
+                admin_note TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                reviewed_at TIMESTAMP
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_premium_req_user ON premium_requests(user_id);
+            CREATE INDEX IF NOT EXISTS idx_premium_req_status ON premium_requests(status);
         `);
     } else {
         // Use whichever SQLite engine is available
@@ -398,7 +424,32 @@ async function initTables() {
             `CREATE INDEX IF NOT EXISTS idx_message_reactions_msg ON message_reactions(message_id)`,
             `CREATE INDEX IF NOT EXISTS idx_profile_prompts_user ON profile_prompts(user_id)`,
             `CREATE INDEX IF NOT EXISTS idx_anon_q_receiver ON anonymous_questions(receiver_id)`,
-            `CREATE INDEX IF NOT EXISTS idx_anon_q_sender ON anonymous_questions(sender_id)`
+            `CREATE INDEX IF NOT EXISTS idx_anon_q_sender ON anonymous_questions(sender_id)`,
+            `CREATE TABLE IF NOT EXISTS payment_methods (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                label TEXT NOT NULL,
+                type TEXT NOT NULL DEFAULT 'qr',
+                qr_image_url TEXT,
+                upi_id TEXT,
+                is_active INTEGER DEFAULT 1,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`,
+            `CREATE TABLE IF NOT EXISTS premium_requests (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                payment_method_id INTEGER,
+                transaction_id TEXT,
+                screenshot_url TEXT,
+                amount TEXT DEFAULT '49',
+                status TEXT DEFAULT 'pending',
+                admin_note TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                reviewed_at DATETIME,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id)
+            )`,
+            `CREATE INDEX IF NOT EXISTS idx_premium_req_user ON premium_requests(user_id)`,
+            `CREATE INDEX IF NOT EXISTS idx_premium_req_status ON premium_requests(status)`
         ];
         for (const stmt of createStatements) {
             try { sqliteExec(stmt); } catch (e) { /* table/index may already exist */ }
@@ -424,6 +475,9 @@ async function initTables() {
         "ALTER TABLE users ADD COLUMN id_card_url TEXT",
         "ALTER TABLE users ADD COLUMN verification_status TEXT DEFAULT 'unverified'",
         "ALTER TABLE user_photos ADD COLUMN caption TEXT DEFAULT ''",
+        // Premium system
+        'ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0',
+        "ALTER TABLE users ADD COLUMN premium_until TEXT",
     ];
 
     for (const migration of migrations) {

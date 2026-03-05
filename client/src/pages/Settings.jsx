@@ -23,11 +23,20 @@ export default function Settings() {
     const [incognito, setIncognito] = useState(false);
     const [readReceipts, setReadReceipts] = useState(true);
 
+    // Premium subscription state
+    const [premiumStatus, setPremiumStatus] = useState({ is_premium: 0, premium_until: null });
+    const [paymentMethods, setPaymentMethods] = useState([]);
+    const [myRequests, setMyRequests] = useState([]);
+    const [showPaymentForm, setShowPaymentForm] = useState(false);
+    const [paymentTxnId, setPaymentTxnId] = useState('');
+    const [paymentScreenshot, setPaymentScreenshot] = useState(null);
+    const [submittingPayment, setSubmittingPayment] = useState(false);
+
     // Search filter helper — returns true if the section should be visible
     const q = searchQuery.toLowerCase().trim();
     const show = useMemo(() => ({
         account: !q || ['account', 'edit', 'profile', 'password', 'view', 'change'].some(k => k.includes(q) || q.includes(k)),
-        privacy: !q || ['privacy', 'safety', 'block', 'premium', 'incognito', 'read', 'receipt', 'dark', 'mode', 'theme'].some(k => k.includes(q) || q.includes(k)),
+        privacy: !q || ['privacy', 'safety', 'block', 'premium', 'incognito', 'read', 'receipt', 'dark', 'mode', 'theme', 'pay', 'subscribe'].some(k => k.includes(q) || q.includes(k)),
         howTo: !q || ['how', 'use', 'swipe', 'like', 'match', 'tap', 'timer', 'help'].some(k => k.includes(q) || q.includes(k)),
         about: !q || ['about', 'version', 'info', 'nitknot', 'credit'].some(k => k.includes(q) || q.includes(k)),
         logins: !q || ['login', 'logout', 'log', 'admin', 'sign'].some(k => k.includes(q) || q.includes(k)),
@@ -37,6 +46,7 @@ export default function Settings() {
     useEffect(() => {
         if (!isAuthenticated) navigate('/', { replace: true });
         loadReports();
+        loadPremiumData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
 
@@ -46,6 +56,48 @@ export default function Settings() {
             setReports(data.reports || []);
         } catch { /* endpoint may not exist yet */ }
     }
+
+    async function loadPremiumData() {
+        try {
+            const [status, methods, requests] = await Promise.all([
+                apiFetch('/api/premium/status'),
+                apiFetch('/api/premium/methods'),
+                apiFetch('/api/premium/requests'),
+            ]);
+            setPremiumStatus(status || { is_premium: 0 });
+            setPaymentMethods(methods.methods || []);
+            setMyRequests(requests.requests || []);
+        } catch { /* premium endpoints may not exist yet */ }
+    }
+
+    const handleSubmitPayment = async () => {
+        if (!paymentTxnId) return showToast('Transaction ID is required', 'error');
+        setSubmittingPayment(true);
+        try {
+            const formData = new FormData();
+            formData.append('transaction_id', paymentTxnId);
+            if (paymentScreenshot) formData.append('screenshot', paymentScreenshot);
+            formData.append('amount', '49');
+            if (paymentMethods.length > 0) formData.append('payment_method_id', paymentMethods[0].id);
+
+            const token = localStorage.getItem('token');
+            const resp = await fetch('/api/premium/subscribe', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            const result = await resp.json();
+            if (!resp.ok) throw new Error(result.error);
+            showToast('Payment submitted! Admin will review within 24h 🎉', 'success');
+            setShowPaymentForm(false);
+            setPaymentTxnId('');
+            setPaymentScreenshot(null);
+            loadPremiumData();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+        setSubmittingPayment(false);
+    };
 
     const handleLogout = () => {
         if (!window.confirm('Are you sure you want to log out?')) return;
@@ -224,49 +276,143 @@ export default function Settings() {
                         <span className="material-symbols-outlined settings-chevron">chevron_right</span>
                     </div>
 
-                    {/* NITKnot Premium Features Section */}
+                    {/* NITKnot Premium Section */}
                     <div className="settings-section-header" style={{ marginTop: 20 }}>
                         <span className="material-symbols-outlined" style={{ fontSize: 20, color: '#f59e0b' }}>workspace_premium</span>
                         <div>
                             <h3 style={{ color: '#f59e0b' }}>Premium controls</h3>
-                            <p className="settings-section-desc">Exclusive privacy features</p>
+                            <p className="settings-section-desc">{premiumStatus.is_premium ? 'Your premium features' : 'Upgrade to unlock exclusive features'}</p>
                         </div>
                     </div>
 
-                    <div className="settings-item" style={{ cursor: 'default' }}>
-                        <div className="settings-item-left">
-                            <span className="material-symbols-outlined" style={{ color: '#a78bfa' }}>visibility_off</span>
-                            <div>
-                                <span className="settings-item-title">Incognito Mode</span>
-                                <span className="settings-item-sub">Only show profile to people you like</span>
+                    {premiumStatus.is_premium ? (
+                        <>
+                            {/* Premium Active Badge */}
+                            <div className="premium-active-badge">
+                                <span className="material-symbols-outlined" style={{ fontSize: 22, color: '#f59e0b' }}>diamond</span>
+                                <div>
+                                    <strong style={{ color: '#f59e0b' }}>Premium Active ✨</strong>
+                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                                        Expires: {premiumStatus.premium_until ? new Date(premiumStatus.premium_until).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Never'}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <label className="toggle-switch">
-                            <input type="checkbox" checked={incognito} onChange={(e) => {
-                                setIncognito(e.target.checked);
-                                showToast(e.target.checked ? 'Incognito Mode ON 🕵️‍♀️' : 'Incognito Mode OFF', 'success');
-                            }} />
-                            <span className="toggle-slider"></span>
-                        </label>
-                    </div>
 
-                    <div className="settings-item" style={{ cursor: 'default' }}>
-                        <div className="settings-item-left">
-                            <span className="material-symbols-outlined" style={{ color: '#3b82f6' }}>done_all</span>
-                            <div>
-                                <span className="settings-item-title">Read Receipts</span>
-                                <span className="settings-item-sub">Let others see when you've read messages</span>
+                            {/* Incognito Toggle */}
+                            <div className="settings-item" style={{ cursor: 'default' }}>
+                                <div className="settings-item-left">
+                                    <span className="material-symbols-outlined" style={{ color: '#a78bfa' }}>visibility_off</span>
+                                    <div>
+                                        <span className="settings-item-title">Incognito Mode</span>
+                                        <span className="settings-item-sub">Only show profile to people you like</span>
+                                    </div>
+                                </div>
+                                <label className="toggle-switch">
+                                    <input type="checkbox" checked={incognito} onChange={(e) => {
+                                        setIncognito(e.target.checked);
+                                        showToast(e.target.checked ? 'Incognito Mode ON 🕵️‍♀️' : 'Incognito Mode OFF', 'success');
+                                    }} />
+                                    <span className="toggle-slider"></span>
+                                </label>
                             </div>
-                        </div>
-                        <label className="toggle-switch">
-                            <input type="checkbox" checked={readReceipts} onChange={(e) => {
-                                setReadReceipts(e.target.checked);
-                                showToast(e.target.checked ? 'Read Receipts ON' : 'Read Receipts OFF', 'info');
-                            }} />
-                            <span className="toggle-slider"></span>
-                        </label>
-                    </div>
 
+                            {/* Read Receipts Toggle */}
+                            <div className="settings-item" style={{ cursor: 'default' }}>
+                                <div className="settings-item-left">
+                                    <span className="material-symbols-outlined" style={{ color: '#3b82f6' }}>done_all</span>
+                                    <div>
+                                        <span className="settings-item-title">Read Receipts</span>
+                                        <span className="settings-item-sub">Let others see when you've read messages</span>
+                                    </div>
+                                </div>
+                                <label className="toggle-switch">
+                                    <input type="checkbox" checked={readReceipts} onChange={(e) => {
+                                        setReadReceipts(e.target.checked);
+                                        showToast(e.target.checked ? 'Read Receipts ON' : 'Read Receipts OFF', 'info');
+                                    }} />
+                                    <span className="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Get Premium Card */}
+                            <div className="premium-subscribe-card">
+                                <div className="premium-features-list">
+                                    <h4 style={{ margin: '0 0 10px', color: '#f59e0b' }}>💎 Unlock Premium for ₹49/month</h4>
+                                    <div className="premium-feature-item">
+                                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#a78bfa' }}>visibility_off</span>
+                                        <span>Incognito Mode — Only visible to people you like</span>
+                                    </div>
+                                    <div className="premium-feature-item">
+                                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#3b82f6' }}>done_all</span>
+                                        <span>Read Receipt Control — Hide your read status</span>
+                                    </div>
+                                    <div className="premium-feature-item">
+                                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#10b981' }}>trending_up</span>
+                                        <span>Priority Profile — Get seen first in Discover</span>
+                                    </div>
+                                </div>
+
+                                {/* Payment Methods */}
+                                {paymentMethods.length > 0 ? (
+                                    <div className="premium-payment-section">
+                                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
+                                            Scan the QR code below to pay, then submit your payment details:
+                                        </p>
+                                        {paymentMethods.map(m => (
+                                            <div key={m.id} className="premium-qr-card">
+                                                {m.qr_image_url && (
+                                                    <img src={m.qr_image_url} alt="Payment QR" className="premium-qr-img" onClick={() => window.open(m.qr_image_url, '_blank')} />
+                                                )}
+                                                <strong>{m.label}</strong>
+                                                {m.upi_id && <span className="premium-upi-id">{m.upi_id}</span>}
+                                            </div>
+                                        ))}
+
+                                        {/* Payment Form */}
+                                        {!showPaymentForm ? (
+                                            <button className="btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => setShowPaymentForm(true)}>
+                                                I've Paid — Submit Details
+                                            </button>
+                                        ) : (
+                                            <div className="premium-payment-form">
+                                                <input className="input-field" type="text" placeholder="Transaction/UTR ID"
+                                                    value={paymentTxnId} onChange={e => setPaymentTxnId(e.target.value)} />
+                                                <input className="input-field" type="file" accept="image/*" style={{ marginTop: 8 }}
+                                                    onChange={e => setPaymentScreenshot(e.target.files[0])} />
+                                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0' }}>Upload a screenshot of your payment confirmation</p>
+                                                <button className="btn-primary" style={{ width: '100%', marginTop: 8 }} disabled={submittingPayment || !paymentTxnId}
+                                                    onClick={handleSubmitPayment}>
+                                                    {submittingPayment ? 'Submitting...' : '🚀 Submit Payment'}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: 16 }}>
+                                        Payment setup coming soon. Contact admin for early access!
+                                    </p>
+                                )}
+
+                                {/* Existing requests */}
+                                {myRequests.length > 0 && (
+                                    <div style={{ marginTop: 14 }}>
+                                        <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>Your Requests:</p>
+                                        {myRequests.map(r => (
+                                            <div key={r.id} className="premium-my-request">
+                                                <span className={`status-pill ${r.status === 'approved' ? 'verified' : r.status === 'rejected' ? 'rejected' : 'pending'}`}>{r.status}</span>
+                                                <span style={{ fontSize: '0.8rem' }}>₹{r.amount} • {new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+                                                {r.admin_note && r.status !== 'pending' && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>— {r.admin_note}</span>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )}
+
+                    {/* Dark Mode Toggle (free for all) */}
                     <div className="settings-item" style={{ cursor: 'default' }}>
                         <div className="settings-item-left">
                             <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>

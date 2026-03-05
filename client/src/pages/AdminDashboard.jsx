@@ -27,6 +27,14 @@ export default function AdminDashboard() {
     const [broadcast, setBroadcast] = useState({ title: '', message: '', type: 'info' });
     const [sendingBroadcast, setSendingBroadcast] = useState(false);
 
+    // Premium state
+    const [paymentMethods, setPaymentMethods] = useState([]);
+    const [premiumRequests, setPremiumRequests] = useState([]);
+    const [newPayment, setNewPayment] = useState({ label: '', type: 'qr', upi_id: '' });
+    const [qrFile, setQrFile] = useState(null);
+    const [addingMethod, setAddingMethod] = useState(false);
+    const { isAuthenticated } = useAuth();
+
     useEffect(() => {
         if (isAuthenticated && user && user.is_admin === 1 && isUnlocked) {
             loadDashboardData();
@@ -71,6 +79,11 @@ export default function AdminDashboard() {
         try {
             const result = await apiFetch('/api/admin/dashboard');
             setData(result);
+            // Also load premium data
+            const pm = await apiFetch('/api/admin/payment-methods');
+            setPaymentMethods(pm.methods || []);
+            const pr = await apiFetch('/api/admin/premium-requests');
+            setPremiumRequests(pr.requests || []);
         } catch (e) {
             showToast('Failed to load dashboard', 'error');
         }
@@ -159,6 +172,67 @@ export default function AdminDashboard() {
             showToast(e.message, 'error');
         }
         setSendingBroadcast(false);
+    };
+
+    // ========== PREMIUM HANDLERS ==========
+
+    const handleAddPaymentMethod = async (e) => {
+        e.preventDefault();
+        if (!newPayment.label) return showToast('Label is required', 'error');
+        setAddingMethod(true);
+        try {
+            const formData = new FormData();
+            formData.append('label', newPayment.label);
+            formData.append('type', newPayment.type);
+            if (newPayment.upi_id) formData.append('upi_id', newPayment.upi_id);
+            if (qrFile) formData.append('qr_image', qrFile);
+
+            const token = localStorage.getItem('token');
+            const resp = await fetch('/api/admin/payment-methods', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            const result = await resp.json();
+            if (!resp.ok) throw new Error(result.error);
+            setPaymentMethods(result.methods || []);
+            setNewPayment({ label: '', type: 'qr', upi_id: '' });
+            setQrFile(null);
+            showToast('Payment method added! 💳', 'success');
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+        setAddingMethod(false);
+    };
+
+    const togglePaymentMethod = async (id) => {
+        try {
+            const result = await apiFetch(`/api/admin/payment-methods/${id}/toggle`, { method: 'PUT' });
+            setPaymentMethods(result.methods || []);
+            showToast('Payment method toggled', 'success');
+        } catch (e) { showToast(e.message, 'error'); }
+    };
+
+    const deletePaymentMethod = async (id) => {
+        if (!window.confirm('Delete this payment method?')) return;
+        try {
+            const result = await apiFetch(`/api/admin/payment-methods/${id}`, { method: 'DELETE' });
+            setPaymentMethods(result.methods || []);
+            showToast('Payment method deleted', 'success');
+        } catch (e) { showToast(e.message, 'error'); }
+    };
+
+    const handlePremiumAction = async (requestId, action) => {
+        const note = action === 'reject' ? window.prompt('Reason for rejection (optional):') : null;
+        try {
+            await apiFetch(`/api/admin/premium-requests/${requestId}/${action}`, {
+                method: 'PUT',
+                body: JSON.stringify({ note: note || (action === 'approve' ? 'Approved' : 'Rejected') })
+            });
+            showToast(action === 'approve' ? 'User upgraded to Premium! 💎' : 'Request rejected', 'success');
+            const pr = await apiFetch('/api/admin/premium-requests');
+            setPremiumRequests(pr.requests || []);
+        } catch (e) { showToast(e.message, 'error'); }
     };
 
     // ========== RENDER GATES ==========
@@ -275,6 +349,11 @@ export default function AdminDashboard() {
                     <span className="stat-value">{data.stats?.total_reports || 0}</span>
                     <span className="stat-label">Incidents</span>
                 </div>
+                <div className="admin-stat-card premium">
+                    <span className="material-symbols-outlined">diamond</span>
+                    <span className="stat-value">{premiumRequests.filter(r => r.status === 'pending').length}</span>
+                    <span className="stat-label">Premium Pending</span>
+                </div>
             </div>
 
             {/* Search — only show for reports/verifications */}
@@ -308,6 +387,10 @@ export default function AdminDashboard() {
                 <button className={activeTab === 'broadcast' ? 'active' : ''} onClick={() => setActiveTab('broadcast')}>
                     <span className="material-symbols-outlined">campaign</span>
                     Broadcast
+                </button>
+                <button className={activeTab === 'premium' ? 'active' : ''} onClick={() => setActiveTab('premium')}>
+                    <span className="material-symbols-outlined">diamond</span>
+                    Premium
                 </button>
                 <button className={activeTab === 'settings' ? 'active' : ''} onClick={() => setActiveTab('settings')}>
                     <span className="material-symbols-outlined">settings</span>
@@ -494,6 +577,128 @@ export default function AdminDashboard() {
                                     )}
                                 </button>
                             </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* ========== PREMIUM TAB ========== */}
+                {activeTab === 'premium' && (
+                    <div className="admin-premium view-animate">
+                        {/* Payment Methods Section */}
+                        <div className="settings-card" style={{ borderLeft: '3px solid #f59e0b' }}>
+                            <div className="settings-card-header">
+                                <span className="material-symbols-outlined" style={{ color: '#f59e0b' }}>qr_code_2</span>
+                                <div>
+                                    <h3>Payment Methods</h3>
+                                    <p>Configure QR codes and UPI IDs that users will use to pay for premium.</p>
+                                </div>
+                            </div>
+
+                            {/* Existing Methods */}
+                            {paymentMethods.length > 0 && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+                                    {paymentMethods.map(m => (
+                                        <div key={m.id} className="premium-method-card">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
+                                                {m.qr_image_url && (
+                                                    <img src={m.qr_image_url} alt="QR" style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--border)' }} />
+                                                )}
+                                                <div>
+                                                    <strong>{m.label}</strong>
+                                                    {m.upi_id && <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '2px 0 0' }}>{m.upi_id}</p>}
+                                                    <span className={`status-pill ${m.is_active ? 'verified' : 'rejected'}`} style={{ fontSize: '0.7rem', marginTop: 4 }}>
+                                                        {m.is_active ? 'Active' : 'Inactive'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: 6 }}>
+                                                <button className="btn-action ghost" onClick={() => togglePaymentMethod(m.id)}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{m.is_active ? 'visibility_off' : 'visibility'}</span>
+                                                </button>
+                                                <button className="btn-action danger" onClick={() => deletePaymentMethod(m.id)}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Add New Method Form */}
+                            <form onSubmit={handleAddPaymentMethod} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                                <div className="settings-input-group">
+                                    <label>Label (e.g. "GPay - Sankalp")</label>
+                                    <input type="text" placeholder="Payment label" value={newPayment.label} onChange={e => setNewPayment({ ...newPayment, label: e.target.value })} required />
+                                </div>
+                                <div className="settings-input-group">
+                                    <label>UPI ID (optional)</label>
+                                    <input type="text" placeholder="yourname@upi" value={newPayment.upi_id} onChange={e => setNewPayment({ ...newPayment, upi_id: e.target.value })} />
+                                </div>
+                                <div className="settings-input-group">
+                                    <label>QR Code Image</label>
+                                    <input type="file" accept="image/*" onChange={e => setQrFile(e.target.files[0])} style={{ fontSize: '0.85rem' }} />
+                                </div>
+                                <button className="btn-verify" type="submit" disabled={addingMethod} style={{ height: 48 }}>
+                                    {addingMethod ? 'Adding...' : '+ Add Payment Method'}
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Premium Requests Section */}
+                        <div className="settings-card" style={{ borderLeft: '3px solid var(--primary)', marginTop: 20 }}>
+                            <div className="settings-card-header">
+                                <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>pending_actions</span>
+                                <div>
+                                    <h3>Premium Requests</h3>
+                                    <p>Review and approve/reject user payment submissions.</p>
+                                </div>
+                            </div>
+
+                            {premiumRequests.length === 0 ? (
+                                <div className="empty-state-card">
+                                    <span className="material-symbols-outlined">diamond</span>
+                                    <h3>No Requests Yet</h3>
+                                    <p>Premium requests from users will appear here.</p>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    {premiumRequests.map(r => (
+                                        <div key={r.id} className={`premium-request-card ${r.status}`}>
+                                            <div className="premium-req-header">
+                                                <div>
+                                                    <strong>{r.user_name}</strong>
+                                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: 8 }}>{r.user_email}</span>
+                                                </div>
+                                                <span className={`status-pill ${r.status === 'approved' ? 'verified' : r.status === 'rejected' ? 'rejected' : 'pending'}`}>
+                                                    {r.status}
+                                                </span>
+                                            </div>
+                                            <div className="premium-req-details">
+                                                <span>💳 Txn: <code>{r.transaction_id || 'N/A'}</code></span>
+                                                <span>💰 ₹{r.amount}</span>
+                                                <span>📅 {new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                            </div>
+                                            {r.screenshot_url && (
+                                                <img src={r.screenshot_url} alt="Payment proof" onClick={() => window.open(r.screenshot_url, '_blank')}
+                                                    style={{ width: '100%', maxHeight: 200, objectFit: 'contain', borderRadius: 8, border: '1px solid var(--border)', marginTop: 8, cursor: 'pointer' }} />
+                                            )}
+                                            {r.status === 'pending' && (
+                                                <div className="item-actions" style={{ marginTop: 10 }}>
+                                                    <button className="btn-action success" onClick={() => handlePremiumAction(r.id, 'approve')}>
+                                                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check</span> Approve
+                                                    </button>
+                                                    <button className="btn-action danger" onClick={() => handlePremiumAction(r.id, 'reject')}>
+                                                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span> Reject
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {r.admin_note && r.status !== 'pending' && (
+                                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 6, fontStyle: 'italic' }}>Admin: {r.admin_note}</p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
