@@ -94,6 +94,8 @@ export default function ChatConvo() {
                 msgIdsRef.current.add(msg.id);
                 setTimeout(() => scrollToBottom(), 50);
                 markAsRead(matchId);
+                // Emit read status back to sender
+                socket.emit('message_read', { messageId: msg.id, fromUserId: msg.sender_id });
             }
         };
 
@@ -115,11 +117,19 @@ export default function ChatConvo() {
         };
         socket.on('message_reaction', handleReaction);
 
+        const handleMessageRead = ({ messageId, readerId }) => {
+            if (readerId == chatUserId) {
+                setMessages(prev => prev.map(m => m.id === messageId ? { ...m, is_read: 1 } : m));
+            }
+        };
+        socket.on('message_read', handleMessageRead);
+
         return () => {
             socket.off('new_message', handleNewMsg);
             socket.off('typing_start', handleTypingStart);
             socket.off('typing_stop', handleTypingStop);
             socket.off('message_reaction', handleReaction);
+            socket.off('message_read', handleMessageRead);
         };
     }, [socket, matchId, chatUserId]);
 
@@ -289,7 +299,15 @@ export default function ChatConvo() {
                 </div>
                 <div className={`msg-time ${isMine ? 'sent' : ''}`}>
                     {formatTime(m.created_at)}{' '}
-                    {isMine && <span className="msg-status" style={m.is_read ? { color: '#34b7f1' } : {}}>{m.is_read ? '✓✓' : '✓'}</span>}
+                    {isMine && (
+                        <span className="msg-status" style={{ fontSize: 16, verticalAlign: 'middle', marginLeft: 4 }}>
+                            {m.is_read ? (
+                                <span className="material-symbols-outlined fill-icon" style={{ fontSize: 16, color: 'var(--primary)', fontWeight: 'bold' }}>done_all</span>
+                            ) : (
+                                <span className="material-symbols-outlined" style={{ fontSize: 16, opacity: 0.6 }}>done</span>
+                            )}
+                        </span>
+                    )}
                 </div>
                 {/* Message Reactions */}
                 {reactions[m.id] && reactions[m.id].length > 0 && (

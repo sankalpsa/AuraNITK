@@ -205,9 +205,19 @@ export default function Profile() {
 
     const primaryPhoto = photos.find(p => p.is_primary) || photos[0];
     const displayPhoto = primaryPhoto?.photo_url || user.photo || defaultAvatar(user.name);
-    const currentPhoto = photos[activePhoto] || null;
-    const pendingQs = anonQuestions.filter(q => !q.answer);
     const firstName = user.name?.split(' ')[0] || user.name;
+
+    // Calculate completeness
+    const calculateCompleteness = () => {
+        let score = 0;
+        if (user.bio?.length > 10) score += 20;
+        if (user.interests?.length > 0) score += 10;
+        if (user.pickup_line) score += 10;
+        if (user.verification_status === 'verified') score += 20;
+        score += Math.min(photos.length * 10, 40);
+        return score;
+    };
+    const completeness = calculateCompleteness();
 
     return (
         <div className="pf-page view-animate">
@@ -281,6 +291,21 @@ export default function Profile() {
 
             {/* ══ CONTENT BODY ══ */}
             <div className="pf-body">
+                {/* ── Progress Bar ── */}
+                <div className="pf-progress-section">
+                    <div className="pf-progress-header">
+                        <span>Profile Excellence</span>
+                        <span className="pf-progress-pct">{completeness}%</span>
+                    </div>
+                    <div className="pf-progress-track">
+                        <div className="pf-progress-fill" style={{ width: `${completeness}%` }}></div>
+                    </div>
+                    {completeness < 100 && (
+                        <p className="pf-progress-hint">
+                            {completeness < 50 ? 'Add photos to stand out!' : 'Verify your ID for a 20% boost!'}
+                        </p>
+                    )}
+                </div>
 
                 {/* ── Verification Banner ── */}
                 {user.verification_status !== 'verified' && (

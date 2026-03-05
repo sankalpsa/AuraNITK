@@ -15,6 +15,7 @@ import EditProfile from './pages/EditProfile';
 import ViewProfile from './pages/ViewProfile';
 import Settings from './pages/Settings';
 import AdminDashboard from './pages/AdminDashboard';
+import BroadcastListener from './components/common/BroadcastListener';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -61,6 +62,7 @@ export default function App() {
     <BrowserRouter>
       <ToastProvider>
         <AuthProvider>
+          <BroadcastListener />
           <AppRoutes />
         </AuthProvider>
       </ToastProvider>

@@ -20,7 +20,9 @@ export default function Discover() {
     const [showFilters, setShowFilters] = useState(false);
     const [filterBranch, setFilterBranch] = useState('all');
     const [filterYear, setFilterYear] = useState('all');
+    const [doubleTapAnim, setDoubleTapAnim] = useState(false);
     const cardRef = useRef(null);
+    const lastTap = useRef(0);
     const dragState = useRef({ isDragging: false, startX: 0, startY: 0, currentX: 0, startTime: 0 });
 
     async function loadProfiles() {
@@ -64,10 +66,17 @@ export default function Discover() {
                 body: JSON.stringify({ target_id: profile.id, action }),
             });
             if (data.match && data.matched_user) {
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // Celebration vibration
                 setMatchData({ user: data.matched_user, matchId: data.match_id });
             } else {
-                if (action === 'like') showToast('💕 Liked!', 'success', 1500);
-                if (action === 'super_like') showToast('⭐ Super Liked!', 'success', 1500);
+                if (action === 'like') {
+                    if (navigator.vibrate) navigator.vibrate(50); // Subtle pop
+                    showToast('💕 Liked!', 'success', 1500);
+                }
+                if (action === 'super_like') {
+                    if (navigator.vibrate) navigator.vibrate([50, 50, 50]); // Triple pop
+                    showToast('⭐ Super Liked!', 'success', 1500);
+                }
             }
         } catch (e) {
             if (!e.message.includes('Already swiped')) showToast(e.message, 'error');
@@ -180,6 +189,35 @@ export default function Discover() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Keyboard Shortcuts for Web
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (cards.length === 0 || swipePending || matchData || showFilters) return;
+            if (e.key === 'ArrowLeft') handleSwipeAction('pass');
+            if (e.key === 'ArrowRight') handleSwipeAction('like');
+            if (e.key === 'ArrowUp') handleSwipeAction('super_like');
+            if (e.key === 'Backspace') undoSwipe();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [cards.length, swipePending, matchData, showFilters]);
+
+    const handlePhotoTap = (e) => {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap.current;
+        if (tapLength < 300 && tapLength > 0 && !swipePending) {
+            e.preventDefault();
+            setDoubleTapAnim(true);
+            if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+            setTimeout(() => {
+                setDoubleTapAnim(false);
+                handleSwipeAction('like');
+            }, 600);
+        }
+        lastTap.current = currentTime;
+    };
+
     if (loading) {
         return (
             <div className="discover-page view-animate">
@@ -238,12 +276,17 @@ export default function Discover() {
                         return (
                             <div
                                 key={p.id}
-                                className={`swipe-card ${pos === 1 ? 'behind' : pos === 2 ? 'far-behind' : ''}`}
+                                className={`swipe-card ${pos === 1 ? 'behind' : pos === 2 ? 'far-behind' : ''} ${(p.match_percent || 70) >= 85 ? 'golden-aura' : ''}`}
                                 ref={isTop ? setupDrag : null}
                             >
-                                <div className="card-photo-area">
+                                <div className="card-photo-area" onClick={handlePhotoTap} onTouchEnd={handlePhotoTap}>
                                     <img src={p.photo || defaultAvatar(p.name)} alt={p.name} loading="lazy"
                                         onError={(e) => { e.target.src = defaultAvatar(p.name); }} />
+                                    {isTop && doubleTapAnim && (
+                                        <div className="double-tap-heart">
+                                            <span className="material-symbols-outlined fill-icon">favorite</span>
+                                        </div>
+                                    )}
                                     <div className="card-gradient-top" />
                                     <div className="card-gradient-bottom" />
                                     <div className="card-info-overlay">
@@ -253,7 +296,9 @@ export default function Discover() {
                                         </div>
                                         <div className="card-detail">{p.branch} • {p.year}</div>
                                         <div className="card-location"><span className="material-symbols-outlined">location_on</span>NITK Surathkal</div>
-                                        <div className="card-match-badge">✨ {p.match_percent || 70}% match</div>
+                                        <div className={`card-match-badge ${(p.match_percent || 70) >= 85 ? 'high-match' : ''}`}>
+                                            ✨ {p.match_percent || 70}% match
+                                        </div>
                                     </div>
                                     <div className="swipe-label swipe-label-like">LIKE 💚</div>
                                     <div className="swipe-label swipe-label-nope">NOPE ❌</div>

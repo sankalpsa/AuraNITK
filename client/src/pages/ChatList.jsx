@@ -13,6 +13,8 @@ export default function ChatList() {
     const [filtered, setFiltered] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [onlineUsers, setOnlineUsers] = useState(new Set());
+    const [typingUsers, setTypingUsers] = useState(new Set());
 
     async function loadChats() {
         setLoading(true);
@@ -32,6 +34,42 @@ export default function ChatList() {
         loadChats();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
+
+    // Live Socket Listeners for Online Status and Typing
+    const { socket } = useAuth();
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleOnline = ({ userId, online }) => {
+            setOnlineUsers(prev => {
+                const next = new Set(prev);
+                if (online) next.add(userId.toString());
+                else next.delete(userId.toString());
+                return next;
+            });
+        };
+
+        const handleTypingStart = ({ fromUserId }) => {
+            setTypingUsers(prev => new Set(prev).add(fromUserId.toString()));
+        };
+        const handleTypingStop = ({ fromUserId }) => {
+            setTypingUsers(prev => {
+                const next = new Set(prev);
+                next.delete(fromUserId.toString());
+                return next;
+            });
+        };
+
+        socket.on('online_status', handleOnline);
+        socket.on('typing_start', handleTypingStart);
+        socket.on('typing_stop', handleTypingStop);
+
+        return () => {
+            socket.off('online_status', handleOnline);
+            socket.off('typing_start', handleTypingStart);
+            socket.off('typing_stop', handleTypingStop);
+        };
+    }, [socket]);
 
     const handleSearch = (q) => {
         setSearch(q);
@@ -74,14 +112,21 @@ export default function ChatList() {
                             <div key={m.match_id} className="chat-item" onClick={() =>
                                 navigate('/chat/convo', { state: { match_id: m.match_id, name: m.name, photo: m.photo, user_id: m.user_id } })
                             }>
-                                <img className="chat-avatar" src={m.photo || defaultAvatar(m.name)}
-                                    onError={(e) => { e.target.src = defaultAvatar(m.name); }} alt={m.name} />
+                                <div className="chat-avatar-container">
+                                    <img className="chat-avatar" src={m.photo || defaultAvatar(m.name)}
+                                        onError={(e) => { e.target.src = defaultAvatar(m.name); }} alt={m.name} />
+                                    {onlineUsers.has(m.user_id.toString()) && <span className="online-indicator-dot"></span>}
+                                </div>
                                 <div className="chat-info">
                                     <div className="chat-info-top">
                                         <h3>{m.name}</h3>
                                         <span>{m.last_message_time ? formatTime(m.last_message_time) : 'New'}</span>
                                     </div>
-                                    <p className={`chat-preview ${hasUnread ? 'unread' : ''}`}>{getPreview(m)}</p>
+                                    <p className={`chat-preview ${hasUnread ? 'unread' : ''}`}>
+                                        {typingUsers.has(m.user_id.toString()) ? (
+                                            <span className="typing-text-list">typing<span className="typing-dots"><span /><span /><span /></span></span>
+                                        ) : getPreview(m)}
+                                    </p>
                                 </div>
                                 {hasUnread && <span className="chat-unread-badge">{m.unread_count > 9 ? '9+' : m.unread_count}</span>}
                             </div>

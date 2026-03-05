@@ -16,6 +16,10 @@ export default function Settings() {
     const [passLoading, setPassLoading] = useState(false);
     const [showSafety, setShowSafety] = useState(false);
 
+    // Premium Features state
+    const [incognito, setIncognito] = useState(false);
+    const [readReceipts, setReadReceipts] = useState(true);
+
     useEffect(() => {
         if (!isAuthenticated) navigate('/', { replace: true });
         loadReports();
@@ -194,6 +198,49 @@ export default function Settings() {
                         </div>
                         <span className="material-symbols-outlined settings-chevron">chevron_right</span>
                     </div>
+
+                    {/* NITKnot Premium Features Section */}
+                    <div className="settings-section-header" style={{ marginTop: 20 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 20, color: '#f59e0b' }}>workspace_premium</span>
+                        <div>
+                            <h3 style={{ color: '#f59e0b' }}>Premium controls</h3>
+                            <p className="settings-section-desc">Exclusive privacy features</p>
+                        </div>
+                    </div>
+
+                    <div className="settings-item" style={{ cursor: 'default' }}>
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined" style={{ color: '#a78bfa' }}>visibility_off</span>
+                            <div>
+                                <span className="settings-item-title">Incognito Mode</span>
+                                <span className="settings-item-sub">Only show profile to people you like</span>
+                            </div>
+                        </div>
+                        <label className="toggle-switch">
+                            <input type="checkbox" checked={incognito} onChange={(e) => {
+                                setIncognito(e.target.checked);
+                                showToast(e.target.checked ? 'Incognito Mode ON 🕵️‍♀️' : 'Incognito Mode OFF', 'success');
+                            }} />
+                            <span className="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item" style={{ cursor: 'default' }}>
+                        <div className="settings-item-left">
+                            <span className="material-symbols-outlined" style={{ color: '#3b82f6' }}>done_all</span>
+                            <div>
+                                <span className="settings-item-title">Read Receipts</span>
+                                <span className="settings-item-sub">Let others see when you've read messages</span>
+                            </div>
+                        </div>
+                        <label className="toggle-switch">
+                            <input type="checkbox" checked={readReceipts} onChange={(e) => {
+                                setReadReceipts(e.target.checked);
+                                showToast(e.target.checked ? 'Read Receipts ON' : 'Read Receipts OFF', 'info');
+                            }} />
+                            <span className="toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
 
                 {/* Report History */}
@@ -304,6 +351,20 @@ export default function Settings() {
                             <p className="settings-section-desc">Signed in as {user?.email || 'your account'}</p>
                         </div>
                     </div>
+
+                    {user && user.is_admin === 1 && (
+                        <div className="settings-item admin-link" onClick={() => navigate('/admin')} style={{ borderTop: '1px solid var(--border)', marginTop: 10 }}>
+                            <div className="settings-item-left">
+                                <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>shield_person</span>
+                                <div>
+                                    <span className="settings-item-title" style={{ color: 'var(--primary)', fontWeight: 700 }}>Admin Command Center</span>
+                                    <span className="settings-item-sub">Manage reports and verifications</span>
+                                </div>
+                            </div>
+                            <span className="material-symbols-outlined settings-chevron" style={{ color: 'var(--primary)' }}>chevron_right</span>
+                        </div>
+                    )}
+
                     <button className="settings-logout-btn" onClick={handleLogout}>
                         <span className="material-symbols-outlined">logout</span>
                         Log out

@@ -46,23 +46,28 @@ export default function MatchOverlay({ matchedUser, onClose, onChat }) {
                 <div className="match-hearts">💕</div>
                 <h2 className="match-title">It's a Match!</h2>
                 <p className="match-subtitle">
-                    You and <span>{matchedUser.name}</span> liked each other
+                    Matched at <strong>NITK Surathkal</strong>
                 </p>
                 <div className="match-photos">
-                    <img
-                        className="match-photo"
-                        src={user?.photo || defaultAvatar(user?.name)}
-                        alt="You"
-                        onError={(e) => { e.target.src = defaultAvatar(user?.name); }}
-                    />
-                    <div className="match-heart-center">❤️</div>
-                    <img
-                        className="match-photo"
-                        src={matchedUser.photo || defaultAvatar(matchedUser.name)}
-                        alt="Match"
-                        onError={(e) => { e.target.src = defaultAvatar(matchedUser.name); }}
-                    />
+                    <div className="match-photo-container">
+                        <img
+                            className="match-photo left"
+                            src={user?.photo || defaultAvatar(user?.name)}
+                            alt="You"
+                            onError={(e) => { e.target.src = defaultAvatar(user?.name); }}
+                        />
+                    </div>
+                    <div className="match-heart-center pulse-animation">❤️</div>
+                    <div className="match-photo-container">
+                        <img
+                            className="match-photo right"
+                            src={matchedUser.photo || defaultAvatar(matchedUser.name)}
+                            alt="Match"
+                            onError={(e) => { e.target.src = defaultAvatar(matchedUser.name); }}
+                        />
+                    </div>
                 </div>
+                <p className="match-person-name">You and {matchedUser.name} liked each other</p>
                 <button className="btn-primary match-btn" onClick={onClose}>
                     Keep Swiping 💫
                 </button>

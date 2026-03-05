@@ -16,6 +16,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const crypto = require('crypto');
 const db = require('./db');
 console.log('✅ Modules loaded');
 
@@ -83,13 +84,20 @@ function checkEmailConfig() {
         process.exit(1);
     }
     if (hasSendGrid) console.log('📧 Email provider: SendGrid API');
-    else console.log(`📧 Email provider: Gmail SMTP (${process.env.SMTP_EMAIL})`);
+    else {
+        const email = process.env.SMTP_EMAIL || '';
+        const masked = email.replace(/^(.{2})(.*)(@.*)$/, '$1***$3');
+        console.log(`📧 Email provider: Gmail SMTP (${masked})`);
+    }
 }
 
 async function sendOTPEmail(toEmail, otp) {
-    // Try SendGrid first if configured
+    // Branded sender — use SENDER_DISPLAY_EMAIL if set, else a generic noreply address
+    const displayEmail = (process.env.SENDER_DISPLAY_EMAIL || 'noreply@nitknot.app').trim();
+    const displayName = 'NITKnot';
+
+    // Try SendGrid first if configured (fully hides your personal email)
     if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.trim()) {
-        const senderEmail = process.env.SMTP_EMAIL || 'noreply@nitknot.in';
         try {
             const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
                 method: 'POST',
@@ -99,7 +107,8 @@ async function sendOTPEmail(toEmail, otp) {
                 },
                 body: JSON.stringify({
                     personalizations: [{ to: [{ email: toEmail }] }],
-                    from: { email: senderEmail, name: 'NITKnot 💕' },
+                    from: { email: displayEmail, name: displayName },
+                    reply_to: { email: displayEmail, name: displayName },
                     subject: '🔐 NITKnot — Your Verification Code',
                     content: [{ type: 'text/html', value: OTP_HTML(otp) }]
                 })
@@ -120,6 +129,9 @@ async function sendOTPEmail(toEmail, otp) {
     }
 
     // Gmail SMTP (primary or fallback)
+    // NOTE: Gmail always shows the authenticated address in headers.
+    // To fully hide your personal email, use SendGrid with a custom domain,
+    // or create a dedicated Gmail like nitknot.noreply@gmail.com.
     if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
         throw new Error('Email not configured. Set SMTP_EMAIL and SMTP_PASSWORD in .env');
     }
@@ -139,10 +151,15 @@ async function sendOTPEmail(toEmail, otp) {
 
     try {
         const info = await transporter.sendMail({
-            from: `"NITKnot 💕" <${process.env.SMTP_EMAIL.trim()}>`,
+            from: `"${displayName}" <${process.env.SMTP_EMAIL.trim()}>`,
+            replyTo: `"${displayName}" <${displayEmail}>`,
             to: toEmail,
             subject: '🔐 NITKnot — Your Verification Code',
-            html: OTP_HTML(otp)
+            html: OTP_HTML(otp),
+            headers: {
+                'X-Mailer': 'NITKnot App',
+                'List-Unsubscribe': `<mailto:${displayEmail}?subject=unsubscribe>`
+            }
         });
         console.log(`✅ [Gmail SMTP] OTP sent to ${toEmail} (msgId: ${info.messageId})`);
     } catch (smtpErr) {
@@ -206,6 +223,12 @@ io.on('connection', (socket) => {
         if (!socket.userId) return;
         io.to(toUserId.toString()).emit('typing_stop', { fromUserId: socket.userId });
     });
+
+    socket.on('message_read', ({ messageId, fromUserId }) => {
+        if (!socket.userId) return;
+        // Notify the sender that their message was read
+        io.to(fromUserId.toString()).emit('message_read', { messageId, readerId: socket.userId });
+    });
 });
 
 // ========================================
@@ -263,6 +286,12 @@ if (useCloudinary) {
         params: {
             folder: 'nitknot-photos',
             allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
+            public_id: (req, file) => {
+                const hash = crypto.createHash('sha256')
+                    .update(`${req.user.id}-${Date.now()}-${file.originalname}`)
+                    .digest('hex');
+                return `img_${hash.substring(0, 16)}`;
+            },
             transformation: (req, file) => {
                 if (file.format === 'pdf') return [];
                 return [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }];
@@ -275,7 +304,12 @@ if (useCloudinary) {
     if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
     storage = multer.diskStorage({
         destination: (req, file, cb) => cb(null, uploadsDir),
-        filename: (req, file, cb) => cb(null, `${Date.now()}-${Math.round(Math.random() * 1E6)}${path.extname(file.originalname)}`)
+        filename: (req, file, cb) => {
+            const hash = crypto.createHash('sha256')
+                .update(`${req.user.id}-${Date.now()}-${file.originalname}`)
+                .digest('hex');
+            cb(null, `${hash.substring(0, 20)}${path.extname(file.originalname)}`);
+        }
     });
     console.log('⚠️  Using local disk for image storage');
 }
@@ -310,7 +344,10 @@ const audioStorage = multer.diskStorage({
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
     },
-    filename: (req, file, cb) => cb(null, `voice-${Date.now()}-${Math.round(Math.random() * 1E6)}.webm`)
+    filename: (req, file, cb) => {
+        const hash = crypto.createHash('sha256').update(`${Date.now()}-${Math.random()}`).digest('hex');
+        cb(null, `voice-${hash.substring(0, 16)}.webm`);
+    }
 });
 
 // Chat messages: use disk storage as temp, then manually upload to Cloudinary
@@ -322,7 +359,8 @@ const msgDiskStorage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname) || (file.mimetype.startsWith('audio/') ? '.webm' : '.jpg');
-        cb(null, `${file.fieldname}-${Date.now()}${ext}`);
+        const hash = crypto.createHash('sha256').update(`${Date.now()}-${file.originalname}`).digest('hex');
+        cb(null, `${file.fieldname}-${hash.substring(0, 16)}${ext}`);
     }
 });
 const uploadMsg = multer({
@@ -761,6 +799,7 @@ app.get('/api/discover', authenticate, async (req, res) => {
             `SELECT u.* FROM users u
              WHERE u.id != ?
                AND u.is_active = 1
+               AND (u.photo IS NOT NULL AND u.photo != '')
                AND (u.is_snoozed = 0 OR u.is_snoozed IS NULL)
                AND u.id NOT IN (SELECT target_id FROM swipes WHERE user_id = ?)
                AND u.id NOT IN (
@@ -769,7 +808,7 @@ app.get('/api/discover', authenticate, async (req, res) => {
                )
                ${genderFilter}
                ${campusFilter}
-             ORDER BY ${randomFn}
+             ORDER BY u.is_verified DESC, ${randomFn}
              LIMIT 20`,
             [userId, userId, userId, userId, userId, ...extraParams]
         );
@@ -1036,6 +1075,7 @@ app.post('/api/messages/:matchId', authenticate,
                     try {
                         const result = await cloudinary.uploader.upload(imageFile.path, {
                             folder: 'nitknot-chat',
+                            public_id: `msg-img-${crypto.randomBytes(12).toString('hex')}`,
                             transformation: [{ width: 1200, quality: 'auto' }]
                         });
                         imageUrl = result.secure_url;
@@ -1050,6 +1090,7 @@ app.post('/api/messages/:matchId', authenticate,
                     try {
                         const result = await cloudinary.uploader.upload(audioFile.path, {
                             folder: 'nitknot-voice',
+                            public_id: `msg-audio-${crypto.randomBytes(12).toString('hex')}`,
                             resource_type: 'video', // Cloudinary uses 'video' for audio files
                             format: 'webm'
                         });
@@ -1153,6 +1194,18 @@ app.post('/api/report', authenticate, async (req, res) => {
         await db.run('INSERT INTO reports (reporter_id, reported_id, reason, details) VALUES (?, ?, ?, ?)',
             [req.user.id, reported_id, reason, details || '']);
 
+        // AUTO-BLOCK: Automatically unmatch and block swiping between these two
+        await db.run('DELETE FROM matches WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)',
+            [req.user.id, reported_id, reported_id, req.user.id]);
+
+        // Add a "pass" swipe if none exists so they don't see each other in discover
+        const existingSwipe = await db.queryOne('SELECT id FROM swipes WHERE user_id = ? AND target_id = ?', [req.user.id, reported_id]);
+        if (!existingSwipe) {
+            await db.run('INSERT INTO swipes (user_id, target_id, action) VALUES (?, ?, ?)', [req.user.id, reported_id, 'pass']);
+        } else {
+            await db.run('UPDATE swipes SET action = \'pass\' WHERE user_id = ? AND target_id = ?', [req.user.id, reported_id]);
+        }
+
         // Auto-suspend: if 3+ unique reporters, deactivate the user
         const reportCount = await db.queryOne(
             'SELECT COUNT(DISTINCT reporter_id) as c FROM reports WHERE reported_id = ?',
@@ -1163,7 +1216,7 @@ app.post('/api/report', authenticate, async (req, res) => {
             console.log(`⚠️ Auto-suspended user ${reported_id} (${reportCount.c} unique reports)`);
         }
 
-        res.json({ success: true, message: 'Report submitted. We\'ll review it soon.' });
+        res.json({ success: true, message: 'User reported and blocked. We\'ll review it soon.' });
     } catch (e) {
         res.status(500).json({ error: 'Server error' });
     }
@@ -1281,6 +1334,25 @@ app.put('/api/anonymous-questions/:id/answer', authenticate, async (req, res) =>
     }
 });
 
+// Broadcast announcement to all users
+app.post('/api/admin/broadcast', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { title, message, type } = req.body; // type: info, warning, success
+        if (!title || !message) return res.status(400).json({ error: 'Title and message required' });
+
+        io.emit('admin_announcement', {
+            title,
+            message,
+            type: type || 'info',
+            timestamp: new Date()
+        });
+
+        res.json({ success: true, message: 'Broadcast sent successfully' });
+    } catch (e) {
+        res.status(500).json({ error: 'Failed to send broadcast' });
+    }
+});
+
 // Delete a question I've received
 app.delete('/api/anonymous-questions/:id', authenticate, async (req, res) => {
     try {
@@ -1313,7 +1385,9 @@ const isAdmin = (req, res, next) => {
 app.post('/api/admin/unlock', authenticate, isAdmin, async (req, res) => {
     try {
         const { masterPassword } = req.body;
-        const correct = process.env.ADMIN_MASTER_PASSWORD || 'nitknot_admin_secure_2024';
+        const correct = process.env.ADMIN_MASTER_PASSWORD;
+        if (!correct) return res.status(500).json({ error: 'System error: Master Key not configured on server.' });
+
         if (masterPassword === correct) {
             res.json({ success: true, message: 'Vault Unlocked' });
         } else {
@@ -1392,7 +1466,8 @@ app.delete('/api/admin/reports/:id/dismiss', authenticate, isAdmin, async (req, 
 app.put('/api/admin/change-master-password', authenticate, isAdmin, async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
-        const correct = process.env.ADMIN_MASTER_PASSWORD || 'nitknot_admin_secure_2024';
+        const correct = process.env.ADMIN_MASTER_PASSWORD;
+        if (!correct) return res.status(500).json({ error: 'Master Key not configured.' });
 
         if (currentPassword !== correct) {
             return res.status(401).json({ error: 'Current Master Key is incorrect' });
@@ -1433,6 +1508,25 @@ app.put('/api/admin/promote/:id', authenticate, isAdmin, async (req, res) => {
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Broadcast announcement to all users
+app.post('/api/admin/broadcast', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { title, message, type } = req.body; // type: info, warning, success
+        if (!title || !message) return res.status(400).json({ error: 'Title and message required' });
+
+        io.emit('admin_announcement', {
+            title,
+            message,
+            type: type || 'info',
+            timestamp: new Date()
+        });
+
+        res.json({ success: true, message: 'Broadcast sent successfully' });
+    } catch (e) {
+        res.status(500).json({ error: 'Failed to send broadcast' });
     }
 });
 

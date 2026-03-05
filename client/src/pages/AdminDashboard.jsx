@@ -23,6 +23,10 @@ export default function AdminDashboard() {
     const [confirmKey, setConfirmKey] = useState('');
     const [changingKey, setChangingKey] = useState(false);
 
+    // Broadcast state
+    const [broadcast, setBroadcast] = useState({ title: '', message: '', type: 'info' });
+    const [sendingBroadcast, setSendingBroadcast] = useState(false);
+
     useEffect(() => {
         if (user && user.is_admin === 1 && isUnlocked) {
             loadDashboardData();
@@ -132,6 +136,29 @@ export default function AdminDashboard() {
             showToast(e.message || 'Failed to change key', 'error');
         }
         setChangingKey(false);
+    };
+
+    const handleBroadcast = async (e) => {
+        e.preventDefault();
+        if (!broadcast.title || !broadcast.message) {
+            showToast('Title and message are required', 'error');
+            return;
+        }
+        if (!window.confirm('🚀 Send this announcement to the ENTIRE campus?')) return;
+
+        setSendingBroadcast(true);
+        try {
+            await apiFetch('/api/admin/broadcast', {
+                method: 'POST',
+                body: JSON.stringify(broadcast)
+            });
+            showToast('Campus-wide broadcast sent!', 'success');
+            setBroadcast({ title: '', message: '', type: 'info' });
+            setActiveTab('reports');
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+        setSendingBroadcast(false);
     };
 
     // ========== RENDER GATES ==========
@@ -251,7 +278,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Search — only show for reports/verifications */}
-            {activeTab !== 'settings' && (
+            {(activeTab === 'reports' || activeTab === 'verifications') && (
                 <div className="admin-search-bar">
                     <span className="material-symbols-outlined">search</span>
                     <input
@@ -277,6 +304,10 @@ export default function AdminDashboard() {
                 <button className={activeTab === 'verifications' ? 'active' : ''} onClick={() => setActiveTab('verifications')}>
                     <span className="material-symbols-outlined">verified_user</span>
                     Verify
+                </button>
+                <button className={activeTab === 'broadcast' ? 'active' : ''} onClick={() => setActiveTab('broadcast')}>
+                    <span className="material-symbols-outlined">campaign</span>
+                    Broadcast
                 </button>
                 <button className={activeTab === 'settings' ? 'active' : ''} onClick={() => setActiveTab('settings')}>
                     <span className="material-symbols-outlined">settings</span>
@@ -388,6 +419,81 @@ export default function AdminDashboard() {
                                 </div>
                             ))
                         )}
+                    </div>
+                )}
+
+                {/* ========== BROADCAST TAB ========== */}
+                {activeTab === 'broadcast' && (
+                    <div className="admin-broadcast view-animate">
+                        <div className="broadcast-card">
+                            <div className="broadcast-header" style={{ display: 'flex', gap: 15, marginBottom: 25, alignItems: 'center' }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--primary)' }}>campaign</span>
+                                <div>
+                                    <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Campus Announcement</h3>
+                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '4px 0 0' }}>Send a real-time global notification to all active students.</p>
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleBroadcast} className="broadcast-form" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                                <div className="input-group">
+                                    <label style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8, display: 'block' }}>Alert Title</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. OAT Event Tonight!"
+                                        value={broadcast.title}
+                                        onChange={e => setBroadcast({ ...broadcast, title: e.target.value })}
+                                        required
+                                        className="input-field"
+                                    />
+                                </div>
+                                <div className="input-group">
+                                    <label style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8, display: 'block' }}>Message Content</label>
+                                    <textarea
+                                        placeholder="Write your announcement here..."
+                                        value={broadcast.message}
+                                        onChange={e => setBroadcast({ ...broadcast, message: e.target.value })}
+                                        required
+                                        className="textarea-field"
+                                        style={{ minHeight: 120, resize: 'none' }}
+                                    ></textarea>
+                                </div>
+                                <div className="input-group">
+                                    <label style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8, display: 'block' }}>Alert Styling</label>
+                                    <div className="broadcast-types" style={{ display: 'flex', gap: 10 }}>
+                                        <button
+                                            type="button"
+                                            className={`type-btn info ${broadcast.type === 'info' ? 'active' : ''}`}
+                                            onClick={() => setBroadcast({ ...broadcast, type: 'info' })}
+                                            style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid var(--border)', background: broadcast.type === 'info' ? 'var(--info)' : 'var(--bg-elevated)', color: broadcast.type === 'info' ? 'white' : 'var(--text)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}
+                                        >
+                                            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>info</span> Info
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`type-btn success ${broadcast.type === 'success' ? 'active' : ''}`}
+                                            onClick={() => setBroadcast({ ...broadcast, type: 'success' })}
+                                            style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid var(--border)', background: broadcast.type === 'success' ? 'var(--success)' : 'var(--bg-elevated)', color: broadcast.type === 'success' ? 'white' : 'var(--text)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}
+                                        >
+                                            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>check_circle</span> Good News
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`type-btn warning ${broadcast.type === 'warning' ? 'active' : ''}`}
+                                            onClick={() => setBroadcast({ ...broadcast, type: 'warning' })}
+                                            style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid var(--border)', background: broadcast.type === 'warning' ? 'var(--danger)' : 'var(--bg-elevated)', color: broadcast.type === 'warning' ? 'white' : 'var(--text)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}
+                                        >
+                                            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>warning</span> Urgent
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button className="btn-verify" type="submit" disabled={sendingBroadcast} style={{ marginTop: 12, height: 55, fontSize: '1rem' }}>
+                                    {sendingBroadcast ? 'Sending to Campus...' : (
+                                        <><span className="material-symbols-outlined">send</span> Dispatch Announcement</>
+                                    )}
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 )}
 

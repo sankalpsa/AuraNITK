@@ -47,21 +47,31 @@ export default function Likes() {
                             {likes.length} people liked you
                         </p>
                         <div className="connections-grid">
-                            {likes.map(u => (
-                                <div key={u.id} className="connection-card"
-                                    onClick={() => navigate('/profile/view', { state: { profile: u } })}>
-                                    <img src={u.photo || defaultAvatar(u.name)} alt={u.name}
-                                        style={u.is_super_like ? { border: '3px solid #3b82f6' } : {}}
-                                        onError={(e) => { e.target.src = defaultAvatar(u.name); }} />
-                                    <div className="connection-card-overlay">
-                                        <h3>{u.name}, {u.age} {u.is_verified ? '✅' : ''}</h3>
-                                        <p>{u.branch}</p>
+                            {likes.map(u => {
+                                const isBlur = !u.is_super_like;
+                                return (
+                                    <div key={u.id} className={`connection-card ${isBlur ? 'is-blurred' : 'is-super'}`}
+                                        onClick={() => navigate('/profile/view', { state: { profile: u } })}>
+                                        <div className="connection-image-wrapper">
+                                            <img src={u.photo || defaultAvatar(u.name)} alt={u.name}
+                                                className={isBlur ? 'blur-photo' : ''}
+                                                onError={(e) => { e.target.src = defaultAvatar(u.name); }} />
+                                            {isBlur && (
+                                                <div className="premium-lock-overlay">
+                                                    <span className="material-symbols-outlined">lock</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="connection-card-overlay">
+                                            <h3>{isBlur ? 'Someone special' : u.name}, {isBlur ? '??' : u.age} {u.is_verified && !isBlur ? '✅' : ''}</h3>
+                                            <p>{isBlur ? 'Matched by interest' : u.branch}</p>
+                                        </div>
+                                        <span className="connection-card-badge" style={u.is_super_like ? { background: 'var(--info)' } : {}}>
+                                            {u.is_super_like ? '⭐ Super Like' : 'Likes You'}
+                                        </span>
                                     </div>
-                                    <span className="connection-card-badge" style={u.is_super_like ? { background: '#3b82f6' } : {}}>
-                                        {u.is_super_like ? '⭐ Super Like' : 'Likes You'}
-                                    </span>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </>
                 )}
