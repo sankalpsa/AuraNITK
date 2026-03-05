@@ -29,7 +29,10 @@ export default function Login() {
             });
             login(data.token, data.user);
             showToast(`Welcome back, ${data.user.name}! 💕`, 'success');
-            navigate('/discover', { replace: true });
+            // Deliberately NOT calling navigate('/discover') here.
+            // When login() updates the AuthContext, the <PublicRoute> wrapper
+            // will automatically re-render and navigate the user to /discover.
+            // Doing it programmatically at the same time causes a router race condition.
         } catch (e) {
             showToast(e.message, 'error');
         }

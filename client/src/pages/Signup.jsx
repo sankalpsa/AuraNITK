@@ -118,7 +118,8 @@ export default function Signup() {
             });
             login(data.token, data.user);
             showToast(`Welcome to NITKnot, ${data.user.name}! 💕`, 'success');
-            navigate('/discover', { replace: true });
+            // Deliberately NOT calling navigate('/discover') here.
+            // The <PublicRoute> wrapper automatically handles redirection when auth state changes.
         } catch (e) {
             showToast(e.message, 'error');
         }

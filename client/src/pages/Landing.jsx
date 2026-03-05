@@ -1,14 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 
 export default function Landing() {
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
-
-    useEffect(() => {
-        if (isAuthenticated) navigate('/discover', { replace: true });
-    }, [isAuthenticated, navigate]);
 
     useEffect(() => {
         // Floating particles for the whole screen
