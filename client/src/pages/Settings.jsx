@@ -89,7 +89,7 @@ export default function Settings() {
                 <button className="btn-icon" onClick={() => navigate('/profile')}>
                     <span className="material-symbols-outlined">arrow_back</span>
                 </button>
-                <h2>Settings and activity</h2>
+                <h2>Settings & Activity </h2>
             </div>
 
             <div className="settings-body">
