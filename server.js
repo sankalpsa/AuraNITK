@@ -59,11 +59,30 @@ const OTP_HTML = (otp) => `
 
 function checkEmailConfig() {
     const providers = [];
+    const missing = [];
+
     if (process.env.RESEND_API_KEY?.trim()) providers.push('Resend');
+    else missing.push('RESEND_API_KEY');
+
     if (process.env.BREVO_API_KEY?.trim()) providers.push('Brevo');
-    if (process.env.MAILJET_API_KEY?.trim() && process.env.MAILJET_SECRET_KEY?.trim()) providers.push('Mailjet');
+    else missing.push('BREVO_API_KEY');
+
+    if (process.env.MAILJET_API_KEY?.trim() && process.env.MAILJET_SECRET_KEY?.trim()) {
+        providers.push('Mailjet');
+    } else {
+        if (!process.env.MAILJET_API_KEY?.trim()) missing.push('MAILJET_API_KEY');
+        if (!process.env.MAILJET_SECRET_KEY?.trim()) missing.push('MAILJET_SECRET_KEY');
+    }
+
     if (process.env.SENDGRID_API_KEY?.trim()) providers.push('SendGrid');
-    if (process.env.SMTP_EMAIL?.trim() && process.env.SMTP_PASSWORD?.trim()) providers.push('Gmail SMTP');
+    else missing.push('SENDGRID_API_KEY');
+
+    if (process.env.SMTP_EMAIL?.trim() && process.env.SMTP_PASSWORD?.trim()) {
+        providers.push('Gmail SMTP');
+    } else {
+        if (!process.env.SMTP_EMAIL?.trim()) missing.push('SMTP_EMAIL');
+        if (!process.env.SMTP_PASSWORD?.trim()) missing.push('SMTP_PASSWORD');
+    }
 
     if (providers.length === 0) {
         console.error('');
@@ -71,7 +90,7 @@ function checkEmailConfig() {
         console.error('❌ FATAL: No email provider configured!');
         console.error('');
         console.error('NITKnot REQUIRES email to verify NITK students.');
-        console.error('Without email, anyone can create fake accounts.');
+        console.error('Missing variables: ' + missing.join(', '));
         console.error('');
         console.error('Option 1 — Gmail SMTP (easiest):');
         console.error('  Set in .env:');
@@ -82,6 +101,8 @@ function checkEmailConfig() {
         console.error('  Set the corresponding API keys in .env');
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.error('');
+        // NOTE: In production, we exit. In dev, we might want to just warn, 
+        // but since OTP is critical, we keep it strict.
         process.exit(1);
     }
     console.log(`📧 Detected Email Providers: ${providers.join(', ')}`);
