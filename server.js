@@ -58,9 +58,14 @@ const OTP_HTML = (otp) => `
 // ========================================
 
 function checkEmailConfig() {
-    const hasSendGrid = !!(process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.trim());
-    const hasSmtp = !!(process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD);
-    if (!hasSendGrid && !hasSmtp) {
+    const providers = [];
+    if (process.env.RESEND_API_KEY?.trim()) providers.push('Resend');
+    if (process.env.BREVO_API_KEY?.trim()) providers.push('Brevo');
+    if (process.env.MAILJET_API_KEY?.trim() && process.env.MAILJET_SECRET_KEY?.trim()) providers.push('Mailjet');
+    if (process.env.SENDGRID_API_KEY?.trim()) providers.push('SendGrid');
+    if (process.env.SMTP_EMAIL?.trim() && process.env.SMTP_PASSWORD?.trim()) providers.push('Gmail SMTP');
+
+    if (providers.length === 0) {
         console.error('');
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.error('❌ FATAL: No email provider configured!');
@@ -69,35 +74,108 @@ function checkEmailConfig() {
         console.error('Without email, anyone can create fake accounts.');
         console.error('');
         console.error('Option 1 — Gmail SMTP (easiest):');
-        console.error('  1. Go to: https://myaccount.google.com/apppasswords');
-        console.error('  2. Generate an App Password for "Mail"');
-        console.error('  3. Set in .env:');
+        console.error('  Set in .env:');
         console.error('     SMTP_EMAIL=your@gmail.com');
         console.error('     SMTP_PASSWORD=xxxx xxxx xxxx xxxx');
         console.error('');
-        console.error('Option 2 — SendGrid (better for production):');
-        console.error('  Set SENDGRID_API_KEY=SG.xxx in .env');
-        console.error('  (Free plan: 100 emails/day)');
-        console.error('');
+        console.error('Option 2 — API Providers (SendGrid, Resend, Brevo, etc.):');
+        console.error('  Set the corresponding API keys in .env');
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.error('');
         process.exit(1);
     }
-    if (hasSendGrid) console.log('📧 Email provider: SendGrid API');
-    else {
-        const email = process.env.SMTP_EMAIL || '';
-        const masked = email.replace(/^(.{2})(.*)(@.*)$/, '$1***$3');
-        console.log(`📧 Email provider: Gmail SMTP (${masked})`);
-    }
+    console.log(`📧 Detected Email Providers: ${providers.join(', ')}`);
 }
 
 async function sendOTPEmail(toEmail, otp) {
-    // Branded sender — use SENDER_DISPLAY_EMAIL if set, else a generic noreply address
     const displayEmail = (process.env.SENDER_DISPLAY_EMAIL || 'noreply@nitknot.app').trim();
     const displayName = 'NITKnot';
+    const subject = '🔐 NITKnot — Your Verification Code';
+    const html = OTP_HTML(otp);
 
-    // Try SendGrid first if configured (fully hides your personal email)
-    if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.trim()) {
+    // --- 1. Resend API ---
+    if (process.env.RESEND_API_KEY?.trim()) {
+        try {
+            const res = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    from: `${displayName} <${displayEmail}>`,
+                    to: [toEmail],
+                    subject: subject,
+                    html: html
+                })
+            });
+            if (res.ok) {
+                console.log(`✅ [Resend] OTP sent to ${toEmail}`);
+                return;
+            }
+            console.error(`❌ [Resend] HTTP ${res.status}: ${await res.text()}`);
+        } catch (e) {
+            console.error('❌ [Resend] Exception:', e.message);
+        }
+    }
+
+    // --- 2. Brevo (Sendinblue) API ---
+    if (process.env.BREVO_API_KEY?.trim()) {
+        try {
+            const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: {
+                    'api-key': process.env.BREVO_API_KEY.trim(),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sender: { name: displayName, email: displayEmail },
+                    to: [{ email: toEmail }],
+                    subject: subject,
+                    htmlContent: html
+                })
+            });
+            if (res.ok) {
+                console.log(`✅ [Brevo] OTP sent to ${toEmail}`);
+                return;
+            }
+            console.error(`❌ [Brevo] HTTP ${res.status}: ${await res.text()}`);
+        } catch (e) {
+            console.error('❌ [Brevo] Exception:', e.message);
+        }
+    }
+
+    // --- 3. Mailjet API ---
+    if (process.env.MAILJET_API_KEY?.trim() && process.env.MAILJET_SECRET_KEY?.trim()) {
+        try {
+            const auth = Buffer.from(`${process.env.MAILJET_API_KEY.trim()}:${process.env.MAILJET_SECRET_KEY.trim()}`).toString('base64');
+            const res = await fetch('https://api.mailjet.com/v3.1/send', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Basic ${auth}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Messages: [{
+                        From: { Email: displayEmail, Name: displayName },
+                        To: [{ Email: toEmail }],
+                        Subject: subject,
+                        HTMLPart: html
+                    }]
+                })
+            });
+            if (res.ok) {
+                console.log(`✅ [Mailjet] OTP sent to ${toEmail}`);
+                return;
+            }
+            console.error(`❌ [Mailjet] HTTP ${res.status}: ${await res.text()}`);
+        } catch (e) {
+            console.error('❌ [Mailjet] Exception:', e.message);
+        }
+    }
+
+    // --- 4. SendGrid API ---
+    if (process.env.SENDGRID_API_KEY?.trim()) {
         try {
             const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
                 method: 'POST',
@@ -109,31 +187,23 @@ async function sendOTPEmail(toEmail, otp) {
                     personalizations: [{ to: [{ email: toEmail }] }],
                     from: { email: displayEmail, name: displayName },
                     reply_to: { email: displayEmail, name: displayName },
-                    subject: '🔐 NITKnot — Your Verification Code',
-                    content: [{ type: 'text/html', value: OTP_HTML(otp) }]
+                    subject: subject,
+                    content: [{ type: 'text/html', value: html }]
                 })
             });
-
             if (res.ok) {
-                console.log(`✅ [SendGrid] OTP email sent to ${toEmail}`);
+                console.log(`✅ [SendGrid] OTP sent to ${toEmail}`);
                 return;
             }
-
-            const errBody = await res.text();
-            console.error(`❌ [SendGrid] HTTP ${res.status}: ${errBody}`);
-            // Fall through to SMTP
-        } catch (sgErr) {
-            console.error('❌ [SendGrid] Exception:', sgErr.message);
-            // Fall through to SMTP
+            console.error(`❌ [SendGrid] HTTP ${res.status}: ${await res.text()}`);
+        } catch (e) {
+            console.error('❌ [SendGrid] Exception:', e.message);
         }
     }
 
-    // Gmail SMTP (primary or fallback)
-    // NOTE: Gmail always shows the authenticated address in headers.
-    // To fully hide your personal email, use SendGrid with a custom domain,
-    // or create a dedicated Gmail like nitknot.noreply@gmail.com.
-    if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
-        throw new Error('Email not configured. Set SMTP_EMAIL and SMTP_PASSWORD in .env');
+    // --- 5. Gmail SMTP (Final Fallback) ---
+    if (!process.env.SMTP_EMAIL?.trim() || !process.env.SMTP_PASSWORD?.trim()) {
+        throw new Error('All API providers failed and SMTP is not configured.');
     }
 
     const transporter = nodemailer.createTransport({
@@ -143,10 +213,8 @@ async function sendOTPEmail(toEmail, otp) {
             pass: process.env.SMTP_PASSWORD.trim()
         },
         tls: { rejectUnauthorized: false },
-        family: 4,           // Force IPv4 — fixes many cloud/VPS issues
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 15000
+        family: 4,
+        connectionTimeout: 10000
     });
 
     try {
@@ -154,33 +222,17 @@ async function sendOTPEmail(toEmail, otp) {
             from: `"${displayName}" <${process.env.SMTP_EMAIL.trim()}>`,
             replyTo: `"${displayName}" <${displayEmail}>`,
             to: toEmail,
-            subject: '🔐 NITKnot — Your Verification Code',
-            html: OTP_HTML(otp),
-            headers: {
-                'X-Mailer': 'NITKnot App',
-                'List-Unsubscribe': `<mailto:${displayEmail}?subject=unsubscribe>`
-            }
+            subject: subject,
+            html: html,
+            headers: { 'X-Mailer': 'NITKnot App' }
         });
         console.log(`✅ [Gmail SMTP] OTP sent to ${toEmail} (msgId: ${info.messageId})`);
     } catch (smtpErr) {
         console.error(`❌ [Gmail SMTP] Failed to send to ${toEmail}:`, smtpErr.message);
-
-        // Give helpful error messages for common Gmail failures
-        let userMessage = 'Failed to send verification email. Please try again.';
-        if (smtpErr.code === 'EAUTH') {
-            userMessage = 'Email authentication failed. If you are the admin, check SMTP_EMAIL and SMTP_PASSWORD in .env — make sure you are using a Gmail App Password, not your normal password.';
-            console.error('HINT: Gmail App Passwords: https://myaccount.google.com/apppasswords');
-        } else if (smtpErr.code === 'ECONNREFUSED' || smtpErr.code === 'ECONNECTION') {
-            userMessage = 'Could not connect to email server. Check your internet connection.';
-        } else if (smtpErr.responseCode === 550) {
-            userMessage = 'Email delivery failed. The address may not exist.';
-        }
-
-        const err = new Error(userMessage);
-        err.originalError = smtpErr;
-        throw err;
+        throw new Error('All email delivery attempts failed. Please contact admin.');
     }
 }
+
 
 // ========================================
 // Server & Socket Setup
