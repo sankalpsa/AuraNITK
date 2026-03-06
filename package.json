@@ -1,7 +1,7 @@
 {
-  "name": "nitknot",
+  "name": "aura",
   "version": "1.0.0",
-  "description": "NITKnot — Campus dating platform for NITK Surathkal",
+  "description": "Aura — Campus dating platform for NITK Surathkal",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

@@ -38,7 +38,7 @@ export default function Settings() {
         account: !q || ['account', 'edit', 'profile', 'password', 'view', 'change'].some(k => k.includes(q) || q.includes(k)),
         privacy: !q || ['privacy', 'safety', 'block', 'premium', 'incognito', 'read', 'receipt', 'dark', 'mode', 'theme', 'pay', 'subscribe'].some(k => k.includes(q) || q.includes(k)),
         howTo: !q || ['how', 'use', 'swipe', 'like', 'match', 'tap', 'timer', 'help'].some(k => k.includes(q) || q.includes(k)),
-        about: !q || ['about', 'version', 'info', 'nitknot', 'credit'].some(k => k.includes(q) || q.includes(k)),
+        about: !q || ['about', 'version', 'info', 'aura', 'credit'].some(k => k.includes(q) || q.includes(k)),
         logins: !q || ['login', 'logout', 'log', 'admin', 'sign'].some(k => k.includes(q) || q.includes(k)),
         danger: !q || ['danger', 'deactivate', 'delete', 'account', 'remove'].some(k => k.includes(q) || q.includes(k)),
     }), [q]);
@@ -276,7 +276,7 @@ export default function Settings() {
                         <span className="material-symbols-outlined settings-chevron">chevron_right</span>
                     </div>
 
-                    {/* NITKnot Premium Section */}
+                    {/* Aura Premium Section */}
                     <div className="settings-section-header" style={{ marginTop: 20 }}>
                         <span className="material-symbols-outlined" style={{ fontSize: 20, color: '#f59e0b' }}>workspace_premium</span>
                         <div>
@@ -456,12 +456,12 @@ export default function Settings() {
                     </div>
                 )}
 
-                {/* How to use NITKnot */}
+                {/* How to use Aura */}
                 {show.howTo && <div className="settings-section">
                     <div className="settings-section-header">
                         <span className="material-symbols-outlined" style={{ fontSize: 20 }}>help</span>
                         <div>
-                            <h3>How to use NITKnot</h3>
+                            <h3>How to use Aura</h3>
                             <p className="settings-section-desc">Get the most out of the app</p>
                         </div>
                     </div>
@@ -504,7 +504,7 @@ export default function Settings() {
                     </div>
                 </div>}
 
-                {/* About NITKnot */}
+                {/* About Aura */}
                 {show.about && <div className="settings-section">
                     <div className="settings-section-header">
                         <span className="material-symbols-outlined" style={{ fontSize: 20 }}>info</span>
@@ -514,7 +514,7 @@ export default function Settings() {
                         </div>
                     </div>
                     <div className="about-card">
-                        <div className="about-logo">NITKnot</div>
+                        <div className="about-logo">Aura</div>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
                             The dating app made exclusively for NITK Surathkal students.
                         </p>

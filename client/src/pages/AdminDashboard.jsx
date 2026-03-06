@@ -104,7 +104,7 @@ export default function AdminDashboard() {
     };
 
     const handleBan = async (userId) => {
-        if (!window.confirm('⚠️ This will permanently ban this user from NITKnot. Continue?')) return;
+        if (!window.confirm('⚠️ This will permanently ban this user from Aura. Continue?')) return;
         try {
             await apiFetch(`/api/admin/users/${userId}/ban`, { method: 'PUT' });
             showToast('User banned from platform', 'success');
@@ -242,7 +242,7 @@ export default function AdminDashboard() {
             <div className="admin-access-denied view-animate">
                 <span className="material-symbols-outlined">shield_lock</span>
                 <h2>Access Restricted</h2>
-                <p>This is a secure operations zone restricted to authorized NITKnot administrators.</p>
+                <p>This is a secure operations zone restricted to authorized Aura administrators.</p>
                 <button className="btn-verify" onClick={() => navigate('/discover')}>Return to Campus</button>
             </div>
         );
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
                         <span className="material-symbols-outlined vault-icon">lock_person</span>
                     </div>
                     <h2>Security Vault</h2>
-                    <p>Enter the Master Key to access the NITKnot Command Center. This session is encrypted end-to-end.</p>
+                    <p>Enter the Master Key to access the Aura Command Center. This session is encrypted end-to-end.</p>
                     <form onSubmit={handleUnlock}>
                         <div className="input-group">
                             <input

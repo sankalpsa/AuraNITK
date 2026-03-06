@@ -117,7 +117,7 @@ export default function Signup() {
                 }),
             });
             login(data.token, data.user);
-            showToast(`Welcome to NITKnot, ${data.user.name}! 💕`, 'success');
+            showToast(`Welcome to Aura, ${data.user.name}! ✨`, 'success');
             // Deliberately NOT calling navigate('/discover') here.
             // The <PublicRoute> wrapper automatically handles redirection when auth state changes.
         } catch (e) {

@@ -40,7 +40,7 @@ export default function Landing() {
         <div className="landing-page view-animate">
             <div className="hero-section">
                 <div className="hero-eyebrow">NITK Surathkal · Est. 2025</div>
-                <div className="hero-logo">NITKnot</div>
+                <div className="hero-logo">Aura</div>
                 <p className="hero-tagline">Swipe. Match. Connect.</p>
                 <p className="hero-subtext">
                     The dating app made exclusively for NITK Surathkal students.
@@ -58,7 +58,7 @@ export default function Landing() {
                 </div>
             </div>
             <div className="landing-features">
-                <h3>Why NITKnot?</h3>
+                <h3>Why Aura?</h3>
                 <div className="features-grid">
                     <div className="feature-card">
                         <span className="material-symbols-outlined fill-icon">verified_user</span>

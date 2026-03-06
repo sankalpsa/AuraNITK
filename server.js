@@ -1,5 +1,5 @@
 // ========================================
-// NITKnot — Production Server (Fixed)
+// Aura — Production Server (Fixed)
 // ========================================
 require('dotenv').config();
 const express = require('express');
@@ -42,7 +42,7 @@ setInterval(() => {
 // ========================================
 const OTP_HTML = (otp) => `
     <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#1a1a2e;border-radius:16px;color:#fff;">
-        <h1 style="text-align:center;color:#ee2b9d;">NITKnot 💕</h1>
+        <h1 style="text-align:center;color:#ee2b9d;">Aura ✨</h1>
         <p style="text-align:center;color:#ccc;">Your verification code is:</p>
         <div style="text-align:center;font-size:36px;font-weight:bold;letter-spacing:8px;color:#ee2b9d;background:#16213e;padding:20px;border-radius:12px;margin:20px 0;">
             ${otp}
@@ -89,7 +89,7 @@ function checkEmailConfig() {
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.error('❌ FATAL: No email provider configured!');
         console.error('');
-        console.error('NITKnot REQUIRES email to verify NITK students.');
+        console.error('Aura REQUIRES email to verify NITK students.');
         console.error('Missing variables: ' + missing.join(', '));
         console.error('');
         console.error('Option 1 — Gmail SMTP (easiest):');
@@ -110,8 +110,8 @@ function checkEmailConfig() {
 
 async function sendOTPEmail(toEmail, otp) {
     const displayEmail = (process.env.SENDER_DISPLAY_EMAIL || 'noreply@nitknot.app').trim();
-    const displayName = 'NITKnot';
-    const subject = '🔐 NITKnot — Your Verification Code';
+    const displayName = 'Aura';
+    const subject = '🔐 Aura — Your Verification Code';
     const html = OTP_HTML(otp);
 
     // --- 1. Resend API ---
@@ -245,7 +245,7 @@ async function sendOTPEmail(toEmail, otp) {
             to: toEmail,
             subject: subject,
             html: html,
-            headers: { 'X-Mailer': 'NITKnot App' }
+            headers: { 'X-Mailer': 'Aura App' }
         });
         console.log(`✅ [Gmail SMTP] OTP sent to ${toEmail} (msgId: ${info.messageId})`);
     } catch (smtpErr) {
@@ -559,7 +559,7 @@ app.post('/api/auth/register', async (req, res) => {
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 name, normalizedEmail, hash, age, gender, branch, year,
-                bio || "Hey there! I'm on NITKnot 💕",
+                bio || "Hey there! I'm on Aura ✨",
                 show_me || 'all',
                 JSON.stringify(interests || []),
                 JSON.stringify(green_flags || []),
@@ -2072,7 +2072,7 @@ async function start() {
     }
 
     server.listen(PORT, () => {
-        console.log(`\n🚀 NITKnot running at http://localhost:${PORT}`);
+        console.log(`\n🚀 Aura running at http://localhost:${PORT}`);
         console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}\n`);
     });
 }

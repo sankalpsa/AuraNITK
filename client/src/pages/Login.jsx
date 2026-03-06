@@ -56,7 +56,7 @@ export default function Login() {
                         </span>
                     </div>
                     <h3>Welcome Back</h3>
-                    <p className="auth-hint">Sign in to your NITKnot account</p>
+                    <p className="auth-hint">Sign in to your Aura account</p>
 
                     <div className="input-group">
                         <label>Email</label>
