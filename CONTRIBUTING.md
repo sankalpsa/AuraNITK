@@ -6,7 +6,7 @@ This document is for collaborators and authorized developers only.
 
 1.  **Clone the Repo**:
     ```bash
-    git clone https://github.com/sankalpsa/NITKnot.git
+    git clone https://github.com/sankalpsa/AuraNITK.git
     ```
 
 2.  **Install Dependencies**:
