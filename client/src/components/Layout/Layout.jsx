@@ -50,7 +50,7 @@ export default function Layout() {
                             className={`nav-item-aura ${location.pathname.startsWith(item.path) ? 'active' : ''}`}
                             onClick={() => navigate(item.path)}
                         >
-                            <span className="material-symbols-outlined">{item.icon}</span>
+                            <span className="material-symbols-rounded">{item.icon}</span>
                             {item.view === 'chat' && unreadCount > 0 && (
                                 <span className="nav-badge-aura">{unreadCount > 9 ? '9+' : unreadCount}</span>
                             )}

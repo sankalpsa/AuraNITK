@@ -304,9 +304,9 @@ export default function ChatConvo() {
                     {isMine && (
                         <span className="msg-status" style={{ fontSize: 16, verticalAlign: 'middle', marginLeft: 4 }}>
                             {m.is_read ? (
-                                <span className="material-symbols-outlined fill-icon" style={{ fontSize: 16, color: 'var(--primary)', fontWeight: 'bold' }}>done_all</span>
+                                <span className="material-symbols-rounded fill-icon" style={{ fontSize: 16, color: 'var(--primary)', fontWeight: 'bold' }}>done_all</span>
                             ) : (
-                                <span className="material-symbols-outlined" style={{ fontSize: 16, opacity: 0.6 }}>done</span>
+                                <span className="material-symbols-rounded" style={{ fontSize: 16, opacity: 0.6 }}>done</span>
                             )}
                         </span>
                     )}

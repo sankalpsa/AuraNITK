@@ -36,12 +36,12 @@ export default function Connections() {
                 {loading ? (
                     <div className="empty-state"><div className="spinner" style={{ width: 32, height: 32 }} /><h3>Loading...</h3></div>
                 ) : matches.length === 0 ? (
-                    <div className="empty-state" style={{ paddingTop: 60 }}>
-                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>group</span>
-                        <h3>No matches yet</h3>
-                        <p>Keep swiping to find your match!</p>
-                        <button className="btn-primary" style={{ maxWidth: 200, marginTop: 16 }} onClick={() => navigate('/discover')}>
-                            <span className="material-symbols-outlined">style</span>Discover
+                    <div className="empty-state auth-card holographic" style={{ marginTop: 40 }}>
+                        <span className="material-symbols-rounded fill-icon" style={{ color: 'var(--primary)', fontSize: '4rem' }}>group</span>
+                        <h3 className="font-serif" style={{ fontSize: '1.5rem', marginTop: 16 }}>Resonance Required</h3>
+                        <p style={{ opacity: 0.6, maxWidth: 260 }}>Your aura is unique. Continue exploring to find compatible frequencies.</p>
+                        <button className="btn-primary holographic" style={{ marginTop: 24 }} onClick={() => navigate('/discover')}>
+                            <span className="material-symbols-rounded">radar</span> Begin Scan
                         </button>
                     </div>
                 ) : (

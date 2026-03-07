@@ -37,7 +37,7 @@ export default function Likes() {
                     <div className="empty-state"><div className="spinner" style={{ width: 32, height: 32 }} /><h3>Loading...</h3></div>
                 ) : likes.length === 0 ? (
                     <div className="empty-state" style={{ paddingTop: 60 }}>
-                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>favorite_border</span>
+                        <span className="material-symbols-rounded fill-icon" style={{ color: 'var(--primary)' }}>favorite_border</span>
                         <h3>No likes yet</h3>
                         <p>Keep swiping! Your likes will show up here.</p>
                     </div>

@@ -28,7 +28,7 @@ export default function BroadcastListener() {
         <div className="broadcast-overlay view-animate">
             <div className={`broadcast-modal ${announcement.type || 'info'}`}>
                 <div className="broadcast-badge">
-                    <span className="material-symbols-outlined">campaign</span>
+                    <span className="material-symbols-rounded">campaign</span>
                     OFFICIAL CAMPUS NEWS
                 </div>
                 <h2>{announcement.title}</h2>

@@ -58,7 +58,7 @@ export default function Discover() {
                     <div className="cosmic-loader">
                         <div className="spinner" style={{ width: 48, height: 48, borderTopColor: 'var(--primary)' }} />
                     </div>
-                    <h3 style={{ marginTop: '24px', opacity: 0.8 }}>Calibrating Frequencies...</h3>
+                    <h3 className="font-serif" style={{ marginTop: '24px', opacity: 0.8 }}>Calibrating Aura Frequencies...</h3>
                 </div>
             </div>
         );

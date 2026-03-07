@@ -152,7 +152,7 @@ export default function Settings() {
             {/* Instagram-style header */}
             <div className="settings-header">
                 <button className="btn-icon" onClick={() => navigate('/profile')}>
-                    <span className="material-symbols-outlined">arrow_back</span>
+                    <span className="material-symbols-rounded">arrow_back</span>
                 </button>
                 <h2>Settings & Activity</h2>
             </div>
@@ -160,7 +160,7 @@ export default function Settings() {
             <div className="settings-body">
                 {/* Functional search bar */}
                 <div className="settings-search-bar">
-                    <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--text-muted)' }}>search</span>
+                    <span className="material-symbols-rounded" style={{ fontSize: 18, color: 'var(--text-muted)' }}>search</span>
                     <input
                         type="text"
                         placeholder="Search settings..."
@@ -170,7 +170,7 @@ export default function Settings() {
                     />
                     {searchQuery && (
                         <button className="btn-icon" onClick={() => setSearchQuery('')} style={{ padding: 2 }}>
-                            <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--text-muted)' }}>close</span>
+                            <span className="material-symbols-rounded" style={{ fontSize: 16, color: 'var(--text-muted)' }}>close</span>
                         </button>
                     )}
                 </div>
@@ -178,7 +178,7 @@ export default function Settings() {
                 {/* Your Account — Instagram style */}
                 {show.account && <div className="settings-section">
                     <div className="settings-section-header">
-                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>account_circle</span>
+                        <span className="material-symbols-rounded" style={{ fontSize: 20 }}>account_circle</span>
                         <div>
                             <h3>Your account</h3>
                             <p className="settings-section-desc">Profile, password, activity and more</p>
@@ -187,35 +187,35 @@ export default function Settings() {
 
                     <div className="settings-item" onClick={() => navigate('/profile/edit')}>
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined">person</span>
+                            <span className="material-symbols-rounded">person</span>
                             <div>
                                 <span className="settings-item-title">Edit Profile</span>
                                 <span className="settings-item-sub">Name, bio, interests, photos</span>
                             </div>
                         </div>
-                        <span className="material-symbols-outlined settings-chevron">chevron_right</span>
+                        <span className="material-symbols-rounded settings-chevron">chevron_right</span>
                     </div>
 
                     <div className="settings-item" onClick={() => navigate('/profile')}>
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined">badge</span>
+                            <span className="material-symbols-rounded">badge</span>
                             <div>
                                 <span className="settings-item-title">View My Profile</span>
                                 <span className="settings-item-sub">See how others see you</span>
                             </div>
                         </div>
-                        <span className="material-symbols-outlined settings-chevron">chevron_right</span>
+                        <span className="material-symbols-rounded settings-chevron">chevron_right</span>
                     </div>
 
                     <div className="settings-item" onClick={() => setShowChangePass(!showChangePass)}>
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined">lock</span>
+                            <span className="material-symbols-rounded">lock</span>
                             <div>
                                 <span className="settings-item-title">Change Password</span>
                                 <span className="settings-item-sub">Update your login credentials</span>
                             </div>
                         </div>
-                        <span className="material-symbols-outlined settings-chevron">{showChangePass ? 'expand_less' : 'chevron_right'}</span>
+                        <span className="material-symbols-rounded settings-chevron">{showChangePass ? 'expand_less' : 'chevron_right'}</span>
                     </div>
                     {showChangePass && (
                         <div className="settings-expand">
@@ -236,7 +236,7 @@ export default function Settings() {
                 {/* Privacy & Safety — Instagram style */}
                 {show.privacy && <div className="settings-section">
                     <div className="settings-section-header">
-                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>shield</span>
+                        <span className="material-symbols-rounded" style={{ fontSize: 20 }}>shield</span>
                         <div>
                             <h3>Privacy & safety</h3>
                             <p className="settings-section-desc">Manage your campus safety</p>
@@ -245,13 +245,13 @@ export default function Settings() {
 
                     <div className="settings-item" onClick={() => setShowSafety(!showSafety)}>
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined">verified_user</span>
+                            <span className="material-symbols-rounded">verified_user</span>
                             <div>
                                 <span className="settings-item-title">Safety Guidelines</span>
                                 <span className="settings-item-sub">Tips for staying safe on campus</span>
                             </div>
                         </div>
-                        <span className="material-symbols-outlined settings-chevron">{showSafety ? 'expand_less' : 'chevron_right'}</span>
+                        <span className="material-symbols-rounded settings-chevron">{showSafety ? 'expand_less' : 'chevron_right'}</span>
                     </div>
                     {showSafety && (
                         <div className="safety-tips-card" style={{ margin: '0 0 8px 0' }}>
@@ -268,18 +268,18 @@ export default function Settings() {
 
                     <div className="settings-item" onClick={() => showToast('Blocked Profiles coming soon!', 'info')}>
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined">block</span>
+                            <span className="material-symbols-rounded">block</span>
                             <div>
                                 <span className="settings-item-title">Blocked Profiles</span>
                                 <span className="settings-item-sub">Manage profiles you've blocked</span>
                             </div>
                         </div>
-                        <span className="material-symbols-outlined settings-chevron">chevron_right</span>
+                        <span className="material-symbols-rounded settings-chevron">chevron_right</span>
                     </div>
 
                     {/* Aura Premium Section */}
                     <div className="settings-section-header" style={{ marginTop: 20 }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 20, color: '#f59e0b' }}>workspace_premium</span>
+                        <span className="material-symbols-rounded" style={{ fontSize: 20, color: '#f59e0b' }}>workspace_premium</span>
                         <div>
                             <h3 style={{ color: '#f59e0b' }}>Premium controls</h3>
                             <p className="settings-section-desc">{premiumStatus.is_premium ? 'Your premium features' : 'Upgrade to unlock exclusive features'}</p>
@@ -290,7 +290,7 @@ export default function Settings() {
                         <>
                             {/* Premium Active Badge */}
                             <div className="premium-active-badge">
-                                <span className="material-symbols-outlined" style={{ fontSize: 22, color: '#f59e0b' }}>diamond</span>
+                                <span className="material-symbols-rounded" style={{ fontSize: 22, color: '#f59e0b' }}>diamond</span>
                                 <div>
                                     <strong style={{ color: '#f59e0b' }}>Premium Active ✨</strong>
                                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '2px 0 0' }}>
@@ -302,7 +302,7 @@ export default function Settings() {
                             {/* Incognito Toggle */}
                             <div className="settings-item" style={{ cursor: 'default' }}>
                                 <div className="settings-item-left">
-                                    <span className="material-symbols-outlined" style={{ color: '#a78bfa' }}>visibility_off</span>
+                                    <span className="material-symbols-rounded" style={{ color: '#a78bfa' }}>visibility_off</span>
                                     <div>
                                         <span className="settings-item-title">Incognito Mode</span>
                                         <span className="settings-item-sub">Only show profile to people you like</span>
@@ -331,7 +331,7 @@ export default function Settings() {
                             {/* Read Receipts Toggle */}
                             <div className="settings-item" style={{ cursor: 'default' }}>
                                 <div className="settings-item-left">
-                                    <span className="material-symbols-outlined" style={{ color: '#3b82f6' }}>done_all</span>
+                                    <span className="material-symbols-rounded" style={{ color: '#3b82f6' }}>done_all</span>
                                     <div>
                                         <span className="settings-item-title">Read Receipts</span>
                                         <span className="settings-item-sub">Let others see when you've read messages</span>
@@ -353,15 +353,15 @@ export default function Settings() {
                                 <div className="premium-features-list">
                                     <h4 style={{ margin: '0 0 10px', color: '#f59e0b' }}>💎 Unlock Premium for ₹49/month</h4>
                                     <div className="premium-feature-item">
-                                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#a78bfa' }}>visibility_off</span>
+                                        <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#a78bfa' }}>visibility_off</span>
                                         <span>Incognito Mode — Only visible to people you like</span>
                                     </div>
                                     <div className="premium-feature-item">
-                                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#3b82f6' }}>done_all</span>
+                                        <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#3b82f6' }}>done_all</span>
                                         <span>Read Receipt Control — Hide your read status</span>
                                     </div>
                                     <div className="premium-feature-item">
-                                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#10b981' }}>trending_up</span>
+                                        <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#10b981' }}>trending_up</span>
                                         <span>Priority Profile — Get seen first in Discover</span>
                                     </div>
                                 </div>
@@ -427,7 +427,7 @@ export default function Settings() {
                     {/* Dark Mode Toggle (free for all) */}
                     <div className="settings-item" style={{ cursor: 'default' }}>
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>
+                            <span className="material-symbols-rounded" style={{ color: 'var(--primary)' }}>
                                 {theme === 'light' ? 'light_mode' : 'dark_mode'}
                             </span>
                             <div>
@@ -446,7 +446,7 @@ export default function Settings() {
                 {reports.length > 0 && (
                     <div className="settings-section">
                         <div className="settings-section-header" style={{ color: 'var(--danger)' }}>
-                            <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--danger)' }}>warning</span>
+                            <span className="material-symbols-rounded" style={{ fontSize: 20, color: 'var(--danger)' }}>warning</span>
                             <div>
                                 <h3 style={{ color: 'var(--danger)' }}>Community guidelines</h3>
                                 <p className="settings-section-desc">You have {reports.length} report{reports.length > 1 ? 's' : ''} against your account</p>
@@ -458,7 +458,7 @@ export default function Settings() {
                         {reports.map((r, i) => (
                             <div key={i} className="report-item">
                                 <div className="report-reason">
-                                    <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--danger)' }}>flag</span>
+                                    <span className="material-symbols-rounded" style={{ fontSize: 18, color: 'var(--danger)' }}>flag</span>
                                     <strong>{r.reason}</strong>
                                 </div>
                                 {r.details && <p className="report-details">{r.details}</p>}
@@ -471,7 +471,7 @@ export default function Settings() {
                 {/* How to use Aura */}
                 {show.howTo && <div className="settings-section">
                     <div className="settings-section-header">
-                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>help</span>
+                        <span className="material-symbols-rounded" style={{ fontSize: 20 }}>help</span>
                         <div>
                             <h3>How to use Aura</h3>
                             <p className="settings-section-desc">Get the most out of the app</p>
@@ -480,7 +480,7 @@ export default function Settings() {
 
                     <div className="settings-item">
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined">swipe</span>
+                            <span className="material-symbols-rounded">swipe</span>
                             <div>
                                 <span className="settings-item-title">Swipe right to like</span>
                                 <span className="settings-item-sub">Left to pass, right to like someone</span>
@@ -489,7 +489,7 @@ export default function Settings() {
                     </div>
                     <div className="settings-item">
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined">favorite</span>
+                            <span className="material-symbols-rounded">favorite</span>
                             <div>
                                 <span className="settings-item-title">Mutual likes = Match!</span>
                                 <span className="settings-item-sub">Both swipe right? You can chat now</span>
@@ -498,7 +498,7 @@ export default function Settings() {
                     </div>
                     <div className="settings-item">
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined">touch_app</span>
+                            <span className="material-symbols-rounded">touch_app</span>
                             <div>
                                 <span className="settings-item-title">Double-tap to react</span>
                                 <span className="settings-item-sub">Double-tap messages to send a ❤️</span>
@@ -507,7 +507,7 @@ export default function Settings() {
                     </div>
                     <div className="settings-item">
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined">timer</span>
+                            <span className="material-symbols-rounded">timer</span>
                             <div>
                                 <span className="settings-item-title">48h match timer</span>
                                 <span className="settings-item-sub">Send a message within 48h or the match expires</span>
@@ -519,7 +519,7 @@ export default function Settings() {
                 {/* About Aura */}
                 {show.about && <div className="settings-section">
                     <div className="settings-section-header">
-                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>info</span>
+                        <span className="material-symbols-rounded" style={{ fontSize: 20 }}>info</span>
                         <div>
                             <h3>About</h3>
                             <p className="settings-section-desc">App info and credits</p>
@@ -544,7 +544,7 @@ export default function Settings() {
                 {/* Login section — Instagram-style "Log in" section */}
                 {show.logins && <div className="settings-section">
                     <div className="settings-section-header">
-                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>login</span>
+                        <span className="material-symbols-rounded" style={{ fontSize: 20 }}>login</span>
                         <div>
                             <h3>Logins</h3>
                             <p className="settings-section-desc">Signed in as {user?.email || 'your account'}</p>
@@ -554,18 +554,18 @@ export default function Settings() {
                     {user && user.is_admin === 1 && (
                         <div className="settings-item admin-link" onClick={() => navigate('/admin')} style={{ borderTop: '1px solid var(--border)', marginTop: 10 }}>
                             <div className="settings-item-left">
-                                <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>shield_person</span>
+                                <span className="material-symbols-rounded" style={{ color: 'var(--primary)' }}>shield_person</span>
                                 <div>
                                     <span className="settings-item-title" style={{ color: 'var(--primary)', fontWeight: 700 }}>Admin Command Center</span>
                                     <span className="settings-item-sub">Manage reports and verifications</span>
                                 </div>
                             </div>
-                            <span className="material-symbols-outlined settings-chevron" style={{ color: 'var(--primary)' }}>chevron_right</span>
+                            <span className="material-symbols-rounded settings-chevron" style={{ color: 'var(--primary)' }}>chevron_right</span>
                         </div>
                     )}
 
                     <button className="settings-logout-btn" onClick={handleLogout}>
-                        <span className="material-symbols-outlined">logout</span>
+                        <span className="material-symbols-rounded">logout</span>
                         Log out
                     </button>
                 </div>}
@@ -573,7 +573,7 @@ export default function Settings() {
                 {/* Danger Zone */}
                 {show.danger && <div className="settings-section danger-zone">
                     <div className="settings-section-header">
-                        <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--danger)' }}>dangerous</span>
+                        <span className="material-symbols-rounded" style={{ fontSize: 20, color: 'var(--danger)' }}>dangerous</span>
                         <div>
                             <h3 style={{ color: 'var(--danger)' }}>Danger zone</h3>
                             <p className="settings-section-desc">These actions are irreversible</p>
@@ -581,23 +581,23 @@ export default function Settings() {
                     </div>
                     <div className="settings-item" onClick={deactivateAccount}>
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined" style={{ color: 'var(--warning, #f59e0b)' }}>pause_circle</span>
+                            <span className="material-symbols-rounded" style={{ color: 'var(--warning, #f59e0b)' }}>pause_circle</span>
                             <div>
                                 <span className="settings-item-title">Deactivate Account</span>
                                 <span className="settings-item-sub">Temporarily hide — reactivate by logging in again</span>
                             </div>
                         </div>
-                        <span className="material-symbols-outlined settings-chevron">chevron_right</span>
+                        <span className="material-symbols-rounded settings-chevron">chevron_right</span>
                     </div>
                     <div className="settings-item" onClick={deleteAccount}>
                         <div className="settings-item-left">
-                            <span className="material-symbols-outlined" style={{ color: 'var(--danger)' }}>delete_forever</span>
+                            <span className="material-symbols-rounded" style={{ color: 'var(--danger)' }}>delete_forever</span>
                             <div>
                                 <span className="settings-item-title" style={{ color: 'var(--danger)' }}>Delete Account</span>
                                 <span className="settings-item-sub">Permanently remove all your data</span>
                             </div>
                         </div>
-                        <span className="material-symbols-outlined settings-chevron" style={{ color: 'var(--danger)' }}>chevron_right</span>
+                        <span className="material-symbols-rounded settings-chevron" style={{ color: 'var(--danger)' }}>chevron_right</span>
                     </div>
                 </div>}
             </div>
