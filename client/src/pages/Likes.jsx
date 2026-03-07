@@ -31,7 +31,7 @@ export default function Likes() {
 
     return (
         <div className="likes-page view-animate">
-            <div className="page-header"><h1 className="font-serif">Likes You 💕</h1></div>
+            <div className="page-header"><h1 className="font-serif">Likes You ✨</h1></div>
             <div style={{ padding: 14 }}>
                 {loading ? (
                     <div className="empty-state"><div className="spinner" style={{ width: 32, height: 32 }} /><h3>Loading...</h3></div>

@@ -524,7 +524,7 @@ export default function Settings() {
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 12 }}>
                             <span className="about-badge">🎓 Campus Only</span>
                             <span className="about-badge">🔒 Secure</span>
-                            <span className="about-badge">💕 Free Forever</span>
+                            <span className="about-badge">✨ Free Forever</span>
                         </div>
                     </div>
                 </div>}

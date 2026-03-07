@@ -42,9 +42,9 @@ setInterval(() => {
 // ========================================
 const OTP_HTML = (otp) => `
     <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#1a1a2e;border-radius:16px;color:#fff;">
-        <h1 style="text-align:center;color:#ee2b9d;">Aura ✨</h1>
+        <h1 style="text-align:center;color:#D4AF37;">Aura ✨</h1>
         <p style="text-align:center;color:#ccc;">Your verification code is:</p>
-        <div style="text-align:center;font-size:36px;font-weight:bold;letter-spacing:8px;color:#ee2b9d;background:#16213e;padding:20px;border-radius:12px;margin:20px 0;">
+        <div style="text-align:center;font-size:36px;font-weight:bold;letter-spacing:8px;color:#D4AF37;background:#050505;padding:20px;border-radius:12px;margin:20px 0;border:1px solid rgba(212,175,55,0.3);">
             ${otp}
         </div>
         <p style="text-align:center;color:#888;font-size:14px;">This code expires in 10 minutes.<br>If you didn't request this, please ignore this email.</p>

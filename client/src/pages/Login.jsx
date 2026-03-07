@@ -28,7 +28,7 @@ export default function Login() {
                 body: JSON.stringify({ email: email.toLowerCase(), password }),
             });
             login(data.token, data.user);
-            showToast(`Welcome back, ${data.user.name}! 💕`, 'success');
+            showToast(`Welcome back, ${data.user.name}! ✨`, 'success');
             // Deliberately NOT calling navigate('/discover') here.
             // When login() updates the AuthContext, the <PublicRoute> wrapper
             // will automatically re-render and navigate the user to /discover.

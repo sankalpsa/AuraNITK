@@ -422,7 +422,7 @@ export default function AdminDashboard() {
                                     <div className="item-footer">
                                         <div className="user-pair">
                                             <span className="user-chip">
-                                                {p.is_verified === 1 && <span className="material-symbols-outlined fill-icon" style={{ color: '#ee2b9d', fontSize: 20 }}>verified</span>}
+                                                {p.is_verified === 1 && <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)', fontSize: 20 }}>verified</span>}
                                                 {r.reporter_name}
                                             </span>
                                             <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--text-muted)' }}>arrow_forward</span>

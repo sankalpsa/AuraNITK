@@ -2499,7 +2499,7 @@ select.input-field {
 }
 
 .portfolio-verified {
-  color: #ee2b9d;
+  color: var(--primary);
   font-size: 22px !important;
 }
 
@@ -4664,7 +4664,7 @@ select.input-field {
 
 /* Verification Badge */
 .verified-badge-inline {
-  color: #ee2b9d;
+  color: var(--primary);
   font-variation-settings: 'FILL' 1;
   font-size: 1.2rem;
   vertical-align: middle;

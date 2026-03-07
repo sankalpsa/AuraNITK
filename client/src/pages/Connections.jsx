@@ -60,7 +60,7 @@ export default function Connections() {
                                         <h3>{m.name}</h3>
                                         <p>{m.branch || ''} • {m.year || ''}</p>
                                     </div>
-                                    <span className="connection-card-badge">Match 💕</span>
+                                    <span className="connection-card-badge">Match ✨</span>
                                 </div>
                             ))}
                         </div>

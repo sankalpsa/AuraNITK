@@ -386,7 +386,7 @@ export default function ChatConvo() {
             <div className="chat-messages" id="chat-msgs" ref={messagesRef}>
                 {messages.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                        <div style={{ fontSize: '3rem', marginBottom: 12 }}>💕</div>
+                        <div style={{ fontSize: '3rem', marginBottom: 12 }}>✨</div>
                         <p style={{ color: 'var(--text-secondary)' }}>
                             You matched with <strong>{chatName}</strong>!<br />Say something nice!
                         </p>

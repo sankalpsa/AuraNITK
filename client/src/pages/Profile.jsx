@@ -537,7 +537,7 @@ export default function Profile() {
                     <div className="pf-section">
                         <div className="pf-section-hdr">
                             <div className="pf-section-title-row">
-                                <span className="material-symbols-outlined" style={{ color: '#ee2b9d' }}>interests</span>
+                                <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>interests</span>
                                 <h3>Interests</h3>
                             </div>
                             <button className="pf-edit-inline-btn" onClick={() => navigate('/profile/edit')}>

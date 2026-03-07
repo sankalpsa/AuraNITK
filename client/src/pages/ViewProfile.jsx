@@ -99,7 +99,7 @@ export default function ViewProfile() {
             if (data.match && data.matched_user) {
                 setMatchData({ user: data.matched_user, matchId: data.match_id });
             } else {
-                showToast(action === 'like' ? 'Liked! 💕' : action === 'super_like' ? '⭐ Super Liked!' : 'Passed', 'success', 1500);
+                showToast(action === 'like' ? 'Liked! ✨' : action === 'super_like' ? '⭐ Super Liked!' : 'Passed', 'success', 1500);
                 navigate(-1);
             }
         } catch (e) { showToast(e.message, 'error'); }
