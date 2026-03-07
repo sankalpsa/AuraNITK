@@ -109,10 +109,12 @@ function checkEmailConfig() {
 }
 
 async function sendOTPEmail(toEmail, otp) {
-    const displayEmail = (process.env.SENDER_DISPLAY_EMAIL || 'noreply@nitknot.app').trim();
+    const displayEmail = (process.env.SENDER_DISPLAY_EMAIL || 'noreply@aura.app').trim();
     const displayName = 'Aura';
     const subject = '🔐 Aura — Your Verification Code';
     const html = OTP_HTML(otp);
+
+    const errors = [];
 
     // --- 1. Resend API ---
     if (process.env.RESEND_API_KEY?.trim()) {
@@ -134,9 +136,12 @@ async function sendOTPEmail(toEmail, otp) {
                 console.log(`✅ [Resend] OTP sent to ${toEmail}`);
                 return;
             }
-            console.error(`❌ [Resend] HTTP ${res.status}: ${await res.text()}`);
+            const errText = await res.text();
+            console.error(`❌ [Resend] HTTP ${res.status}: ${errText}`);
+            errors.push(`Resend: ${res.status} ${errText}`);
         } catch (e) {
             console.error('❌ [Resend] Exception:', e.message);
+            errors.push(`Resend Error: ${e.message}`);
         }
     }
 
@@ -160,9 +165,12 @@ async function sendOTPEmail(toEmail, otp) {
                 console.log(`✅ [Brevo] OTP sent to ${toEmail}`);
                 return;
             }
-            console.error(`❌ [Brevo] HTTP ${res.status}: ${await res.text()}`);
+            const errText = await res.text();
+            console.error(`❌ [Brevo] HTTP ${res.status}: ${errText}`);
+            errors.push(`Brevo: ${res.status} ${errText}`);
         } catch (e) {
             console.error('❌ [Brevo] Exception:', e.message);
+            errors.push(`Brevo Error: ${e.message}`);
         }
     }
 
@@ -189,9 +197,12 @@ async function sendOTPEmail(toEmail, otp) {
                 console.log(`✅ [Mailjet] OTP sent to ${toEmail}`);
                 return;
             }
-            console.error(`❌ [Mailjet] HTTP ${res.status}: ${await res.text()}`);
+            const errText = await res.text();
+            console.error(`❌ [Mailjet] HTTP ${res.status}: ${errText}`);
+            errors.push(`Mailjet: ${res.status} ${errText}`);
         } catch (e) {
             console.error('❌ [Mailjet] Exception:', e.message);
+            errors.push(`Mailjet Error: ${e.message}`);
         }
     }
 
@@ -216,15 +227,20 @@ async function sendOTPEmail(toEmail, otp) {
                 console.log(`✅ [SendGrid] OTP sent to ${toEmail}`);
                 return;
             }
-            console.error(`❌ [SendGrid] HTTP ${res.status}: ${await res.text()}`);
+            const errText = await res.text();
+            console.error(`❌ [SendGrid] HTTP ${res.status}: ${errText}`);
+            errors.push(`SendGrid: ${res.status} ${errText}`);
         } catch (e) {
             console.error('❌ [SendGrid] Exception:', e.message);
+            errors.push(`SendGrid Error: ${e.message}`);
         }
     }
 
     // --- 5. Gmail SMTP (Final Fallback) ---
     if (!process.env.SMTP_EMAIL?.trim() || !process.env.SMTP_PASSWORD?.trim()) {
-        throw new Error('All API providers failed and SMTP is not configured.');
+        const errorMsg = 'All API providers failed and SMTP is not configured. Add SMTP_EMAIL and SMTP_PASSWORD to your .env';
+        console.error(errorMsg, errors);
+        throw new Error(errorMsg);
     }
 
     const transporter = nodemailer.createTransport({
@@ -233,9 +249,15 @@ async function sendOTPEmail(toEmail, otp) {
             user: process.env.SMTP_EMAIL.trim(),
             pass: process.env.SMTP_PASSWORD.trim()
         },
+        // Render specific tweaks for connections
+        pool: true,
+        maxConnections: 1,
+        maxMessages: 10,
         tls: { rejectUnauthorized: false },
         family: 4,
-        connectionTimeout: 10000
+        connectionTimeout: 20000, // Increased timeout for slow Render dynos
+        greetingTimeout: 20000,
+        socketTimeout: 20000
     });
 
     try {
@@ -250,7 +272,11 @@ async function sendOTPEmail(toEmail, otp) {
         console.log(`✅ [Gmail SMTP] OTP sent to ${toEmail} (msgId: ${info.messageId})`);
     } catch (smtpErr) {
         console.error(`❌ [Gmail SMTP] Failed to send to ${toEmail}:`, smtpErr.message);
-        throw new Error('All email delivery attempts failed. Please contact admin.');
+        errors.push(`SMTP Error: ${smtpErr.message}`);
+        throw new Error(`All email delivery attempts failed. Details: \n${errors.join('\n')}`);
+    } finally {
+        // Ensure pool connection is closed to prevent hanging
+        transporter.close();
     }
 }
 
