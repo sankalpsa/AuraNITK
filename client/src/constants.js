@@ -1,5 +1,5 @@
 // ========================================
-// NITKnot — Constants
+// Aura — Constants
 // ========================================
 
 export const INTEREST_OPTIONS = [
@@ -18,7 +18,7 @@ export const AURA_ICEBREAKERS = [
     "What's your most controversial opinion about your college?",
     "If we skipped the small talk, what would we talk about?",
     "What's a red flag you're currently ignoring?",
-    "Best place in Surathkal for a 2 AM deep conversation?",
+    "Best place near campus for a 2 AM deep conversation?",
     "What's the worst pickup line someone's used on you here?",
     "If you had to delete one app forever, which one?",
     "What's your toxic trait during midsem season?",

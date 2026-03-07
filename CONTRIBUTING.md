@@ -1,4 +1,4 @@
-# 🛠️ NITKnot — Internal Setup Guide
+# 🛠️ Aura — Internal Setup Guide
 
 This document is for collaborators and authorized developers only.
 
@@ -32,7 +32,7 @@ This document is for collaborators and authorized developers only.
     ```
 
 4.  **Database**:
-    - The server will automatically initialize `nitknot.db` (SQLite) on the first run.
+    - The server will automatically initialize `aura.db` (SQLite) on the first run.
 
 5.  **Run Application**:
     ```bash

@@ -1,5 +1,5 @@
 // ========================================
-// NITKnot — Helper Utilities
+// Aura — Helper Utilities
 // ========================================
 
 export function defaultAvatar(name = 'user', size = 200) {
