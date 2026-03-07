@@ -49,18 +49,18 @@ export default function Connections() {
                         <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 12 }}>
                             {matches.length} match{matches.length !== 1 ? 'es' : ''}
                         </p>
-                        <div className="connections-grid">
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '15px' }}>
                             {matches.map(m => (
-                                <div key={m.match_id} className="connection-card" onClick={() =>
+                                <div key={m.match_id} className="aura-grid-item glass-card holographic" onClick={() =>
                                     navigate('/chat/convo', { state: { match_id: m.match_id, name: m.name, photo: m.photo, user_id: m.user_id } })
                                 }>
                                     <img src={m.photo || defaultAvatar(m.name)} alt={m.name}
                                         onError={(e) => { e.target.src = defaultAvatar(m.name); }} />
-                                    <div className="connection-card-overlay">
-                                        <h3>{m.name}</h3>
-                                        <p>{m.branch || ''} • {m.year || ''}</p>
+                                    <div className="aura-item-overlay">
+                                        <h3 style={{ margin: 0, fontSize: '1rem' }}>{m.name}</h3>
+                                        <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.6 }}>{m.branch || 'Aura Soul'}</p>
                                     </div>
-                                    <span className="connection-card-badge">Match ✨</span>
+                                    <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'var(--gradient-aura)', borderRadius: '10px', padding: '2px 8px', fontSize: '0.65rem', fontWeight: 700 }}>MATCH</div>
                                 </div>
                             ))}
                         </div>

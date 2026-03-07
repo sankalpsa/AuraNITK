@@ -43,17 +43,16 @@ export default function Layout() {
     return (
         <div id="layout">
             {showNav && (
-                <nav className="bottom-nav">
+                <nav className="bottom-nav-aura">
                     {NAV_ITEMS.map(item => (
                         <button
                             key={item.view}
-                            className={`nav-item ${location.pathname.startsWith(item.path) ? 'active' : ''}`}
+                            className={`nav-item-aura ${location.pathname.startsWith(item.path) ? 'active' : ''}`}
                             onClick={() => navigate(item.path)}
                         >
                             <span className="material-symbols-outlined">{item.icon}</span>
-                            <span className="nav-label">{item.label}</span>
                             {item.view === 'chat' && unreadCount > 0 && (
-                                <span className="nav-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                                <span className="nav-badge-aura">{unreadCount > 9 ? '9+' : unreadCount}</span>
                             )}
                         </button>
                     ))}

@@ -51,89 +51,113 @@ export default function Discover() {
     if (loading) {
         return (
             <div className="discover-page view-animate">
-                <div className="page-header" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <img src="/aura-logo.png" className="logo-img-small" alt="Aura" />
-                    <h1 className="font-serif">Radar</h1>
+                <div className="page-header">
+                    <h1 className="font-serif text-aurora">Aura Radar</h1>
                 </div>
-                <div className="empty-state"><div className="spinner" style={{ width: 32, height: 32 }} /><h3>Locating elite connections...</h3></div>
+                <div className="empty-state" style={{ height: '60vh' }}>
+                    <div className="cosmic-loader">
+                        <div className="spinner" style={{ width: 48, height: 48, borderTopColor: 'var(--primary)' }} />
+                    </div>
+                    <h3 style={{ marginTop: '24px', opacity: 0.8 }}>Calibrating Frequencies...</h3>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="discover-page view-animate" style={{ height: 'auto', minHeight: '100vh', overflowY: 'visible' }}>
-            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1 className="font-serif">Aura Radar</h1>
-                <button className="btn-icon" onClick={() => setShowFilters(!showFilters)}
-                    style={{ background: (filterBranch !== 'all' || filterYear !== 'all') ? 'var(--primary)' : 'var(--bg-elevated)', border: 'none', width: 38, height: 38, borderRadius: '50%' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 20, color: (filterBranch !== 'all' || filterYear !== 'all') ? '#111' : 'var(--text-secondary)' }}>tune</span>
+        <div className="discover-page view-animate" style={{ paddingBottom: '120px' }}>
+            <div className="radar-pulse-bg"></div>
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div>
+                    <h1 className="font-serif" style={{ fontSize: '2.5rem', lineHeight: '1' }}>Radar</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.05em' }}>
+                        {searchMode === 'local' ? 'NEARBY DIMENSIONS' : 'GLOBAL FREQUENCIES'}
+                    </p>
+                </div>
+                <button className="btn-icon holographic" onClick={() => setShowFilters(!showFilters)}
+                    style={{ background: (filterBranch !== 'all' || filterYear !== 'all') ? 'var(--gradient-primary)' : 'var(--bg-elevated)', border: 'none', width: 44, height: 44, borderRadius: '14px', position: 'relative' }}>
+                    <span className="material-symbols-rounded" style={{ fontSize: 22, color: (filterBranch !== 'all' || filterYear !== 'all') ? 'white' : 'var(--text-secondary)' }}>tune</span>
+                    {(filterBranch !== 'all' || filterYear !== 'all') && <div className="filter-dot-active" />}
                 </button>
             </div>
 
             {showFilters && (
-                <div className="discover-filters">
-                    <div className="filter-row">
-                        <label className="filter-label">Branch</label>
-                        <select className="filter-select" value={filterBranch} onChange={(e) => { setFilterBranch(e.target.value); }}>
-                            <option value="all">All Branches</option>
-                            {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
-                        </select>
-                    </div>
-                    <div className="filter-row">
-                        <label className="filter-label">Year</label>
-                        <select className="filter-select" value={filterYear} onChange={(e) => { setFilterYear(e.target.value); }}>
-                            <option value="all">All Years</option>
-                            {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-                        </select>
-                    </div>
-                    <div className="discovery-tabs" style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                <div className="discover-filters auth-card holographic view-animate" style={{ padding: '24px', marginBottom: '32px' }}>
+                    <div className="discovery-tabs" style={{ display: 'flex', gap: '8px', marginBottom: '24px', background: 'var(--bg-elevated)', padding: '6px', borderRadius: '16px' }}>
                         <button
                             className={`tab-btn ${searchMode === 'local' ? 'active' : ''}`}
                             onClick={() => setSearchMode('local')}
-                            style={{ flex: 1, padding: '10px', borderRadius: '12px', border: 'none', background: searchMode === 'local' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: searchMode === 'local' ? '#111' : 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}
+                            style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', background: searchMode === 'local' ? 'var(--bg-card)' : 'transparent', color: searchMode === 'local' ? 'var(--primary-light)' : 'var(--text-muted)', fontWeight: 700, fontSize: '0.85rem', transition: 'all 0.3s ease', boxShadow: searchMode === 'local' ? 'var(--shadow-sm)' : 'none' }}
                         >
                             Local 🏛️
                         </button>
                         <button
                             className={`tab-btn ${searchMode === 'global' ? 'active' : ''}`}
                             onClick={() => setSearchMode('global')}
-                            style={{ flex: 1, padding: '10px', borderRadius: '12px', border: 'none', background: searchMode === 'global' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', color: searchMode === 'global' ? '#111' : 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}
+                            style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', background: searchMode === 'global' ? 'var(--bg-card)' : 'transparent', color: searchMode === 'global' ? 'var(--primary-light)' : 'var(--text-muted)', fontWeight: 700, fontSize: '0.85rem', transition: 'all 0.3s ease', boxShadow: searchMode === 'global' ? 'var(--shadow-sm)' : 'none' }}
                         >
                             Global ✨
                         </button>
                     </div>
-                    <button className="btn-primary" style={{ width: '100%', marginTop: 8, padding: '10px 0', color: '#111' }} onClick={() => { setShowFilters(false); loadProfiles(); }}>
-                        <span className="material-symbols-outlined">search</span> Apply Filters
+
+                    <div className="filter-row" style={{ marginBottom: '20px' }}>
+                        <label className="filter-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Academic Sphere</label>
+                        <select className="filter-select" value={filterBranch} onChange={(e) => { setFilterBranch(e.target.value); }}>
+                            <option value="all">Everywhere</option>
+                            {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
+                        </select>
+                    </div>
+
+                    <div className="filter-row" style={{ marginBottom: '28px' }}>
+                        <label className="filter-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Journey Stage</label>
+                        <select className="filter-select" value={filterYear} onChange={(e) => { setFilterYear(e.target.value); }}>
+                            <option value="all">Any year</option>
+                            {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                        </select>
+                    </div>
+
+                    <button className="btn-primary" style={{ width: '100%' }} onClick={() => { setShowFilters(false); loadProfiles(); }}>
+                        <span className="material-symbols-rounded">sync_alt</span> Apply Sync
                     </button>
                 </div>
             )}
 
             {cards.length === 0 ? (
-                <div className="empty-state">
-                    <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)', fontSize: 56 }}>diamond</span>
-                    <h3>The Radar is Empty</h3>
-                    <p style={{ maxWidth: 280 }}>You've seen all available profiles matching your criteria.</p>
-                    <button className="btn-primary" style={{ maxWidth: 200, marginTop: 16, color: '#111' }} onClick={loadProfiles}>
-                        <span className="material-symbols-outlined">refresh</span>Refresh Radar
+                <div className="empty-state auth-card holographic" style={{ padding: '60px 20px', textAlign: 'center' }}>
+                    <div className="auth-icon-large" style={{ background: 'var(--primary-soft)', marginBottom: '24px' }}>
+                        <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '3rem' }}>satellite_alt</span>
+                    </div>
+                    <h3 className="font-serif" style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Static on the Radar</h3>
+                    <p style={{ maxWidth: 280, margin: '0 auto 32px', color: 'var(--text-secondary)' }}>
+                        All known frequencies have been explored. Expand your parameters to find more.
+                    </p>
+                    <button className="btn-primary" style={{ margin: '0 auto' }} onClick={loadProfiles}>
+                        <span className="material-symbols-rounded">refresh</span>Re-scan Area
                     </button>
                 </div>
             ) : (
                 <div className="aura-radar-grid">
                     {cards.map((p) => (
-                        <div key={p.id} className="radar-tile" onClick={() => handleTileClick(p)}>
-                            <img src={p.photo || defaultAvatar(p.name)} alt={p.name} className="radar-photo" loading="lazy" onError={(e) => { e.target.src = defaultAvatar(p.name); }} />
+                        <div key={p.id} className="radar-tile holographic glass-card" onClick={() => handleTileClick(p)}>
+                            <div className="radar-photo-container">
+                                <img src={p.photo || defaultAvatar(p.name)} alt={p.name} className="radar-photo" loading="lazy" onError={(e) => { e.target.src = defaultAvatar(p.name); }} />
+                                <div className="radar-photo-gradient" />
+                            </div>
                             <div className="radar-overlay">
-                                <div className="radar-name">
-                                    {p.name.split(' ')[0]}, {p.age}
-                                    {p.is_verified === 1 && <span className="material-symbols-outlined fill-icon" style={{ fontSize: 18, color: 'var(--primary)' }}>verified</span>}
+                                <div className="radar-name-tag">
+                                    <span className="radar-name">{p.name.split(' ')[0]}, {p.age}</span>
+                                    {p.is_verified === 1 && <span className="material-symbols-rounded" style={{ fontSize: 16, color: 'var(--accent-cyan)' }}>verified</span>}
                                 </div>
-                                <div className="radar-detail" style={{ fontSize: '0.7rem', opacity: 0.9 }}>
-                                    {p.institute || 'Global Aura'}
+                                <div className="radar-stats-tag">
+                                    <span className="material-symbols-rounded" style={{ fontSize: 12 }}>school</span>
+                                    {p.branch}
                                 </div>
-                                <div className="radar-detail">{p.branch}</div>
                             </div>
                             {(p.match_percent || 70) >= 85 && (
-                                <div className="radar-badge" style={{ background: 'rgba(212, 175, 55, 0.9)', color: '#111' }}>Top Aura 💎</div>
+                                <div className="radar-badge">
+                                    <span className="badge-bg" />
+                                    <span className="badge-text"><span className="material-symbols-rounded" style={{ fontSize: 12 }}>star</span> TOP AURA</span>
+                                </div>
                             )}
                         </div>
                     ))}
@@ -146,7 +170,7 @@ export default function Discover() {
                     matchId={matchData.matchId}
                     onClose={() => {
                         setMatchData(null);
-                        loadProfiles(); // Refresh radar after match
+                        loadProfiles();
                     }}
                     onChat={() => {
                         setMatchData(null);

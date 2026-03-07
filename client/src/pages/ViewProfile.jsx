@@ -127,366 +127,274 @@ export default function ViewProfile() {
     const firstName = profile.name?.split(' ')[0] || profile.name;
 
     return (
-        <div className="vp-page">
-
-            {/* ── Floating Top Bar ── */}
-            <div className={`vp-topbar ${headerShrunk ? 'shrunk' : ''}`}>
-                <button className="vp-back-btn" onClick={() => navigate(-1)}>
-                    <span className="material-symbols-outlined">arrow_back</span>
+        <div className="profile-page view-animate" style={{ paddingBottom: '140px' }}>
+            {/* Immersive Top Bar */}
+            <div className={`profile-nav-header glass-card holographic ${headerShrunk ? 'shrunk' : ''}`} style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 100,
+                padding: '12px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderRadius: 0,
+                borderBottom: headerShrunk ? '1px solid var(--border)' : 'none',
+                background: headerShrunk ? 'var(--bg-glass)' : 'transparent',
+                backdropFilter: headerShrunk ? 'blur(20px)' : 'none',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}>
+                <button className="btn-icon" onClick={() => navigate(-1)} style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '50%' }}>
+                    <span className="material-symbols-rounded">arrow_back</span>
                 </button>
+
                 {headerShrunk && (
-                    <div className="vp-topbar-identity">
-                        <img
-                            src={photos[0].url}
-                            alt=""
-                            className="vp-topbar-avatar"
-                            onError={(e) => { e.target.src = defaultAvatar(profile.name); }}
-                        />
-                        <span className="vp-topbar-name font-serif">{profile.name}</span>
+                    <div className="view-profile-header-identity view-animate" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <img src={photos[0].url} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                        <span className="font-serif" style={{ fontWeight: 600 }}>{profile.name}</span>
                     </div>
                 )}
-                {!isMatch && (
-                    <button className="vp-back-btn" style={{ marginLeft: 'auto' }} onClick={() => setShowReport(true)}>
-                        <span className="material-symbols-outlined">flag</span>
-                    </button>
-                )}
+
+                <button className="btn-icon" onClick={() => setShowReport(true)} style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '50%' }}>
+                    <span className="material-symbols-rounded">flag</span>
+                </button>
             </div>
 
-            {/* ══ PHOTO HERO CAROUSEL ══ */}
+            {/* Photo Hero Section */}
             <div
-                className="vp-hero"
+                className="profile-hero"
+                style={{ height: '550px', position: 'relative' }}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
             >
-                <img
-                    src={photos[activePhoto].url}
-                    alt={profile.name}
-                    className="vp-hero-img"
-                    onError={(e) => { e.target.src = defaultAvatar(profile.name); }}
-                    onClick={() => setImgViewerOpen(true)}
-                />
-                <div className="vp-hero-gradient" />
+                <div className="photo-carousel" style={{ height: '100%', position: 'relative' }}>
+                    <img
+                        src={photos[activePhoto].url}
+                        alt={profile.name}
+                        className="hero-background-photo"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onClick={() => setImgViewerOpen(true)}
+                    />
+                    <div className="hero-gradient-overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(10,1,24,0.4), transparent 30%, rgba(10,1,24,0.95))' }} />
 
-                {/* Dot indicators */}
-                {photos.length > 1 && (
-                    <div className="vp-dots">
-                        {photos.map((_, i) => (
-                            <button
-                                key={i}
-                                className={`vp-dot ${i === activePhoto ? 'active' : ''}`}
-                                onClick={() => setActivePhoto(i)}
-                            />
-                        ))}
-                    </div>
-                )}
-
-                {/* Nav arrows for desktop */}
-                {photos.length > 1 && (
-                    <>
-                        <button className="vp-arrow left" onClick={() => setActivePhoto(p => (p - 1 + photos.length) % photos.length)}>
-                            <span className="material-symbols-outlined">chevron_left</span>
-                        </button>
-                        <button className="vp-arrow right" onClick={() => setActivePhoto(p => (p + 1) % photos.length)}>
-                            <span className="material-symbols-outlined">chevron_right</span>
-                        </button>
-                    </>
-                )}
-
-                {/* Identity overlay */}
-                <div className="vp-hero-info">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <h1 className="vp-name font-serif">
-                            {profile.name}
-                            <span className="vp-age">, {profile.age}</span>
-                        </h1>
-                        {profile.is_verified === 1 && (
-                            <span className="material-symbols-outlined fill-icon vp-verified">verified</span>
-                        )}
-                    </div>
-                    {profile.match_percent && (
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(212, 175, 55, 0.15)', color: 'var(--primary)', borderRadius: 16, fontSize: '0.85rem', fontWeight: 600, marginTop: 8 }}>
-                            <span className="material-symbols-outlined fill-icon" style={{ fontSize: 16 }}>diamond</span>
-                            Aura Score: {profile.match_percent}%
+                    <div className="hero-overlay-info" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px 20px', zIndex: 5 }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '16px' }}>
+                            <div>
+                                <h1 className="font-serif" style={{ fontSize: '2.8rem', lineHeight: 1 }}>{profile.name}, {profile.age}</h1>
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                                    <span className="badge-pill">
+                                        <span className="material-symbols-rounded" style={{ fontSize: 14 }}>school</span>
+                                        {profile.branch}
+                                    </span>
+                                    {profile.is_verified === 1 && (
+                                        <span className="badge-pill active">
+                                            <span className="material-symbols-rounded" style={{ fontSize: 14 }}>verified</span>
+                                            Verified
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                    )}
-                    <p className="vp-meta" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>school</span>
-                        <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{profile.institute || 'Global Aura'}</span>
-                    </p>
-                    <p className="vp-meta" style={{ marginTop: 4, opacity: 0.7, fontSize: '0.85rem' }}>
-                        {profile.branch} · {profile.year}
-                    </p>
+                    </div>
                 </div>
 
-                {/* Photo counter */}
+                {/* Photo Indicators */}
                 {photos.length > 1 && (
-                    <div className="vp-photo-counter">{activePhoto + 1}/{photos.length}</div>
+                    <div className="carousel-indicators" style={{ position: 'absolute', bottom: '150px', right: '20px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 10 }}>
+                        {photos.map((_, i) => (
+                            <div key={i} className={`indicator ${i === activePhoto ? 'active' : ''}`} onClick={() => setActivePhoto(i)} style={{ width: '4px', height: i === activePhoto ? '24px' : '8px', background: i === activePhoto ? 'var(--primary)' : 'rgba(255,255,255,0.3)', borderRadius: '4px', transition: 'all 0.3s ease' }} />
+                        ))}
+                    </div>
                 )}
             </div>
 
-            {/* Caption strip for current photo */}
-            {photos[activePhoto]?.caption && (
-                <div className="vp-caption-strip">
-                    <span className="material-symbols-outlined" style={{ fontSize: 14, opacity: 0.6 }}>format_quote</span>
-                    {photos[activePhoto].caption}
-                </div>
-            )}
+            {/* Profile Content */}
+            <div className="profile-content" style={{ padding: '0 20px', marginTop: '-40px', position: 'relative', zIndex: 10 }}>
 
-            {/* Scrollable photo thumbnails */}
-            {photos.length > 1 && (
-                <div className="vp-photo-scroll">
-                    {photos.map((p, i) => (
-                        <div
-                            key={i}
-                            className={`vp-thumb ${i === activePhoto ? 'active' : ''}`}
-                            onClick={() => setActivePhoto(i)}
-                        >
-                            <img src={p.url} alt={`Photo ${i + 1}`} onError={(e) => { e.target.src = defaultAvatar(profile.name); }} />
-                            {p.caption && <div className="vp-thumb-caption">{p.caption}</div>}
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {/* ══ CONTENT BODY ══ */}
-            <div className="vp-body">
-
-                {/* ── Pickup Line ── */}
-                {profile.pickup_line && (
-                    <div className="vp-pickup-banner">
-                        <span className="vp-pickup-icon">💬</span>
-                        <blockquote className="vp-pickup-quote">"{profile.pickup_line}"</blockquote>
-                    </div>
-                )}
-
-                {/* ── About ── */}
-                <div className="vp-section">
-                    <div className="vp-section-hdr">
-                        <span className="material-symbols-outlined vp-section-icon">person</span>
-                        <h2 className="font-serif">About {firstName}</h2>
-                    </div>
-                    <p className="vp-bio">
-                        {profile.bio || `Hey there! 👋 I'm ${firstName}, looking for something real.`}
-                    </p>
-                </div>
-
-                {/* ── Prompts ── */}
-                {(profile.prompts || []).length > 0 && (
-                    <div className="vp-section">
-                        <div className="vp-section-hdr">
-                            <span className="material-symbols-outlined vp-section-icon">chat_bubble</span>
-                            <h2 className="font-serif">Prompts</h2>
-                        </div>
-                        {profile.prompts.map((p, i) => (
-                            <div key={p.id || i} className="vp-prompt-card">
-                                <div className="vp-prompt-q">{p.question}</div>
-                                <div className="vp-prompt-a">{p.answer}</div>
+                {/* About/Bio Section */}
+                {profile.bio && (
+                    <section className="profile-section" style={{ marginBottom: '32px' }}>
+                        <div className="glass-card holographic" style={{ padding: '24px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: 'var(--primary-light)' }}>
+                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>auto_awesome</span>
+                                <h4 className="font-serif" style={{ margin: 0, fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Essence</h4>
                             </div>
-                        ))}
-                    </div>
+                            <p style={{ fontSize: '1.1rem', lineHeight: 1.6, margin: 0 }}>{profile.bio}</p>
+                            {profile.pickup_line && (
+                                <div style={{ marginTop: '20px', padding: '12px', background: 'var(--primary-soft)', borderRadius: '12px', borderLeft: '3px solid var(--primary)' }}>
+                                    <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.95rem' }}>"{profile.pickup_line}"</p>
+                                </div>
+                            )}
+                        </div>
+                    </section>
                 )}
 
-                {/* ── Interests ── */}
+                {/* Interests Fragment */}
                 {interests.length > 0 && (
-                    <div className="vp-section">
-                        <div className="vp-section-hdr">
-                            <span className="material-symbols-outlined vp-section-icon">interests</span>
-                            <h2 className="font-serif">Interests</h2>
-                        </div>
-                        <div className="vp-tags">
-                            {interests.map(i => (
-                                <span key={i} className={`vp-tag ${sharedInterests.includes(i) ? 'shared' : ''}`}>
-                                    {sharedInterests.includes(i) && '✨ '}{i}
+                    <section className="profile-section" style={{ marginBottom: '32px' }}>
+                        <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px' }}>Elemental Interests</h4>
+                        <div className="tag-cloud" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                            {interests.map(tag => (
+                                <span key={tag} className={`tag-pill glass-card ${sharedInterests.includes(tag) ? 'shared holographic' : ''}`} style={{
+                                    padding: '8px 16px',
+                                    borderRadius: 'var(--radius-full)',
+                                    fontSize: '0.85rem',
+                                    background: sharedInterests.includes(tag) ? 'var(--gradient-primary)' : 'var(--bg-elevated)',
+                                    color: sharedInterests.includes(tag) ? 'white' : 'var(--text-main)',
+                                    border: '1px solid var(--border)'
+                                }}>
+                                    {tag}
                                 </span>
                             ))}
                         </div>
-                        {sharedInterests.length > 0 && (
-                            <p className="vp-shared-note">
-                                You both love {sharedInterests.slice(0, 2).join(' & ')}!
-                            </p>
-                        )}
-                    </div>
+                    </section>
                 )}
 
-                {/* ── Flags ── */}
-                {(greenFlags.length > 0 || redFlags.length > 0) && (
-                    <div className="vp-section vp-flags-grid">
-                        {greenFlags.length > 0 && (
-                            <div>
-                                <div className="vp-section-hdr">
-                                    <span className="material-symbols-outlined vp-section-icon" style={{ color: 'var(--success)' }}>flag</span>
-                                    <h2 className="font-serif">Green Flags</h2>
-                                </div>
-                                <div className="vp-flags">
-                                    {greenFlags.map(f => (
-                                        <div key={f} className="vp-flag green">
-                                            <span className="material-symbols-outlined fill-icon" style={{ fontSize: 16 }}>check_circle</span>
-                                            {f}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                        {redFlags.length > 0 && (
-                            <div style={{ marginTop: greenFlags.length > 0 ? 16 : 0 }}>
-                                <div className="vp-section-hdr">
-                                    <span className="material-symbols-outlined vp-section-icon" style={{ color: 'var(--danger)' }}>flag</span>
-                                    <h2 className="font-serif">Red Flags</h2>
-                                </div>
-                                <div className="vp-flags">
-                                    {redFlags.map(f => (
-                                        <div key={f} className="vp-flag red">
-                                            <span className="material-symbols-outlined fill-icon" style={{ fontSize: 16 }}>warning</span>
-                                            {f}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* ── Spotify Anthem ── */}
-                {(profile.spotify_artist || profile.spotify_song) && (
-                    <div className="vp-section">
-                        <div className="vp-section-hdr">
-                            <span className="material-symbols-outlined vp-section-icon" style={{ color: '#1DB954' }}>music_note</span>
-                            <h2 className="font-serif">Anthem</h2>
-                        </div>
-                        <div className="vp-spotify-card">
-                            <div className="vp-vinyl" />
-                            <div className="vp-spotify-info">
-                                {profile.spotify_song && <div className="vp-spotify-song">{profile.spotify_song}</div>}
-                                {profile.spotify_artist && <div className="vp-spotify-artist">{profile.spotify_artist}</div>}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* ── Ask Anonymously ── */}
-                {!isMatch && (
-                    <div className="vp-section vp-anon-section">
-                        <div className="vp-section-hdr">
-                            <span className="material-symbols-outlined vp-section-icon" style={{ color: '#a78bfa' }}>chat_bubble</span>
-                            <h2 className="font-serif">Ask Anonymously</h2>
-                        </div>
-                        <p className="vp-anon-sub">
-                            Curious? Ask {firstName} anything — your identity stays hidden!
-                        </p>
-                        {!showAskInput ? (
-                            <button className="anon-ask-btn" onClick={() => setShowAskInput(true)}>
-                                <span className="material-symbols-outlined">edit_note</span>
-                                Ask a Question
+                {/* Subconscious Echoes (Q&A) */}
+                <section className="profile-section" style={{ marginBottom: '32px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', margin: 0 }}>Subconscious Echoes</h4>
+                        {!isMatch && (
+                            <button className="btn-ghost" onClick={() => setShowAskInput(!showAskInput)} style={{ fontSize: '0.75rem' }}>
+                                <span className="material-symbols-rounded" style={{ fontSize: 16 }}>add_comment</span>
+                                Broadcast
                             </button>
-                        ) : (
-                            <div className="anon-input-wrapper">
-                                <textarea
-                                    className="anon-textarea"
-                                    placeholder={`What would you like to ask ${firstName}?`}
-                                    value={anonQuestion}
-                                    onChange={(e) => setAnonQuestion(e.target.value)}
-                                    maxLength={300}
-                                    rows={3}
-                                    autoFocus
-                                />
-                                <div className="anon-input-footer">
-                                    <span className="anon-char-count">{anonQuestion.length}/300</span>
-                                    <div className="anon-btn-group">
-                                        <button className="anon-cancel-btn" onClick={() => { setShowAskInput(false); setAnonQuestion(''); }}>Cancel</button>
-                                        <button className="anon-send-btn" onClick={sendAnonQuestion} disabled={!anonQuestion.trim() || sendingQ}>
-                                            {sendingQ ? <div className="spinner" style={{ width: 16, height: 16 }} /> : (
-                                                <><span className="material-symbols-outlined" style={{ fontSize: 16 }}>send</span>Send</>
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="anon-privacy-note">
-                                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>shield</span>
-                                    Your identity stays completely hidden
-                                </div>
-                            </div>
                         )}
                     </div>
-                )}
 
-                {/* ── Answered Q&A ── */}
-                {answeredQs.length > 0 && (
-                    <div className="vp-section">
-                        <div className="vp-section-hdr">
-                            <span className="material-symbols-outlined vp-section-icon" style={{ color: '#f59e0b' }}>forum</span>
-                            <h2 className="font-serif">Q&A</h2>
-                            <span className="vp-qa-count">{answeredQs.length}</span>
+                    {showAskInput && (
+                        <div className="ask-input-card glass-card holographic view-animate" style={{ padding: '20px', marginBottom: '20px' }}>
+                            <textarea
+                                placeholder={`Ask ${firstName} something mysterious...`}
+                                className="textarea-field"
+                                value={anonQuestion}
+                                onChange={e => setAnonQuestion(e.target.value)}
+                                style={{ minHeight: '80px', marginBottom: '16px' }}
+                            />
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button className="btn-primary" style={{ flex: 1 }} onClick={sendAnonQuestion} disabled={!anonQuestion.trim() || sendingQ}>
+                                    {sendingQ ? 'Transmitting...' : 'Send Message'}
+                                </button>
+                                <button className="btn-ghost" onClick={() => setShowAskInput(false)}>Cancel</button>
+                            </div>
                         </div>
-                        <div className="vp-qa-list">
-                            {answeredQs.map(q => (
-                                <div key={q.id} className="vp-qa-card">
-                                    <div className="vp-qa-q">
-                                        <span className="vp-qa-badge">🕵️ Anonymous</span>
-                                        <p>{q.question}</p>
-                                    </div>
-                                    <div className="vp-qa-a">
-                                        <span className="vp-qa-who">{firstName}'s answer</span>
-                                        <p>{q.answer}</p>
+                    )}
+
+                    <div className="answered-qs-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {answeredQs.length === 0 ? (
+                            <div className="glass-card" style={{ padding: '30px', textAlign: 'center', opacity: 0.5 }}>
+                                <p style={{ fontSize: '0.9rem', margin: 0 }}>Silence in the void. No echoes yet.</p>
+                            </div>
+                        ) : (
+                            answeredQs.map(q => (
+                                <div key={q.id} className="echo-card glass-card holographic" style={{ padding: '20px' }}>
+                                    <p style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '12px', color: 'var(--primary-light)' }}>Q: {q.question_text}</p>
+                                    <div style={{ background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '10px' }}>
+                                        <p style={{ margin: 0, fontSize: '0.95rem' }}>{q.answer_text}</p>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                            ))
+                        )}
                     </div>
-                )}
+                </section>
             </div>
 
-            <div style={{ height: 110 }} />
-
-            {/* ══ STICKY ACTION BAR ══ */}
-            <div className="vp-actions">
+            {/* Action Buttons Hub */}
+            <div className="vp-action-hub" style={{
+                position: 'fixed',
+                bottom: '30px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '20px',
+                zIndex: 200,
+                padding: '12px 24px',
+                background: 'rgba(10,1,24,0.6)',
+                backdropFilter: 'blur(15px)',
+                borderRadius: '50px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+            }}>
                 {isMatch ? (
-                    <button className="vp-action-btn chat" onClick={() =>
+                    <button className="btn-primary holographic" style={{ padding: '12px 30px', borderRadius: '30px' }} onClick={() =>
                         navigate('/chat/convo', {
-                            state: { match_id: profile.match_id, user_id: profile.id || profile.user_id, name: profile.name, photo: photos[0].url }
+                            state: { match_id: profile.match_id, user_id: profile.id, name: profile.name, photo: photos[0].url }
                         })
                     }>
-                        <span className="material-symbols-outlined fill-icon">chat</span>
-                        <span>Message</span>
+                        <span className="material-symbols-rounded" style={{ marginRight: '8px' }}>chat</span>
+                        Message {firstName}
                     </button>
                 ) : (
                     <>
-                        <button className="vp-action-btn pass" onClick={() => handleQuickSwipe('pass')} title="Pass">
-                            <span className="material-symbols-outlined fill-icon">close</span>
+                        <button className="vp-btn pass" onClick={() => handleQuickSwipe('pass')} style={{
+                            width: '56px',
+                            height: '56px',
+                            borderRadius: '50%',
+                            background: 'var(--bg-elevated)',
+                            border: '1px solid var(--border)',
+                            color: 'var(--text-secondary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <span className="material-symbols-rounded" style={{ fontSize: 28 }}>close</span>
                         </button>
-                        <button className="vp-action-btn superlike" onClick={() => handleQuickSwipe('super_like')} title="Super Like">
-                            <span className="material-symbols-outlined fill-icon">star</span>
+
+                        <button className="vp-btn superlike holographic" onClick={() => handleQuickSwipe('super_like')} style={{
+                            width: '64px',
+                            height: '64px',
+                            borderRadius: '50%',
+                            background: 'var(--gradient-aurora)',
+                            color: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 0 20px var(--primary-soft)'
+                        }}>
+                            <span className="material-symbols-rounded" style={{ fontSize: 32 }}>stars</span>
                         </button>
-                        <button className="vp-action-btn like" onClick={() => handleQuickSwipe('like')} title="Like">
-                            <span className="material-symbols-outlined fill-icon">favorite</span>
-                            <span>Like</span>
+
+                        <button className="vp-btn like" onClick={() => handleQuickSwipe('like')} style={{
+                            width: '56px',
+                            height: '56px',
+                            borderRadius: '50%',
+                            background: 'var(--gradient-primary)',
+                            color: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <span className="material-symbols-rounded" style={{ fontSize: 28 }}>favorite</span>
                         </button>
                     </>
                 )}
             </div>
 
-            {/* ── Modals ── */}
-            {showReport && <ReportModal userId={profile.id} userName={profile.name} onClose={() => setShowReport(false)} />}
-            {matchData && (
-                <MatchOverlay
-                    matchedUser={matchData.user}
-                    matchId={matchData.matchId}
-                    onClose={() => { setMatchData(null); navigate(-1); }}
-                    onChat={() => {
-                        setMatchData(null);
-                        navigate('/chat/convo', {
-                            state: { match_id: matchData.matchId, user_id: matchData.user.id, name: matchData.user.name, photo: matchData.user.photo }
-                        });
-                    }}
-                />
-            )}
+            {/* Modals & Overlays */}
+            {showReport && <ReportModal userId={profile.id} onClose={() => setShowReport(false)} />}
+            {matchData && <MatchOverlay matchData={matchData} onClose={() => setMatchData(null)} />}
 
-            {/* Full screen image viewer */}
             {imgViewerOpen && (
-                <div className="vp-img-viewer" onClick={() => setImgViewerOpen(false)}>
-                    <img src={photos[activePhoto].url} alt={profile.name} onError={(e) => { e.target.src = defaultAvatar(profile.name); }} />
+                <div className="image-viewer-overlay view-animate" onClick={() => setImgViewerOpen(false)} style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.95)',
+                    zIndex: 1000,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px'
+                }}>
+                    <img src={photos[activePhoto].url} alt="" style={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain', borderRadius: '12px' }} />
                     {photos[activePhoto].caption && (
-                        <div className="vp-img-viewer-caption">{photos[activePhoto].caption}</div>
+                        <p style={{ marginTop: '20px', color: 'white', fontSize: '1.1rem', textAlign: 'center' }}>{photos[activePhoto].caption}</p>
                     )}
+                    <button className="btn-icon" style={{ position: 'absolute', top: '20px', right: '20px', color: 'white' }}>
+                        <span className="material-symbols-rounded">close</span>
+                    </button>
                 </div>
             )}
         </div>

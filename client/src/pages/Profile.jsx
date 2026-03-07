@@ -203,465 +203,209 @@ export default function Profile() {
 
     if (!user) return null;
 
-    const primaryPhoto = photos.find(p => p.is_primary) || photos[0];
-    const displayPhoto = primaryPhoto?.photo_url || user.photo || defaultAvatar(user.name);
-    const firstName = user.name?.split(' ')[0] || user.name;
-
-    // Calculate completeness
-    const calculateCompleteness = () => {
-        let score = 0;
-        if (user.bio?.length > 10) score += 20;
-        if (user.interests?.length > 0) score += 10;
-        if (user.pickup_line) score += 10;
-        if (user.verification_status === 'verified') score += 20;
-        score += Math.min(photos.length * 10, 40);
-        return score;
-    };
-    const completeness = calculateCompleteness();
-
     return (
-        <div className="pf-page view-animate">
-
-            {/* ══ TOP HERO ══ */}
-            <div className="pf-hero">
-                <div className="pf-hero-bgblur" style={{ backgroundImage: `url(${displayPhoto})` }} />
-                <div className="pf-hero-overlay" />
-
-                {/* Top bar */}
-                <div className="pf-topbar">
-                    <div className="pf-topbar-left">
-                        <h1 className="pf-topbar-title font-serif">My Profile</h1>
-                    </div>
-                    <div className="pf-topbar-actions">
-                        <button className="pf-icon-btn" onClick={() => navigate('/settings')} title="Settings">
-                            <span className="material-symbols-outlined">settings</span>
-                        </button>
-                        <button className="pf-icon-btn primary" onClick={() => navigate('/profile/edit')} title="Edit Profile">
-                            <span className="material-symbols-outlined">edit</span>
-                        </button>
-                    </div>
-                </div>
-
-                {/* Avatar + name */}
-                <div className="pf-identity">
-                    <div className="pf-avatar-ring">
-                        <img
-                            src={displayPhoto}
-                            alt={user.name}
-                            className="pf-avatar"
-                            onError={(e) => { e.target.src = defaultAvatar(user.name); }}
-                        />
-                        <button className="pf-avatar-add" onClick={() => fileInputRef.current?.click()} title="Add photo">
-                            <span className="material-symbols-outlined">add_a_photo</span>
-                        </button>
-                    </div>
-                    <div className="pf-identity-info">
-                        <h2 className="pf-name font-serif">
-                            {user.name}&nbsp;
-                            {user.verification_status === 'verified' && (
-                                <span className="material-symbols-outlined fill-icon pf-verified-badge" title="Verified">verified</span>
-                            )}
-                        </h2>
-                        <p className="pf-meta">
-                            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>school</span>
-                            {user.branch} · {user.year}
-                        </p>
-                        {user.bio && <p className="pf-short-bio">{user.bio}</p>}
-                    </div>
-                </div>
-
-                {/* Stats bar */}
-                <div className="pf-stats-bar">
-                    <div className="pf-stat">
-                        <span className="pf-stat-num">{stats.matches}</span>
-                        <span className="pf-stat-lbl">Matches</span>
-                    </div>
-                    <div className="pf-stat-divider" />
-                    <div className="pf-stat">
-                        <span className="pf-stat-num">{stats.likes_received}</span>
-                        <span className="pf-stat-lbl">Liked You</span>
-                    </div>
-                    <div className="pf-stat-divider" />
-                    <div className="pf-stat">
-                        <span className="pf-stat-num">{stats.likes_given}</span>
-                        <span className="pf-stat-lbl">You Liked</span>
-                    </div>
+        <div className="profile-page view-animate" style={{ paddingBottom: '120px' }}>
+            {/* Top Bar Navigation */}
+            <div className="profile-nav-header glass-card holographic" style={{ borderBottom: '1px solid var(--border)', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, borderRadius: 0 }}>
+                <h1 className="font-serif" style={{ fontSize: '1.2rem', margin: 0 }}>My Aura</h1>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="btn-icon" onClick={() => navigate('/settings')} style={{ background: 'var(--bg-elevated)', borderRadius: '50%' }}>
+                        <span className="material-symbols-rounded">settings</span>
+                    </button>
+                    <button className="btn-icon primary" onClick={() => navigate('/profile/edit')} style={{ background: 'var(--gradient-primary)', borderRadius: '50%', color: 'white' }}>
+                        <span className="material-symbols-rounded">edit</span>
+                    </button>
                 </div>
             </div>
 
-            {/* ══ CONTENT BODY ══ */}
-            <div className="pf-body">
-                {/* ── Progress Bar ── */}
-                <div className="pf-progress-section">
-                    <div className="pf-progress-header">
-                        <span>Profile Excellence</span>
-                        <span className="pf-progress-pct">{completeness}%</span>
-                    </div>
-                    <div className="pf-progress-track">
-                        <div className="pf-progress-fill" style={{ width: `${completeness}%` }}></div>
-                    </div>
-                    {completeness < 100 && (
-                        <p className="pf-progress-hint">
-                            {completeness < 50 ? 'Add photos to stand out!' : 'Verify your ID for a 20% boost!'}
-                        </p>
-                    )}
-                </div>
-
-                {/* ── Verification Banner ── */}
-                {user.verification_status !== 'verified' && (
-                    <div className={`pf-verify-banner ${user.verification_status || 'unverified'}`}>
-                        <span className="material-symbols-outlined">
-                            {user.verification_status === 'pending' ? 'pending' : 'shield_person'}
-                        </span>
-                        <div className="pf-verify-text">
-                            <strong>
-                                {user.verification_status === 'pending' ? 'Verification in Review' : 'Get Verified'}
-                            </strong>
-                            <span>
-                                {user.verification_status === 'pending'
-                                    ? 'Your ID is being reviewed. Usually 24 hours.'
-                                    : 'Upload your Student ID to get the blue tick ✓'}
-                            </span>
-                        </div>
-                        {(!user.verification_status || user.verification_status === 'unverified') && (
-                            <button className="pf-verify-cta" onClick={() => idInputRef.current?.click()} disabled={uploadingID}>
-                                {uploadingID ? '...' : 'Upload'}
-                            </button>
-                        )}
-                        <input type="file" ref={idInputRef} accept="image/*,application/pdf" style={{ display: 'none' }} onChange={handleIDUpload} />
-                    </div>
-                )}
-
-                {/* ── Anonymous Questions Inbox ── */}
-                {anonQuestions.length > 0 && (
-                    <div className="pf-section">
-                        <div className="pf-section-hdr">
-                            <div className="pf-section-title-row">
-                                <span className="material-symbols-outlined" style={{ color: '#a78bfa' }}>forum</span>
-                                <h3>Anonymous Questions</h3>
-                                {anonQuestions.filter(q => !q.answer).length > 0 && <span className="pf-badge-pill">{anonQuestions.filter(q => !q.answer).length} new</span>}
-                            </div>
-                        </div>
-                        <div className="pf-anon-list">
-                            {anonQuestions.map(q => (
-                                <div key={q.id} className={`pf-anon-card ${!q.answer ? 'unanswered' : ''}`}>
-                                    <div className="pf-anon-q">
-                                        <span className="pf-anon-icon">🕵️</span>
-                                        <p>{q.question}</p>
-                                    </div>
-                                    {q.answer ? (
-                                        <div className="pf-anon-a">
-                                            <span className="pf-anon-you">Your answer</span>
-                                            <p>{q.answer}</p>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {answeringId === q.id ? (
-                                                <div className="pf-anon-reply">
-                                                    <textarea
-                                                        rows={2}
-                                                        className="anon-textarea"
-                                                        placeholder="Write your answer..."
-                                                        value={answerText}
-                                                        onChange={(e) => setAnswerText(e.target.value)}
-                                                        maxLength={500}
-                                                        autoFocus
-                                                    />
-                                                    <div className="pf-anon-reply-btns">
-                                                        <button className="anon-cancel-btn" onClick={() => { setAnsweringId(null); setAnswerText(''); }}>Cancel</button>
-                                                        <button className="anon-send-btn" onClick={() => answerQuestion(q.id)} disabled={!answerText.trim() || submittingAnswer}>
-                                                            {submittingAnswer ? '...' : 'Post Answer'}
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="pf-anon-actions">
-                                                    <button className="anon-reply-btn" onClick={() => { setAnsweringId(q.id); setAnswerText(''); }}>
-                                                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>reply</span>
-                                                        Answer
-                                                    </button>
-                                                    <button className="anon-dismiss-btn" onClick={() => deleteQuestion(q.id)}>
-                                                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </>
+            {/* Profile Hero */}
+            <div className="profile-hero" style={{ height: '450px', position: 'relative', overflow: 'hidden' }}>
+                <div className="hero-gradient-top" style={{ position: 'absolute', top: 0, width: '100%', height: '150px', background: 'linear-gradient(to bottom, rgba(10,1,24,0.8), transparent)', zIndex: 1 }} />
+                <div className="photo-carousel" style={{ height: '100%' }}>
+                    {photos.length > 0 ? (
+                        <div className="active-photo-container" style={{ height: '100%', position: 'relative' }}>
+                            <img src={photos[activePhoto].url || photos[activePhoto].photo_url} alt="Profile" className="hero-background-photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <div className="hero-overlay-info" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px 20px', background: 'linear-gradient(to top, rgba(10,1,24,0.9) 20%, transparent)', zIndex: 2 }}>
+                                <h1 className="font-serif" style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{user.name.split(' ')[0]}, {user.age}</h1>
+                                <div className="user-badge-row" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                    <span className="badge-pill" style={{ background: 'rgba(255,255,255,0.1)', padding: '6px 12px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: 16 }}>school</span>
+                                        {user.branch}
+                                    </span>
+                                    {user.is_verified === 1 && (
+                                        <span className="badge-pill active" style={{ background: 'var(--gradient-primary)', padding: '6px 12px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', color: 'white' }}>
+                                            <span className="material-symbols-rounded" style={{ fontSize: 16 }}>verified</span>
+                                            Verified
+                                        </span>
                                     )}
                                 </div>
-                            ))}
+                            </div>
                         </div>
-                    </div>
-                )}
-
-                {/* ── Photo Portfolio ── */}
-                <div className="pf-section">
-                    <div className="pf-section-hdr">
-                        <div className="pf-section-title-row">
-                            <span className="material-symbols-outlined" style={{ color: '#21d4fd' }}>photo_library</span>
-                            <h3>My Photos</h3>
-                            <span className="pf-photo-count">{photos.length}/4</span>
-                        </div>
-                    </div>
-
-                    {/* Full photo viewer */}
-                    {photos.length > 0 && (
-                        <div className="pf-photo-viewer">
-                            <div className="pf-photo-main-wrap">
-                                <img
-                                    src={photos[activePhoto]?.photo_url || displayPhoto}
-                                    alt={`Photo ${activePhoto + 1}`}
-                                    className="pf-photo-main"
-                                    onError={(e) => { e.target.src = defaultAvatar(user.name); }}
-                                />
-                                {photos[activePhoto]?.is_primary === 1 && (
-                                    <div className="pf-primary-badge">⭐ Cover</div>
-                                )}
-                                {photos.length > 1 && (
-                                    <>
-                                        <button className="pf-photo-arrow left" onClick={() => setActivePhoto(p => (p - 1 + photos.length) % photos.length)}>
-                                            <span className="material-symbols-outlined">chevron_left</span>
-                                        </button>
-                                        <button className="pf-photo-arrow right" onClick={() => setActivePhoto(p => (p + 1) % photos.length)}>
-                                            <span className="material-symbols-outlined">chevron_right</span>
-                                        </button>
-                                    </>
-                                )}
-                                {/* Photo counter */}
-                                {photos.length > 1 && (
-                                    <div className="pf-photo-counter">{activePhoto + 1}/{photos.length}</div>
-                                )}
+                    ) : (
+                        <div className="hero-empty-photo" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-elevated)' }}>
+                            <div className="auth-icon-large" onClick={() => fileInputRef.current?.click()} style={{ cursor: 'pointer', marginBottom: '16px' }}>
+                                <span className="material-symbols-rounded" style={{ fontSize: '2.5rem' }}>add_a_photo</span>
                             </div>
-
-                            {/* Caption */}
-                            <div className="pf-caption-row">
-                                {editingCaptionId === photos[activePhoto]?.id ? (
-                                    <div className="pf-caption-edit">
-                                        <input
-                                            className="pf-caption-input"
-                                            value={captionText}
-                                            onChange={e => setCaptionText(e.target.value)}
-                                            placeholder="Add a caption..."
-                                            maxLength={120}
-                                            autoFocus
-                                        />
-                                        <button className="pf-caption-save" onClick={() => saveCaption(photos[activePhoto].id)} disabled={savingCaption}>
-                                            {savingCaption ? '...' : 'Save'}
-                                        </button>
-                                        <button className="pf-caption-cancel" onClick={() => setEditingCaptionId(null)}>×</button>
-                                    </div>
-                                ) : (
-                                    <div className="pf-caption-display" onClick={() => {
-                                        setEditingCaptionId(photos[activePhoto]?.id);
-                                        setCaptionText(photos[activePhoto]?.caption || '');
-                                    }}>
-                                        {photos[activePhoto]?.caption
-                                            ? <span className="pf-caption-text">"{photos[activePhoto].caption}"</span>
-                                            : <span className="pf-caption-placeholder">
-                                                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>edit</span>
-                                                Add caption...
-                                            </span>
-                                        }
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Photos strip */}
-                            <div className="pf-photo-strip">
-                                {photos.map((p, i) => (
-                                    <div
-                                        key={p.id}
-                                        className={`pf-strip-item ${i === activePhoto ? 'active' : ''}`}
-                                        onClick={() => setActivePhoto(i)}
-                                    >
-                                        <img src={p.photo_url} alt={`Photo ${i + 1}`} onError={(e) => { e.target.src = defaultAvatar(user.name); }} />
-                                    </div>
-                                ))}
-                                {photos.length < 4 && (
-                                    <div className="pf-strip-add" onClick={() => fileInputRef.current?.click()}>
-                                        <span className="material-symbols-outlined">add</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Photo actions */}
-                            <div className="pf-photo-actions">
-                                {!photos[activePhoto]?.is_primary && (
-                                    <button className="pf-photo-action-btn" onClick={() => setPrimary(photos[activePhoto]?.id)}>
-                                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>star</span>
-                                        Set Cover
-                                    </button>
-                                )}
-                                <button className="pf-photo-action-btn danger" onClick={() => deletePhoto(photos[activePhoto]?.id)}>
-                                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
-                                    Delete
-                                </button>
-                            </div>
+                            <p style={{ color: 'var(--text-muted)' }}>Manifest your visual Aura</p>
+                            <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileSelect} />
                         </div>
                     )}
-
-                    {photos.length === 0 && (
-                        <div className="pf-no-photos" onClick={() => fileInputRef.current?.click()}>
-                            <span className="material-symbols-outlined">add_a_photo</span>
-                            <p>Add your first photo</p>
-                            <span>Show the world who you are 📸</span>
-                        </div>
-                    )}
-
-                    <input type="file" ref={fileInputRef} accept="image/*" style={{ display: 'none' }} onChange={handleFileSelect} />
-                </div>
-
-                {/* ── About Me ── */}
-                <div className="pf-section">
-                    <div className="pf-section-hdr">
-                        <div className="pf-section-title-row">
-                            <span className="material-symbols-outlined" style={{ color: '#f59e0b' }}>format_quote</span>
-                            <h3>About {firstName}</h3>
-                        </div>
-                        <button className="pf-edit-inline-btn" onClick={() => navigate('/profile/edit')}>
-                            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>edit</span>
-                        </button>
-                    </div>
-                    <div className="pf-bio-card">
-                        <p className="pf-bio-text">{user.bio || <span style={{ color: 'var(--text-muted)' }}>No bio yet — tap edit to add one!</span>}</p>
-                        {user.pickup_line && (
-                            <div className="pf-pickup">
-                                <span className="pf-pickup-label">💬 Pickup Line</span>
-                                <p className="pf-pickup-text">"{user.pickup_line}"</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* ── Interests ── */}
-                {user.interests?.length > 0 && (
-                    <div className="pf-section">
-                        <div className="pf-section-hdr">
-                            <div className="pf-section-title-row">
-                                <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>interests</span>
-                                <h3>Interests</h3>
-                            </div>
-                            <button className="pf-edit-inline-btn" onClick={() => navigate('/profile/edit')}>
-                                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>edit</span>
-                            </button>
-                        </div>
-                        <div className="pf-tags">
-                            {user.interests.map(i => (
-                                <span key={i} className="pf-tag">{i}</span>
+                    {photos.length > 1 && (
+                        <div className="carousel-indicators" style={{ position: 'absolute', top: '100px', right: '20px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 5 }}>
+                            {photos.map((_, i) => (
+                                <div key={i} className={`indicator ${i === activePhoto ? 'active' : ''}`} onClick={() => setActivePhoto(i)} style={{ width: '4px', height: i === activePhoto ? '24px' : '8px', background: i === activePhoto ? 'var(--primary)' : 'rgba(255,255,255,0.3)', borderRadius: '4px', transition: 'all 0.3s ease', cursor: 'pointer' }} />
                             ))}
                         </div>
-                    </div>
-                )}
-
-                {/* ── Green & Red Flags ── */}
-                {(user.green_flags?.length > 0 || user.red_flags?.length > 0) && (
-                    <div className="pf-section pf-flags-section">
-                        <div className="pf-section-hdr">
-                            <div className="pf-section-title-row">
-                                <span className="material-symbols-outlined" style={{ color: '#22c55e' }}>flag</span>
-                                <h3>Personality Flags</h3>
-                            </div>
-                            <button className="pf-edit-inline-btn" onClick={() => navigate('/profile/edit')}>
-                                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>edit</span>
-                            </button>
-                        </div>
-                        {user.green_flags?.length > 0 && (
-                            <div className="pf-flags-group">
-                                <p className="pf-flags-label green">✅ Green Flags</p>
-                                <div className="pf-tags">
-                                    {user.green_flags.map(f => <span key={f} className="pf-tag green">{f}</span>)}
-                                </div>
-                            </div>
-                        )}
-                        {user.red_flags?.length > 0 && (
-                            <div className="pf-flags-group" style={{ marginTop: 12 }}>
-                                <p className="pf-flags-label red">🚩 Red Flags</p>
-                                <div className="pf-tags">
-                                    {user.red_flags.map(f => <span key={f} className="pf-tag red">{f}</span>)}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* ── Spotify Anthem ── */}
-                {(user.spotify_artist || user.spotify_song) && (
-                    <div className="pf-section">
-                        <div className="pf-section-hdr">
-                            <div className="pf-section-title-row">
-                                <span className="material-symbols-outlined" style={{ color: '#1DB954' }}>music_note</span>
-                                <h3>My Anthem</h3>
-                            </div>
-                        </div>
-                        <div className="pf-spotify-card">
-                            <div className="pf-vinyl" />
-                            <div className="pf-spotify-info">
-                                {user.spotify_song && <div className="pf-spotify-song">{user.spotify_song}</div>}
-                                {user.spotify_artist && <div className="pf-spotify-artist">{user.spotify_artist}</div>}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* ── Prompts ── */}
-                {user.prompts?.length > 0 && (
-                    <div className="pf-section">
-                        <div className="pf-section-hdr">
-                            <div className="pf-section-title-row">
-                                <span className="material-symbols-outlined" style={{ color: '#b721ff' }}>chat_bubble</span>
-                                <h3>Prompts</h3>
-                            </div>
-                            <button className="pf-edit-inline-btn" onClick={() => navigate('/profile/edit')}>
-                                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>edit</span>
-                            </button>
-                        </div>
-                        {user.prompts.map((p, i) => (
-                            <div key={p.id || i} className="pf-prompt-card">
-                                <div className="pf-prompt-q">{p.question}</div>
-                                <div className="pf-prompt-a">{p.answer}</div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* ── Empty state CTAs ── */}
-                {(!user.bio || !user.interests?.length || !user.prompts?.length) && (
-                    <div className="pf-cta-card">
-                        <span className="material-symbols-outlined">auto_awesome</span>
-                        <div>
-                            <strong>Complete your portfolio</strong>
-                            <p>Profiles with bios + photos get 5× more matches!</p>
-                        </div>
-                        <button className="pf-cta-btn" onClick={() => navigate('/profile/edit')}>
-                            Complete Profile
-                        </button>
-                    </div>
-                )}
-
-                <div style={{ height: 40 }} />
+                    )}
+                </div>
             </div>
 
-            {/* ══ CROP MODAL ══ */}
-            {showCrop && (
-                <div className="crop-modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowCrop(false)}>
-                    <div className="crop-modal glass-card">
-                        <h3>Crop Photo</h3>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 12 }}>Drag to position. Scroll/pinch to zoom.</p>
-                        <canvas
-                            ref={canvasRef} width={300} height={300}
-                            className="crop-canvas"
-                            onMouseDown={handleCropPointerDown} onMouseMove={handleCropPointerMove}
-                            onMouseUp={handleCropPointerUp} onMouseLeave={handleCropPointerUp}
-                            onTouchStart={handleCropPointerDown} onTouchMove={handleCropPointerMove} onTouchEnd={handleCropPointerUp}
-                            onWheel={(e) => handleZoom(e.deltaY > 0 ? -1 : 1)}
-                        />
-                        <div style={{ display: 'flex', gap: 8, marginTop: 12, justifyContent: 'center' }}>
-                            <button className="btn-icon" onClick={() => handleZoom(-1)}><span className="material-symbols-outlined">remove</span></button>
-                            <button className="btn-icon" onClick={() => handleZoom(1)}><span className="material-symbols-outlined">add</span></button>
+            {/* Profile Stats */}
+            <div className="profile-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '20px', marginTop: '-30px', position: 'relative', zIndex: 10 }}>
+                <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '16px 8px' }}>
+                    <span className="stat-value" style={{ display: 'block', fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary-light)' }}>{stats.matches}</span>
+                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>Connections</span>
+                </div>
+                <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '16px 8px' }}>
+                    <span className="stat-value" style={{ display: 'block', fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>{stats.likes_received}</span>
+                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>Received</span>
+                </div>
+                <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '16px 8px' }}>
+                    <span className="stat-value" style={{ display: 'block', fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-magenta)' }}>{stats.likes_given}</span>
+                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>Sent</span>
+                </div>
+            </div>
+
+            {/* Main Content Sections */}
+            <div style={{ padding: '0 20px' }}>
+                {/* Visual Fragments */}
+                <section className="profile-section" style={{ marginBottom: '40px' }}>
+                    <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Visual Fragments</h3>
+                        <button className="btn-ghost" onClick={() => fileInputRef.current?.click()} style={{ fontSize: '0.75rem', padding: '6px 12px' }}>
+                            <span className="material-symbols-rounded" style={{ fontSize: 16 }}>add</span> Add
+                        </button>
+                    </div>
+                    <div className="photo-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                        {photos.map((p, i) => (
+                            <div key={p.id} className={`photo-item glass-card holographic ${i === activePhoto ? 'active' : ''}`} style={{ aspectAspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: i === activePhoto ? '2px solid var(--primary)' : '1px solid var(--border)' }} onClick={() => setActivePhoto(i)}>
+                                <img src={p.url || p.photo_url} alt="Profile fragment" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <div className="photo-item-actions" style={{ position: 'absolute', top: 4, right: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                    <button onClick={(e) => { e.stopPropagation(); setPrimary(p.id); }} style={{ background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '4px', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', color: p.is_primary ? 'var(--primary)' : 'white' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: 14 }}>{p.is_primary ? 'star' : 'grade'}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                        {photos.length < 6 && (
+                            <div className="photo-add-placeholder glass-card holographic" style={{ aspectAspectRatio: '1/1', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-elevated)', borderRadius: '12px', cursor: 'pointer' }} onClick={() => fileInputRef.current?.click()}>
+                                <span className="material-symbols-rounded" style={{ color: 'var(--text-muted)' }}>add</span>
+                            </div>
+                        )}
+                    </div>
+                </section>
+
+                {/* Subconscious Echoes */}
+                <section className="profile-section" style={{ marginBottom: '40px' }}>
+                    <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Subconscious Echoes</h3>
+                        <span className="badge-pill" style={{ fontSize: '0.7rem', opacity: 0.6 }}>{anonQuestions.length} Received</span>
+                    </div>
+                    <div className="anon-questions-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {anonQuestions.length === 0 ? (
+                            <div className="empty-section-card glass-card" style={{ padding: '30px', textAlign: 'center', opacity: 0.6 }}>
+                                <span className="material-symbols-rounded" style={{ fontSize: '2rem', marginBottom: '8px' }}>psychology</span>
+                                <p style={{ fontSize: '0.9rem' }}>No echoes detected yet.</p>
+                            </div>
+                        ) : (
+                            anonQuestions.map(q => (
+                                <div key={q.id} className="anon-card holographic glass-card" style={{ padding: '16px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: 18, color: 'var(--primary-light)' }}>mystery</span>
+                                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(q.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                    <p style={{ fontSize: '0.95rem', marginBottom: '16px', fontWeight: 500 }}>{q.question_text}</p>
+                                    {q.answer_text ? (
+                                        <div style={{ background: 'var(--primary-soft)', padding: '12px', borderRadius: '10px', fontSize: '0.9rem', position: 'relative' }}>
+                                            <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px', color: 'var(--primary)' }}>My Resonance</div>
+                                            <p style={{ margin: 0 }}>{q.answer_text}</p>
+                                        </div>
+                                    ) : (
+                                        <div className="anon-answer-input">
+                                            <textarea
+                                                placeholder="Write your resonance..."
+                                                className="textarea-field"
+                                                style={{ fontSize: '0.85rem', minHeight: '60px', marginBottom: '12px' }}
+                                                value={answeringId === q.id ? answerText : ''}
+                                                onChange={(e) => {
+                                                    setAnsweringId(q.id);
+                                                    setAnswerText(e.target.value);
+                                                }}
+                                            />
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button className="btn-primary" style={{ flex: 1, padding: '8px 0', fontSize: '0.8rem' }} disabled={submittingAnswer || !answerText.trim() || answeringId !== q.id} onClick={() => answerQuestion(q.id)}>
+                                                    Manifest
+                                                </button>
+                                                <button className="btn-ghost" style={{ padding: '8px 16px', fontSize: '0.8rem' }} onClick={() => deleteQuestion(q.id)}>
+                                                    Discard
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </section>
+
+                {/* Identity Manifest (Verification) */}
+                {user.is_verified === 0 && (
+                    <section className="profile-section" style={{ marginBottom: '40px' }}>
+                        <div className="verification-card glass-card holographic" style={{ padding: '24px', textAlign: 'center' }}>
+                            <div className="auth-icon-large" style={{ margin: '0 auto 16px', background: 'var(--primary-soft)' }}>
+                                <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '2rem' }}>verified_user</span>
+                            </div>
+                            <h3 className="font-serif" style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Verify Your Aura</h3>
+                            <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '0.85rem' }}>
+                                Upload your university ID to unlock global frequencies and the verified badge.
+                            </p>
+                            <button className="btn-primary" style={{ width: '100%' }} onClick={() => idInputRef.current?.click()} disabled={uploadingID}>
+                                {uploadingID ? 'Encrypting...' : 'Upload ID Manifest'}
+                            </button>
                         </div>
-                        <div style={{ display: 'flex', gap: 12, marginTop: 16, justifyContent: 'center' }}>
-                            <button className="btn-ghost" onClick={() => { setShowCrop(false); setCropImg(null); }}>Cancel</button>
-                            <button className="btn-primary" onClick={uploadCroppedPhoto} disabled={uploading}>
-                                {uploading ? 'Uploading...' : '📸 Upload'}
+                    </section>
+                )}
+            </div>
+
+            {/* Photo Crop Modal */}
+            {showCrop && (
+                <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+                    <div className="modal-content glass-card holographic" style={{ width: '100%', maxWidth: '360px', padding: '24px' }}>
+                        <h3 className="font-serif" style={{ textAlign: 'center', marginBottom: '20px' }}>Refine Visual</h3>
+                        <div className="crop-area-wrapper" style={{ width: '300px', height: '300px', margin: '0 auto 20px', borderRadius: '16px', overflow: 'hidden', background: '#000' }}>
+                            <canvas
+                                ref={canvasRef} width={300} height={300}
+                                onPointerDown={handleCropPointerDown}
+                                onPointerMove={handleCropPointerMove}
+                                onPointerUp={handleCropPointerUp}
+                                onPointerLeave={handleCropPointerUp}
+                                style={{ width: '100%', height: '100%', cursor: 'move' }}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '24px' }}>
+                            <button className="btn-icon" onClick={() => handleZoom(-1)} style={{ background: 'var(--bg-elevated)', borderRadius: '50%' }}>
+                                <span className="material-symbols-rounded">zoom_out</span>
+                            </button>
+                            <button className="btn-icon" onClick={() => handleZoom(1)} style={{ background: 'var(--bg-elevated)', borderRadius: '50%' }}>
+                                <span className="material-symbols-rounded">zoom_in</span>
+                            </button>
+                        </div>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button className="btn-primary" style={{ flex: 1 }} onClick={uploadCroppedPhoto} disabled={uploading}>
+                                {uploading ? 'Processing...' : 'Finalize'}
+                            </button>
+                            <button className="btn-ghost" style={{ flex: 1 }} onClick={() => setShowCrop(false)}>
+                                Cancel
                             </button>
                         </div>
                     </div>

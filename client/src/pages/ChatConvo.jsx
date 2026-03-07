@@ -345,192 +345,249 @@ export default function ChatConvo() {
     };
 
     return (
-        <div className="chat-convo-page view-animate">
-            <div className="chat-convo-header">
-                <button className="btn-icon" style={{ width: 38, height: 38, flexShrink: 0 }}
-                    onClick={() => navigate('/chat')}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>arrow_back</span>
+        <div className="chat-convo-page view-animate" style={{
+            height: '100dvh',
+            display: 'flex',
+            flexDirection: 'column',
+            background: 'var(--bg-main)',
+            position: 'relative'
+        }}>
+            {/* Celestial Header */}
+            <div className="chat-convo-header glass-card" style={{
+                padding: '12px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                position: 'sticky',
+                top: 0,
+                zIndex: 100,
+                borderRadius: 0,
+                borderBottom: '1px solid var(--border)',
+                background: 'var(--bg-glass)',
+                backdropFilter: 'blur(30px)'
+            }}>
+                <button className="btn-icon" onClick={() => navigate('/chat')} style={{ background: 'var(--bg-elevated)' }}>
+                    <span className="material-symbols-rounded">arrow_back</span>
                 </button>
-                <img className="chat-convo-avatar" src={chatPhoto || defaultAvatar(chatName)}
-                    onError={(e) => { e.target.src = defaultAvatar(chatName); }}
-                    onClick={() => navigate('/profile/view', { state: { profile: { id: chatUserId, name: chatName, photo: chatPhoto, match_id: matchId } } })}
-                    alt={chatName} />
-                <div style={{ flex: 1, marginLeft: 4, minWidth: 0 }}>
-                    <div className="chat-convo-name">{chatName}</div>
-                    <div className="chat-convo-status" style={{ color: onlineStatus === 'Online' ? 'var(--success)' : 'var(--text-muted)' }}>
+
+                <div style={{ position: 'relative', cursor: 'pointer' }}
+                    onClick={() => navigate('/profile/view', { state: { profile: { id: chatUserId, name: chatName, photo: chatPhoto, match_id: matchId } } })}>
+                    <img className="chat-convo-avatar" src={chatPhoto || defaultAvatar(chatName)}
+                        onError={(e) => { e.target.src = defaultAvatar(chatName); }}
+                        style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid var(--border)' }}
+                        alt={chatName} />
+                    {onlineStatus === 'Online' && (
+                        <span style={{ position: 'absolute', bottom: 0, right: 0, width: '10px', height: '10px', background: '#22c55e', borderRadius: '50%', border: '2px solid var(--bg-main)' }} />
+                    )}
+                </div>
+
+                <div style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}
+                    onClick={() => navigate('/profile/view', { state: { profile: { id: chatUserId, name: chatName, photo: chatPhoto, match_id: matchId } } })}>
+                    <div className="font-serif" style={{ fontSize: '1.1rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{chatName}</div>
+                    <div style={{ fontSize: '0.75rem', color: onlineStatus === 'Online' ? '#22c55e' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {onlineStatus === 'Online' && <span className="pulse-dot" />}
                         {onlineStatus}
                     </div>
                 </div>
-                <button className="chat-options-btn" onClick={() => setShowMenu(!showMenu)}>
-                    <span className="material-symbols-outlined">more_vert</span>
+
+                <button className="btn-icon" onClick={() => setShowMenu(!showMenu)} style={{ background: 'none' }}>
+                    <span className="material-symbols-rounded">more_vert</span>
                 </button>
             </div>
 
-            {showMenu && (
-                <div className="msg-actions-overlay" onClick={(e) => { if (e.target === e.currentTarget) setShowMenu(false); }}>
-                    <div className="msg-actions-sheet">
-                        <button className="msg-action-btn" onClick={() => {
-                            setShowMenu(false);
-                            navigate('/profile/view', { state: { profile: { id: chatUserId, name: chatName, photo: chatPhoto, match_id: matchId } } });
-                        }}>
-                            <span className="material-symbols-outlined">person</span>View Profile
-                        </button>
-                        <button className="msg-action-btn" onClick={() => { setShowMenu(false); setShowReport(true); }}>
-                            <span className="material-symbols-outlined">flag</span>Report User
-                        </button>
-                        <button className="msg-action-btn delete" onClick={() => { setShowMenu(false); unmatch(); }}>
-                            <span className="material-symbols-outlined">heart_broken</span>Unmatch
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            <div className="chat-messages" id="chat-msgs" ref={messagesRef}>
+            {/* Messages Area */}
+            <div className="chat-messages" id="chat-msgs" ref={messagesRef} style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px'
+            }}>
                 {messages.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                        <div style={{ fontSize: '3rem', marginBottom: 12 }}>✨</div>
-                        <p style={{ color: 'var(--text-secondary)' }}>
-                            You matched with <strong>{chatName}</strong>!<br />Say something nice!
-                        </p>
+                    <div className="view-animate" style={{ textAlign: 'center', padding: '60px 20px', margin: 'auto' }}>
+                        <div style={{ fontSize: '4rem', marginBottom: '20px', opacity: 0.5 }}>✨</div>
+                        <h3 className="font-serif">The Stars Align</h3>
+                        <p style={{ opacity: 0.6 }}>You and {chatName} have resonated. Send the first signal.</p>
                     </div>
                 ) : renderMessages()}
+
+                {isTyping && (
+                    <div className="typing-indicator-aura" style={{ alignSelf: 'flex-start', margin: '10px 0', display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.7 }}>
+                        <div className="typing-dots"><span /><span /><span /></div>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--primary-light)' }}>{chatName} is pulsing...</span>
+                    </div>
+                )}
             </div>
 
-            {isTyping && (
-                <div className="typing-indicator">
-                    <span>{chatName} is typing</span>
-                    <div className="typing-dots"><span /><span /><span /></div>
-                </div>
-            )}
-
-            <div className="chat-input-container">
+            {/* Floating Input Area */}
+            <div className="chat-input-container-aura" style={{
+                padding: '10px 20px 30px',
+                background: 'linear-gradient(to top, var(--bg-main) 60%, transparent)'
+            }}>
                 {replyState && (
-                    <div className="reply-bar">
-                        <div className="reply-info">
-                            <span className="reply-to-name">Replying to {replyState.sender}</span>
-                            <span className="reply-text-preview">{(replyState.text || '').substring(0, 60)}</span>
+                    <div className="reply-bar glass-card view-animate" style={{
+                        padding: '10px 15px',
+                        marginBottom: '10px',
+                        borderRadius: '15px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        background: 'rgba(255,255,255,0.05)',
+                        borderLeft: '4px solid var(--primary)'
+                    }}>
+                        <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--primary-light)' }}>Replying to {replyState.sender}</div>
+                            <div style={{ fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', opacity: 0.7 }}>
+                                {replyState.text || 'Media Message'}
+                            </div>
                         </div>
-                        <span className="material-symbols-outlined close-reply" onClick={() => setReplyState(null)}>close</span>
+                        <button className="btn-icon" onClick={() => setReplyState(null)} style={{ background: 'none', padding: 0 }}>
+                            <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>close</span>
+                        </button>
                     </div>
                 )}
-                {emojiOpen && (
-                    <div className="emoji-area">
-                        {COMMON_EMOJIS.map(e => (
-                            <button key={e} className="emoji-btn" onClick={() => {
-                                setText(prev => prev + e);
-                                setEmojiOpen(false);
-                            }}>{e}</button>
-                        ))}
-                    </div>
-                )}
+
                 {icebreakersOpen && (
-                    <div className="icebreaker-drawer">
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 8, padding: '0 8px', fontWeight: 'bold' }}>
-                            Aura Icebreakers ✨
-                        </div>
-                        <div className="icebreaker-chips">
+                    <div className="icebreaker-drawer view-animate" style={{
+                        padding: '15px',
+                        marginBottom: '10px',
+                        background: 'var(--bg-glass)',
+                        backdropFilter: 'blur(20px)',
+                        borderRadius: '20px',
+                        border: '1px solid var(--border)'
+                    }}>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Aura Icebreakers</div>
+                        <div className="icebreaker-chips" style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '5px' }}>
                             {AURA_ICEBREAKERS.map((prompt, i) => (
-                                <button key={i} className="icebreaker-chip" onClick={() => {
-                                    setText(prompt);
-                                    setIcebreakersOpen(false);
-                                }}>
+                                <button key={i} className="icebreaker-chip glass-card" onClick={() => { setText(prompt); setIcebreakersOpen(false); }}
+                                    style={{ padding: '8px 16px', borderRadius: '30px', whiteSpace: 'nowrap', fontSize: '0.85rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
                                     {prompt}
                                 </button>
                             ))}
                         </div>
                     </div>
                 )}
-                <div className="chat-input-bar">
-                    <button className="btn-icon" style={{ width: 38, height: 38, background: 'none', border: 'none' }}
-                        onClick={() => { setEmojiOpen(!emojiOpen); setIcebreakersOpen(false); }}>
-                        <span className="material-symbols-outlined" style={{ color: emojiOpen ? 'var(--primary)' : 'var(--text-secondary)' }}>sentiment_satisfied</span>
+
+                <div className="chat-input-pill" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '6px 15px',
+                    borderRadius: '30px'
+                }}>
+                    <button className="btn-icon" onClick={() => setIcebreakersOpen(!icebreakersOpen)} style={{ color: icebreakersOpen ? 'var(--primary)' : 'inherit', background: 'none' }}>
+                        <span className="material-symbols-rounded">auto_awesome</span>
                     </button>
-                    <button className="btn-icon" style={{ width: 38, height: 38, background: 'none', border: 'none' }}
-                        onClick={() => { setIcebreakersOpen(!icebreakersOpen); setEmojiOpen(false); }}>
-                        <span className="material-symbols-outlined" style={{ color: icebreakersOpen ? 'var(--primary)' : 'var(--text-secondary)' }}>local_fire_department</span>
+
+                    <button className="btn-icon" onClick={() => fileInputRef.current?.click()} style={{ color: selectedFile ? 'var(--primary)' : 'inherit', background: 'none' }}>
+                        <input type="file" ref={fileInputRef} accept="image/*" style={{ display: 'none' }} onChange={handleImgSelect} />
+                        <span className="material-symbols-rounded">{selectedFile ? 'check_circle' : 'add_photo_alternate'}</span>
                     </button>
-                    <input type="file" ref={fileInputRef} accept="image/*" style={{ display: 'none' }} onChange={handleImgSelect} />
-                    <button className="btn-icon" style={{ width: 38, height: 38, background: 'none', border: 'none' }}
-                        onClick={() => fileInputRef.current?.click()}>
-                        <span className="material-symbols-outlined" style={{ color: selectedFile ? 'var(--primary)' : 'var(--text-secondary)' }}>
-                            {selectedFile ? 'check_circle' : 'add_photo_alternate'}
-                        </span>
+
+                    <textarea
+                        id="chat-input"
+                        placeholder="Type a signal..."
+                        value={text}
+                        onChange={(e) => { setText(e.target.value); handleTyping(); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
+                        style={{
+                            flex: 1,
+                            background: 'none',
+                            border: 'none',
+                            color: 'white',
+                            fontSize: '0.95rem',
+                            maxHeight: '100px',
+                            resize: 'none',
+                            padding: '10px 0',
+                            outline: 'none'
+                        }}
+                    />
+
+                    <button className="btn-icon" onClick={toggleRecording} style={{ color: isRecording ? 'var(--danger)' : 'inherit', background: 'none' }}>
+                        <span className="material-symbols-rounded">{isRecording ? 'stop_circle' : 'mic'}</span>
                     </button>
-                    <button className="btn-icon" style={{ width: 38, height: 38, background: 'none', border: 'none' }}
-                        onClick={toggleRecording}>
-                        <span className="material-symbols-outlined" style={{ color: isRecording ? 'var(--danger)' : 'var(--text-secondary)' }}>
-                            {isRecording ? 'stop_circle' : 'mic'}
-                        </span>
-                    </button>
-                    <input id="chat-input" type="text" placeholder={`Message ${chatName}...`}
-                        value={text} onChange={(e) => { setText(e.target.value); handleTyping(); }}
-                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }} />
-                    <button className="chat-send-btn" onClick={sendMsg}>
-                        <span className="material-symbols-outlined">send</span>
+
+                    <button className="chat-send-btn holographic" onClick={sendMsg} disabled={!text.trim() && !selectedFile}
+                        style={{
+                            padding: '10px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'var(--gradient-primary)'
+                        }}>
+                        <span className="material-symbols-rounded" style={{ color: 'white', fontSize: '20px' }}>send</span>
                     </button>
                 </div>
-                {selectedFile && (
-                    <div style={{ padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 8, borderTop: '1px solid var(--border)' }}>
-                        <img src={URL.createObjectURL(selectedFile)} className="img-preview-thumb" alt="preview" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }} />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', flex: 1 }}>Image ready to send</span>
-                        <button onClick={clearImgSelection} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 18 }}>✕</button>
-                    </div>
-                )}
             </div>
 
+            {/* Overlays */}
             {imageViewer && <ImageViewer url={imageViewer} onClose={() => setImageViewer(null)} />}
             {showReport && <ReportModal userId={chatUserId} userName={chatName} onClose={() => setShowReport(false)} />}
 
-            {/* Message Action Bottom Sheet */}
+            {/* Menu Overlay */}
+            {showMenu && (
+                <div className="modal-overlay" onClick={() => setShowMenu(false)}>
+                    <div className="msg-action-sheet-aura view-animate">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
+                            <img src={chatPhoto || defaultAvatar(chatName)} style={{ width: '50px', height: '50px', borderRadius: '50%' }} alt="" />
+                            <div>
+                                <div className="font-serif" style={{ fontSize: '1.2rem' }}>{chatName}</div>
+                                <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>Connection Settings</div>
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <button className="btn-secondary" style={{ justifyContent: 'flex-start', padding: '15px' }}
+                                onClick={() => { setShowMenu(false); navigate('/profile/view', { state: { profile: { id: chatUserId, name: chatName, photo: chatPhoto, match_id: matchId } } }); }}>
+                                <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>person</span> View Galactic Profile
+                            </button>
+                            <button className="btn-secondary" style={{ justifyContent: 'flex-start', padding: '15px' }} onClick={() => { setShowMenu(false); setShowReport(true); }}>
+                                <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>flag</span> Report Interference
+                            </button>
+                            <button className="btn-secondary danger" style={{ justifyContent: 'flex-start', padding: '15px', border: '1px solid rgba(239, 68, 68, 0.2)' }} onClick={() => { setShowMenu(false); unmatch(); }}>
+                                <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>heart_broken</span> Dissolve Connection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Message Action Sheet */}
             {msgAction && (
                 <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setMsgAction(null); }}>
-                    <div className="msg-action-sheet">
-                        <div className="msg-action-header">
-                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                {msgAction.text ? `"${msgAction.text.slice(0, 50)}${msgAction.text.length > 50 ? '...' : ''}"` : 'Media message'}
-                            </span>
-                            <button className="btn-icon" onClick={() => setMsgAction(null)} style={{ width: 28, height: 28, minWidth: 28 }}>
-                                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
-                            </button>
+                    <div className="msg-action-sheet-aura view-animate">
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <div style={{ fontSize: '0.8rem', opacity: 0.5, marginBottom: '15px' }}>Reflect on Transmission</div>
+                            <div className="msg-action-reactions" style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
+                                {REACTION_EMOJIS.map(emoji => (
+                                    <button key={emoji} className="reaction-pick-btn" style={{ fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}
+                                        onClick={() => { handleDoubleTap(msgAction.id); setMsgAction(null); }}>
+                                        {emoji}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                        {/* Quick Reactions */}
-                        <div className="msg-action-reactions">
-                            {REACTION_EMOJIS.map(emoji => (
-                                <button key={emoji} className="reaction-pick-btn"
-                                    onClick={() => { handleDoubleTap(msgAction.id); setMsgAction(null); }}>
-                                    {emoji}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="msg-action-list">
-                            <button className="msg-action-item" onClick={() => {
-                                setReplyState({ id: msgAction.id, text: msgAction.text, sender: msgAction.sender });
-                                setMsgAction(null);
-                            }}>
-                                <span className="material-symbols-outlined">reply</span>Reply
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <button className="btn-secondary" style={{ justifyContent: 'flex-start', padding: '15px' }}
+                                onClick={() => { setReplyState({ id: msgAction.id, text: msgAction.text, sender: msgAction.sender }); setMsgAction(null); }}>
+                                <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>reply</span> Echo Transmission
                             </button>
                             {msgAction.text && (
-                                <button className="msg-action-item" onClick={() => {
-                                    navigator.clipboard?.writeText(msgAction.text);
-                                    showToast('Copied!', 'success');
-                                    setMsgAction(null);
-                                }}>
-                                    <span className="material-symbols-outlined">content_copy</span>Copy Text
+                                <button className="btn-secondary" style={{ justifyContent: 'flex-start', padding: '15px' }}
+                                    onClick={() => { navigator.clipboard?.writeText(msgAction.text); showToast('Sampled!', 'success'); setMsgAction(null); }}>
+                                    <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>content_copy</span> Capture Text
                                 </button>
                             )}
                             {msgAction.isMine ? (
-                                <button className="msg-action-item danger" onClick={() => {
-                                    deleteMsg(msgAction.id);
-                                    setMsgAction(null);
-                                }}>
-                                    <span className="material-symbols-outlined">delete</span>Delete Message
+                                <button className="btn-secondary danger" style={{ justifyContent: 'flex-start', padding: '15px' }}
+                                    onClick={() => { deleteMsg(msgAction.id); setMsgAction(null); }}>
+                                    <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>delete</span> Purge Transmission
                                 </button>
                             ) : (
-                                <button className="msg-action-item danger" onClick={() => {
-                                    setShowReport(true);
-                                    setMsgAction(null);
-                                }}>
-                                    <span className="material-symbols-outlined">flag</span>Report User
+                                <button className="btn-secondary danger" style={{ justifyContent: 'flex-start', padding: '15px' }}
+                                    onClick={() => { setShowReport(true); setMsgAction(null); }}>
+                                    <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>flag</span> Flag Transmission
                                 </button>
                             )}
                         </div>

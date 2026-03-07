@@ -24,35 +24,35 @@ export default function ReportModal({ userId, userName, onClose }) {
     };
 
     return (
-        <div className="ig-modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
-            <div className="ig-modal">
-                {/* Header */}
-                <div className="ig-modal-header">
-                    <span className="ig-modal-header-spacer" />
-                    <h3 className="ig-modal-title">Report</h3>
-                    <button className="ig-modal-close" onClick={onClose}>
-                        <span className="material-symbols-outlined">close</span>
+        <div className="modal-backdrop-aura" onClick={(e) => e.target === e.currentTarget && onClose()}>
+            <div className="modal-aura">
+                <div style={{ padding: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
+                    <h3 className="font-serif" style={{ margin: 0 }}>Safety Report</h3>
+                    <button className="btn-icon" onClick={onClose} style={{ background: 'none' }}>
+                        <span className="material-symbols-rounded">close</span>
                     </button>
                 </div>
 
-                {/* Subtitle */}
-                <div className="ig-modal-subtitle">
-                    Why are you reporting {userName}?
+                <div style={{ padding: '20px 25px', fontSize: '0.9rem', opacity: 0.6 }}>
+                    Why are you flags highlighting {userName}?
                 </div>
 
-                {/* Options list */}
                 <div className="ig-modal-list">
                     {REPORT_REASONS.map((reason) => (
                         <button
                             key={reason}
-                            className="ig-modal-item"
+                            className="modal-item-aura"
                             onClick={() => handleSubmit(reason)}
                             disabled={submitting}
                         >
                             <span>{reason}</span>
-                            <span className="material-symbols-outlined ig-modal-chevron">chevron_right</span>
+                            <span className="material-symbols-rounded" style={{ fontSize: '18px', opacity: 0.5 }}>chevron_right</span>
                         </button>
                     ))}
+                </div>
+
+                <div style={{ padding: '20px', background: 'rgba(0,0,0,0.2)', textAlign: 'center', fontSize: '0.75rem', opacity: 0.4 }}>
+                    AURA SAFETY PROTOCOL • SECURE SUBMISSION
                 </div>
             </div>
         </div>

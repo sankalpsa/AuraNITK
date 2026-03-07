@@ -133,111 +133,183 @@ export default function Signup() {
                     if (step === 'details') setStep('otp');
                     else if (step === 'otp') setStep('email');
                     else navigate('/');
-                }}>
-                    <span className="material-symbols-outlined">arrow_back</span>
+                }} style={{ background: 'var(--bg-elevated)', borderRadius: '50%', color: 'var(--text)' }}>
+                    <span className="material-symbols-rounded">arrow_back</span>
                 </button>
-                <h2>Create Account</h2>
+                <h2 className="font-serif">Create Account</h2>
             </div>
 
             <div className="auth-body">
                 {step === 'email' && (
-                    <form onSubmit={handleSendOtp}>
-                        <div className="auth-icon-large">
-                            <span className="material-symbols-outlined fill-icon" style={{ fontSize: '3rem', color: 'var(--primary)' }}>mail</span>
-                        </div>
-                        <h3>Your University Email</h3>
-                        <p className="auth-hint">We'll verify you're a real student</p>
-                        <div className="input-group">
-                            <input className="input-field" type="email" placeholder="your.email@university.edu"
-                                value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
-                        </div>
-                        <button className="btn-primary" type="submit" disabled={loading}>
-                            {loading ? <div className="spinner" style={{ width: 18, height: 18 }} /> : 'Send OTP'}
-                        </button>
-                    </form>
+                    <div className="auth-card holographic">
+                        <form onSubmit={handleSendOtp}>
+                            <div className="auth-icon-large">
+                                <span className="material-symbols-rounded" style={{ fontSize: '3rem' }}>alternate_email</span>
+                            </div>
+                            <h3 style={{ textAlign: 'center', marginBottom: '8px' }}>Your Student Portal</h3>
+                            <p className="auth-hint" style={{ textAlign: 'center', marginBottom: '32px', color: 'var(--text-muted)' }}>
+                                Verification required for university exclusivity.
+                            </p>
+                            <div className="input-group">
+                                <label>University Email</label>
+                                <input
+                                    className="input-field"
+                                    type="email"
+                                    placeholder="your.email@university.edu"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+                            <button className="btn-primary" type="submit" disabled={loading} style={{ width: '100%', marginTop: '24px' }}>
+                                {loading ? <div className="spinner" style={{ width: 18, height: 18, borderTopColor: 'white' }} /> : (
+                                    <>
+                                        <span>Initialize Verification</span>
+                                        <span className="material-symbols-rounded">send</span>
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </div>
                 )}
 
                 {step === 'otp' && (
-                    <form onSubmit={handleVerifyOtp}>
-                        <div className="auth-icon-large">
-                            <span className="material-symbols-outlined fill-icon" style={{ fontSize: '3rem', color: 'var(--primary)' }}>pin</span>
-                        </div>
-                        <h3>Verify OTP</h3>
-                        <p className="auth-hint">Enter the 6-digit code sent to {email}</p>
-                        <div className="otp-inputs">
-                            {otp.map((digit, idx) => (
-                                <input
-                                    key={idx}
-                                    ref={el => otpRefs.current[idx] = el}
-                                    className="otp-input" type="tel" maxLength={1} value={digit}
-                                    onChange={(e) => handleOtpInput(idx, e.target.value)}
-                                    onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                                    autoFocus={idx === 0}
-                                />
-                            ))}
-                        </div>
-                        <button className="btn-primary" type="submit" disabled={loading}>
-                            {loading ? <div className="spinner" style={{ width: 18, height: 18 }} /> : 'Verify'}
-                        </button>
-                        <button type="button" className="btn-ghost" onClick={handleSendOtp} disabled={loading}>Resend OTP</button>
-                    </form>
+                    <div className="auth-card holographic">
+                        <form onSubmit={handleVerifyOtp}>
+                            <div className="auth-icon-large">
+                                <span className="material-symbols-rounded" style={{ fontSize: '3rem' }}>lock_open</span>
+                            </div>
+                            <h3 style={{ textAlign: 'center', marginBottom: '8px' }}>Verify Identity</h3>
+                            <p className="auth-hint" style={{ textAlign: 'center', marginBottom: '32px', color: 'var(--text-muted)' }}>
+                                Enter the cosmic key sent to<br /><strong>{email}</strong>
+                            </p>
+                            <div className="otp-inputs">
+                                {otp.map((digit, idx) => (
+                                    <input
+                                        key={idx}
+                                        ref={el => otpRefs.current[idx] = el}
+                                        className="otp-input" type="tel" maxLength={1} value={digit}
+                                        onChange={(e) => handleOtpInput(idx, e.target.value)}
+                                        onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                                        autoFocus={idx === 0}
+                                    />
+                                ))}
+                            </div>
+                            <button className="btn-primary" type="submit" disabled={loading} style={{ width: '100%', marginBottom: '16px' }}>
+                                {loading ? <div className="spinner" style={{ width: 18, height: 18, borderTopColor: 'white' }} /> : (
+                                    <>
+                                        <span>Unlock Aura</span>
+                                        <span className="material-symbols-rounded">key_visualize</span>
+                                    </>
+                                )}
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-ghost"
+                                onClick={handleSendOtp}
+                                disabled={loading}
+                                style={{ width: '100%', border: 'none', background: 'transparent' }}
+                            >
+                                Reissue code
+                            </button>
+                        </form>
+                    </div>
                 )}
 
                 {step === 'details' && (
-                    <form onSubmit={handleSignup} className="signup-details-form">
-                        <h3>About You</h3>
-                        <div className="input-group"><label>Name *</label>
-                            <input className="input-field" value={name} onChange={(e) => setName(e.target.value)} required />
-                        </div>
-                        <div className="input-group"><label>Password *</label>
-                            <input className="input-field" type="password" placeholder="Min 6 characters"
-                                value={password} onChange={(e) => setPassword(e.target.value)} required />
-                        </div>
-                        <div className="input-row">
-                            <div className="input-group"><label>Age *</label>
-                                <input className="input-field" type="number" min={17} max={30}
-                                    value={age} onChange={(e) => setAge(e.target.value)} required />
+                    <div className="auth-card holographic" style={{ padding: '24px' }}>
+                        <form onSubmit={handleSignup} className="signup-details-form">
+                            <h3 style={{ marginBottom: '24px' }}>Profile Manifest</h3>
+
+                            <div className="input-group">
+                                <label>What should we call you? *</label>
+                                <input className="input-field" value={name} onChange={(e) => setName(e.target.value)} required />
                             </div>
-                            <div className="input-group"><label>Gender *</label>
-                                <select className="input-field" value={gender} onChange={(e) => setGender(e.target.value)} required>
-                                    <option value="">Select</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="other">Other</option>
-                                </select>
+
+                            <div className="input-group">
+                                <label>Secret Password *</label>
+                                <input className="input-field" type="password" placeholder="Min 6 characters"
+                                    value={password} onChange={(e) => setPassword(e.target.value)} required />
                             </div>
-                        </div>
-                        <div className="input-row">
-                            <div className="input-group"><label>Branch *</label>
+
+                            <div className="input-row" style={{ display: 'flex', gap: '12px' }}>
+                                <div className="input-group" style={{ flex: 1 }}>
+                                    <label>Age *</label>
+                                    <input className="input-field" type="number" min={17} max={30}
+                                        value={age} onChange={(e) => setAge(e.target.value)} required />
+                                </div>
+                                <div className="input-group" style={{ flex: 2 }}>
+                                    <label>Gender *</label>
+                                    <select className="input-field" value={gender} onChange={(e) => setGender(e.target.value)} required>
+                                        <option value="">Select...</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Non-binary">Non-binary</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="input-group">
+                                <label>Academic Sphere *</label>
                                 <select className="input-field" value={branch} onChange={(e) => setBranch(e.target.value)} required>
-                                    <option value="">Select</option>
+                                    <option value="">Select Branch...</option>
                                     {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
                                 </select>
                             </div>
-                            <div className="input-group"><label>Year *</label>
+
+                            <div className="input-group">
+                                <label>Journey Stage *</label>
                                 <select className="input-field" value={year} onChange={(e) => setYear(e.target.value)} required>
-                                    <option value="">Select</option>
+                                    <option value="">Select Year...</option>
                                     {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                                 </select>
                             </div>
-                        </div>
-                        <div className="input-group"><label>Bio</label>
-                            <textarea className="textarea-field" placeholder="Tell us about yourself..."
-                                value={bio} onChange={(e) => setBio(e.target.value)} maxLength={200} />
-                        </div>
-                        <div className="input-group"><label>Interests (pick up to 8)</label>
-                            <div className="interest-tags">
-                                {INTEREST_OPTIONS.map(i => (
-                                    <button key={i} type="button"
-                                        className={`interest-tag ${interests.includes(i) ? 'selected' : ''}`}
-                                        onClick={() => toggleInterest(i)}>{i}</button>
-                                ))}
+
+                            <div className="input-group">
+                                <label>Bio / Your Aura (Optional)</label>
+                                <textarea className="textarea-field" rows={3} placeholder="Tell us your frequency..."
+                                    value={bio} onChange={(e) => setBio(e.target.value)} />
                             </div>
-                        </div>
-                        <button className="btn-primary" type="submit" disabled={loading}>
-                            {loading ? <div className="spinner" style={{ width: 18, height: 18 }} /> : 'Create Account 🚀'}
-                        </button>
-                    </form>
+
+                            <div className="interests-section" style={{ marginTop: '24px' }}>
+                                <label style={{ display: 'block', marginBottom: '12px', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                                    Celestial Interests ({interests.length}/8)
+                                </label>
+                                <div className="interests-pill-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                    {INTEREST_OPTIONS.map(interest => (
+                                        <button
+                                            key={interest}
+                                            type="button"
+                                            className={`interest-pill ${interests.includes(interest) ? 'active' : ''}`}
+                                            onClick={() => toggleInterest(interest)}
+                                            style={{
+                                                padding: '8px 16px',
+                                                borderRadius: 'var(--radius-full)',
+                                                border: '1px solid var(--border)',
+                                                background: interests.includes(interest) ? 'var(--gradient-primary)' : 'var(--bg-elevated)',
+                                                color: interests.includes(interest) ? 'white' : 'var(--text-secondary)',
+                                                fontSize: '0.85rem',
+                                                transition: 'all 0.3s ease'
+                                            }}
+                                        >
+                                            {interest}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button className="btn-primary" type="submit" disabled={loading} style={{ width: '100%', marginTop: '32px' }}>
+                                {loading ? <div className="spinner" style={{ width: 18, height: 18, borderTopColor: 'white' }} /> : (
+                                    <>
+                                        <span>Manifest My Presence</span>
+                                        <span className="material-symbols-rounded">check_circle</span>
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </div>
                 )}
 
                 <div style={{ textAlign: 'center', marginTop: 20 }}>

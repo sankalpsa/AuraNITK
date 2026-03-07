@@ -41,39 +41,40 @@ export default function MatchOverlay({ matchedUser, onClose, onChat }) {
     if (!matchedUser) return null;
 
     return (
-        <div className="match-overlay">
-            <div className="match-content">
-                <div className="match-hearts">✨</div>
-                <h2 className="match-title">It's a Match!</h2>
-                <p className="match-subtitle">
-                    Matched on <strong>Aura</strong>
-                </p>
-                <div className="match-photos">
-                    <div className="match-photo-container">
+        <div className="match-overlay-aura view-animate">
+            <div className="match-card-aura">
+                <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🌌</div>
+                <h1 className="font-serif" style={{ fontSize: '2.5rem', marginBottom: '10px', background: 'var(--gradient-aura)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    It's a Match!
+                </h1>
+                <p style={{ opacity: 0.6, marginBottom: '40px' }}>Your souls have resonated in the Aura.</p>
+
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '50px' }}>
+                    <div className="match-photo-ring view-animate" style={{ animationDelay: '0.2s' }}>
                         <img
-                            className="match-photo left"
+                            className="match-photo-aura"
                             src={user?.photo || defaultAvatar(user?.name)}
                             alt="You"
-                            onError={(e) => { e.target.src = defaultAvatar(user?.name); }}
                         />
                     </div>
-                    <div className="match-heart-center pulse-animation">❤️</div>
-                    <div className="match-photo-container">
+                    <div className="pulse-animation" style={{ fontSize: '2rem' }}>💖</div>
+                    <div className="match-photo-ring view-animate" style={{ animationDelay: '0.4s' }}>
                         <img
-                            className="match-photo right"
+                            className="match-photo-aura"
                             src={matchedUser.photo || defaultAvatar(matchedUser.name)}
                             alt="Match"
-                            onError={(e) => { e.target.src = defaultAvatar(matchedUser.name); }}
                         />
                     </div>
                 </div>
-                <p className="match-person-name">You and {matchedUser.name} liked each other</p>
-                <button className="btn-primary match-btn" onClick={onClose}>
-                    Keep Swiping 💫
-                </button>
-                <button className="btn-ghost match-btn" onClick={onChat}>
-                    Send Message 💬
-                </button>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <button className="btn-primary holographic" onClick={onChat} style={{ padding: '15px' }}>
+                        Initialize Transmission
+                    </button>
+                    <button className="btn-secondary" onClick={onClose} style={{ padding: '15px' }}>
+                        Continue Exploration
+                    </button>
+                </div>
             </div>
         </div>
     );

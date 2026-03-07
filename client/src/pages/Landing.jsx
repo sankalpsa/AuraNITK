@@ -5,26 +5,26 @@ export default function Landing() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Floating particles for the whole screen
+        // Constellation Particles
         const container = document.createElement('div');
         container.className = 'global-particles';
         document.body.appendChild(container);
 
-        const emojis = ['✨', '💎', '🥂', '🌙', '⭐', '✨', '⚜️', '🥂'];
-        for (let i = 0; i < 40; i++) {
+        const count = 50;
+        for (let i = 0; i < count; i++) {
             const p = document.createElement('div');
-            p.className = 'particle';
-            p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            const size = 0.8 + Math.random() * 2;
+            p.className = 'constellation-point';
+            const size = 2 + Math.random() * 4;
             p.style.cssText = `
                 left: ${Math.random() * 100}vw;
                 top: ${Math.random() * 100}vh;
-                --dur: ${8 + Math.random() * 12}s;
-                --delay: ${-Math.random() * 10}s;
-                font-size: ${size}rem;
-                filter: blur(${Math.random() > 0.8 ? '1px' : '0'});
+                width: ${size}px;
+                height: ${size}px;
+                --dur: ${15 + Math.random() * 20}s;
+                --delay: ${-Math.random() * 20}s;
+                opacity: ${0.2 + Math.random() * 0.5};
+                animation: float-nebula var(--dur) linear infinite;
                 animation-delay: var(--delay);
-                animation-duration: var(--dur);
             `;
             container.appendChild(p);
         }
@@ -39,46 +39,49 @@ export default function Landing() {
     return (
         <div className="landing-page view-animate">
             <div className="hero-section">
-                <div className="hero-eyebrow">An Exclusive University Society · Est. 2025</div>
-                <img src="/aura-logo.png" className="logo-img-large" alt="Aura Logo" style={{ marginBottom: 16 }} />
-                <p className="hero-tagline">Elevate your baseline.</p>
+                <div className="hero-eyebrow">A New Dimension of Connection · Est. 2025</div>
+                <h1 className="hero-title font-serif">
+                    Experience <span className="text-aurora">Aura</span>
+                </h1>
+                <p className="hero-tagline">Beyond swiping. Pure energy.</p>
                 <p className="hero-subtext">
-                    The premium dating circle for ambitious university students.
-                    Curated connections await.
+                    The ultra-premium social circle for university elites.
+                    Where ambition meets attraction.
                 </p>
                 <div className="hero-actions">
                     <button className="hero-cta btn-primary" onClick={() => navigate('/signup')}>
-                        <span className="material-symbols-outlined fill-icon">diamond</span>
-                        Enter Aura
+                        <span className="material-symbols-rounded">auto_awesome</span>
+                        Ascend Now
                     </button>
                     <button className="btn-ghost" onClick={() => navigate('/login')}>
-                        <span className="material-symbols-outlined">key</span>
-                        Member Login
+                        <span className="material-symbols-rounded">login</span>
+                        Member Access
                     </button>
                 </div>
             </div>
+
             <div className="landing-features">
-                <h3>The Aura Standard</h3>
+                <h3 className="font-serif">The Celestial Standard</h3>
                 <div className="features-grid">
-                    <div className="feature-card">
-                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>verified_user</span>
-                        <h4>Strictly Verified</h4>
-                        <p>Access requires an active university credential</p>
+                    <div className="feature-card holographic">
+                        <span className="material-symbols-rounded" style={{ color: 'var(--accent-cyan)', fontSize: '2.5rem' }}>shield_person</span>
+                        <h4>Elite Verification</h4>
+                        <p>Access exclusive to verified university members</p>
                     </div>
-                    <div className="feature-card">
-                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>auto_awesome</span>
-                        <h4>Curated Quality</h4>
-                        <p>Intelligent matching based on shared lifestyles</p>
+                    <div className="feature-card holographic">
+                        <span className="material-symbols-rounded" style={{ color: 'var(--accent-magenta)', fontSize: '2.5rem' }}>tempest</span>
+                        <h4>Vibe Alignment</h4>
+                        <p>Matching that transcends simple interests</p>
                     </div>
-                    <div className="feature-card">
-                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>chat_bubble</span>
-                        <h4>Seamless Dialogue</h4>
-                        <p>End-to-end encrypted real-time messaging</p>
+                    <div className="feature-card holographic">
+                        <span className="material-symbols-rounded" style={{ color: 'var(--accent-emerald)', fontSize: '2.5rem' }}>all_inclusive</span>
+                        <h4>Infinite Dialogue</h4>
+                        <p>Real-time crystalline chat experience</p>
                     </div>
-                    <div className="feature-card">
-                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>security</span>
-                        <h4>Absolute Privacy</h4>
-                        <p>Anonymous browsing until a mutual match occurs</p>
+                    <div className="feature-card holographic">
+                        <span className="material-symbols-rounded" style={{ color: 'var(--accent-amber)', fontSize: '2.5rem' }}>blur_on</span>
+                        <h4>Total Discretion</h4>
+                        <p>Your privacy is our highest frequency</p>
                     </div>
                 </div>
             </div>

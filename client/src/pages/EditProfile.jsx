@@ -118,133 +118,286 @@ export default function EditProfile() {
     };
 
     return (
-        <div className="auth-page view-animate">
-            <div className="auth-header">
-                <button className="btn-icon" onClick={() => navigate('/profile')}>
-                    <span className="material-symbols-outlined">arrow_back</span>
+        <div className="profile-page view-animate" style={{ paddingBottom: '100px' }}>
+            {/* Immersive Header */}
+            <div className="profile-nav-header glass-card holographic" style={{
+                padding: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '15px',
+                position: 'sticky',
+                top: 0,
+                zIndex: 100,
+                borderRadius: 0,
+                borderBottom: '1px solid var(--border)',
+                background: 'var(--bg-glass)'
+            }}>
+                <button className="btn-icon" onClick={() => navigate('/profile')} style={{ background: 'var(--bg-elevated)' }}>
+                    <span className="material-symbols-rounded">arrow_back</span>
                 </button>
-                <h2>Edit Profile</h2>
+                <h2 className="font-serif" style={{ margin: 0, fontSize: '1.5rem' }}>Edit Identity</h2>
             </div>
-            <div className="auth-body">
-                <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    <div className="input-group"><label>Name</label>
-                        <input className="input-field" value={name} onChange={e => setName(e.target.value)} />
+
+            <div className="profile-content" style={{ padding: '20px' }}>
+                <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+
+                    {/* Basic Essence */}
+                    <div className="glass-card holographic" style={{ padding: '24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: 'var(--primary-light)' }}>
+                            <span className="material-symbols-rounded">person_edit</span>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Essence</h3>
+                        </div>
+
+                        <div className="input-group" style={{ marginBottom: '20px' }}>
+                            <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Name</label>
+                            <input className="input-field glass-input" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%' }} />
+                        </div>
+
+                        <div className="input-group" style={{ marginBottom: '20px' }}>
+                            <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Bio</label>
+                            <textarea
+                                className="textarea-field glass-input"
+                                value={bio}
+                                onChange={e => setBio(e.target.value)}
+                                placeholder="Tell people about yourself..."
+                                maxLength={300}
+                                style={{ width: '100%', minHeight: '100px' }}
+                            />
+                            <div style={{ fontSize: '0.7rem', opacity: 0.5, textAlign: 'right', marginTop: '4px' }}>{bio.length}/300</div>
+                        </div>
+
+                        <div className="input-group">
+                            <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>💬 Cosmic Pickup Line</label>
+                            <input
+                                className="input-field glass-input"
+                                value={pickupLine}
+                                onChange={e => setPickupLine(e.target.value)}
+                                placeholder="Your best pickup line..."
+                                maxLength={150}
+                                style={{ width: '100%' }}
+                            />
+                        </div>
                     </div>
-                    <div className="input-group"><label>Bio</label>
-                        <textarea className="textarea-field" value={bio} onChange={e => setBio(e.target.value)}
-                            placeholder="Tell people about yourself..." maxLength={300} />
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right' }}>{bio.length}/300</span>
+
+                    {/* Technical Details */}
+                    <div className="glass-card holographic" style={{ padding: '24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: 'var(--secondary)' }}>
+                            <span className="material-symbols-rounded">school</span>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Alignment</h3>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                            <div className="input-group">
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Branch</label>
+                                <select className="input-field glass-input" value={branch} onChange={e => setBranch(e.target.value)} style={{ width: '100%' }}>
+                                    {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
+                                </select>
+                            </div>
+                            <div className="input-group">
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Year</label>
+                                <select className="input-field glass-input" value={year} onChange={e => setYear(e.target.value)} style={{ width: '100%' }}>
+                                    {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="input-group" style={{ marginTop: '20px' }}>
+                            <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Seek Interest</label>
+                            <select className="input-field glass-input" value={showMe} onChange={e => setShowMe(e.target.value)} style={{ width: '100%' }}>
+                                <option value="all">Everyone</option>
+                                <option value="male">Men</option>
+                                <option value="female">Women</option>
+                            </select>
+                        </div>
                     </div>
-                    <div className="input-group"><label>💬 Pickup Line</label>
-                        <input className="input-field" value={pickupLine} onChange={e => setPickupLine(e.target.value)}
-                            placeholder="Your best pickup line..." maxLength={150} />
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right' }}>{pickupLine.length}/150</span>
-                    </div>
-                    <div className="input-group"><label>Branch</label>
-                        <select className="input-field" value={branch} onChange={e => setBranch(e.target.value)}>
-                            {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
-                        </select>
-                    </div>
-                    <div className="input-group"><label>Year</label>
-                        <select className="input-field" value={year} onChange={e => setYear(e.target.value)}>
-                            {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-                        </select>
-                    </div>
-                    <div className="input-group"><label>Show Me</label>
-                        <select className="input-field" value={showMe} onChange={e => setShowMe(e.target.value)}>
-                            <option value="all">Everyone</option>
-                            <option value="male">Men</option>
-                            <option value="female">Women</option>
-                        </select>
-                    </div>
-                    <div className="input-group"><label>Interests</label>
-                        <div className="interest-tags" style={{ marginTop: 4 }}>
+
+                    {/* Interests Vibe */}
+                    <div className="glass-card holographic" style={{ padding: '24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: 'var(--primary-light)' }}>
+                            <span className="material-symbols-rounded">interests</span>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Elemental Resonance</h3>
+                        </div>
+
+                        <div className="interest-tags" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                             {INTEREST_OPTIONS.map(i => (
-                                <button key={i} type="button"
-                                    className={`interest-tag ${interests.includes(i) ? 'selected' : ''}`}
-                                    onClick={() => toggleInterest(i)}>{i}</button>
+                                <button
+                                    key={i}
+                                    type="button"
+                                    className={`interest-tag-btn ${interests.includes(i) ? 'selected holographic' : ''}`}
+                                    onClick={() => toggleInterest(i)}
+                                    style={{
+                                        padding: '8px 16px',
+                                        borderRadius: '30px',
+                                        border: '1px solid var(--border)',
+                                        background: interests.includes(i) ? 'var(--gradient-primary)' : 'var(--bg-elevated)',
+                                        color: interests.includes(i) ? 'white' : 'var(--text-main)',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s ease',
+                                        fontSize: '0.85rem'
+                                    }}
+                                >
+                                    {i}
+                                </button>
                             ))}
                         </div>
                     </div>
-                    <div className="input-group"><label>Green Flags (comma separated)</label>
-                        <input className="input-field" value={greenFlags} onChange={e => setGreenFlags(e.target.value)} />
-                    </div>
-                    <div className="input-group"><label>Red Flags (comma separated)</label>
-                        <input className="input-field" value={redFlags} onChange={e => setRedFlags(e.target.value)} />
+
+                    {/* Flags & Vibes */}
+                    <div className="glass-card holographic" style={{ padding: '24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#22c55e' }}>
+                            <span className="material-symbols-rounded">flag</span>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Aura Spectrum</h3>
+                        </div>
+
+                        <div className="input-group" style={{ marginBottom: '20px' }}>
+                            <label style={{ fontSize: '0.8rem', color: '#22c55e', marginBottom: '8px', display: 'block' }}>Green Flags (Elemental Positivity)</label>
+                            <input
+                                className="input-field glass-input"
+                                value={greenFlags}
+                                onChange={e => setGreenFlags(e.target.value)}
+                                placeholder="Kindness, Humor, Ambition..."
+                                style={{ width: '100%' }}
+                            />
+                        </div>
+
+                        <div className="input-group">
+                            <label style={{ fontSize: '0.8rem', color: '#ef4444', marginBottom: '8px', display: 'block' }}>Red Flags (Avoidance Zones)</label>
+                            <input
+                                className="input-field glass-input"
+                                value={redFlags}
+                                onChange={e => setRedFlags(e.target.value)}
+                                placeholder="Ghosting, Pessimism..."
+                                style={{ width: '100%' }}
+                            />
+                        </div>
                     </div>
 
                     {/* Spotify Section */}
-                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 6 }}>
-                        <h3 style={{ fontWeight: 700, marginBottom: 10 }}>🎵 Spotify Anthem</h3>
-                        <div className="input-group"><label>Favorite Artist</label>
-                            <input className="input-field" value={spotifyArtist} onChange={e => setSpotifyArtist(e.target.value)}
-                                placeholder="e.g. Arijit Singh, Taylor Swift" />
+                    <div className="glass-card holographic" style={{ padding: '24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#1DB954' }}>
+                            <span className="material-symbols-rounded">music_note</span>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Spectral Anthem</h3>
                         </div>
-                        <div className="input-group" style={{ marginTop: 8 }}><label>Favorite Song</label>
-                            <input className="input-field" value={spotifySong} onChange={e => setSpotifySong(e.target.value)}
-                                placeholder="e.g. Tum Hi Ho, Love Story" />
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                            <div className="input-group">
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Artist</label>
+                                <input className="input-field glass-input" value={spotifyArtist} onChange={e => setSpotifyArtist(e.target.value)} placeholder="e.g. Weeknd" style={{ width: '100%' }} />
+                            </div>
+                            <div className="input-group">
+                                <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Song</label>
+                                <input className="input-field glass-input" value={spotifySong} onChange={e => setSpotifySong(e.target.value)} placeholder="e.g. Starboy" style={{ width: '100%' }} />
+                            </div>
                         </div>
                     </div>
 
-                    <button className="btn-primary" type="submit" disabled={loading}>
-                        {loading ? <div className="spinner" style={{ width: 18, height: 18 }} /> : <><span className="material-symbols-outlined">save</span>Save Changes</>}
+                    {/* Save Button */}
+                    <button className="btn-primary holographic" type="submit" disabled={loading} style={{
+                        padding: '16px',
+                        borderRadius: '15px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: '10px',
+                        fontSize: '1.1rem',
+                        marginTop: '10px'
+                    }}>
+                        {loading ? <div className="spinner" style={{ width: 20, height: 20 }} /> : (
+                            <>
+                                <span className="material-symbols-rounded">auto_fix_high</span>
+                                Manifest Changes
+                            </>
+                        )}
                     </button>
                 </form>
 
                 {/* Profile Prompts */}
-                <div style={{ marginTop: 20, borderTop: '1px solid var(--border)', paddingTop: 20 }}>
-                    <h3 style={{ fontWeight: 700, marginBottom: 12 }}>💬 Profile Prompts</h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>Add up to 3 conversation starters that appear on your profile.</p>
-
-                    {prompts.map(p => (
-                        <div key={p.id} className="prompt-card">
-                            <div className="prompt-question">{p.question}</div>
-                            <div className="prompt-answer">{p.answer}</div>
-                            <button className="prompt-delete" onClick={() => deletePrompt(p.id)}>
-                                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
-                            </button>
+                <div className="glass-card holographic" style={{ padding: '24px', marginTop: '40px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-light)' }}>
+                            <span className="material-symbols-rounded">forum</span>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Broadcast Prompts</h3>
                         </div>
-                    ))}
+                        <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>{prompts.length}/3</span>
+                    </div>
 
-                    {prompts.length < 3 && (
-                        <div style={{ marginTop: 12 }}>
-                            <select className="input-field" value={newPromptQ} onChange={e => setNewPromptQ(e.target.value)} style={{ marginBottom: 8 }}>
-                                <option value="">Choose a question...</option>
-                                {PROMPT_QUESTIONS.filter(q => !prompts.some(p => p.question === q)).map(q => (
-                                    <option key={q} value={q}>{q}</option>
-                                ))}
-                            </select>
-                            {newPromptQ && (
-                                <>
-                                    <textarea className="textarea-field" value={newPromptA} onChange={e => setNewPromptA(e.target.value)}
-                                        placeholder="Write your answer..." maxLength={200} style={{ marginBottom: 6 }} />
-                                    <button className="btn-secondary" onClick={addPrompt} style={{ width: '100%' }}>
-                                        <span className="material-symbols-outlined">add</span> Add Prompt
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        {prompts.map(p => (
+                            <div key={p.id} className="glass-card" style={{ padding: '15px', position: 'relative', background: 'rgba(255,255,255,0.03)' }}>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--primary-light)', fontWeight: 600, marginBottom: '4px' }}>{p.question}</div>
+                                <div style={{ fontSize: '0.95rem' }}>{p.answer}</div>
+                                <button
+                                    onClick={() => deletePrompt(p.id)}
+                                    style={{ position: 'absolute', top: '10px', right: '10px', border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer' }}
+                                >
+                                    <span className="material-symbols-rounded" style={{ fontSize: 18 }}>delete</span>
+                                </button>
+                            </div>
+                        ))}
+
+                        {prompts.length < 3 && (
+                            <div className="add-prompt-box" style={{ marginTop: '10px', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '15px', border: '1px dashed var(--border)' }}>
+                                <select
+                                    className="input-field glass-input"
+                                    value={newPromptQ}
+                                    onChange={e => setNewPromptQ(e.target.value)}
+                                    style={{ width: '100%', marginBottom: '15px' }}
+                                >
+                                    <option value="">Choose a transmission theme...</option>
+                                    {PROMPT_QUESTIONS.filter(q => !prompts.some(p => p.question === q)).map(q => (
+                                        <option key={q} value={q}>{q}</option>
+                                    ))}
+                                </select>
+
+                                {newPromptQ && (
+                                    <div className="view-animate">
+                                        <textarea
+                                            className="textarea-field glass-input"
+                                            value={newPromptA}
+                                            onChange={e => setNewPromptA(e.target.value)}
+                                            placeholder="Write your signal..."
+                                            maxLength={200}
+                                            style={{ width: '100%', minHeight: '80px', marginBottom: '15px' }}
+                                        />
+                                        <button className="btn-secondary" onClick={addPrompt} style={{ width: '100%', padding: '12px' }}>
+                                            <span className="material-symbols-rounded" style={{ marginRight: '8px' }}>add</span>
+                                            Initialize Prompt
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Snooze Mode */}
-                <div style={{ marginTop: 20, borderTop: '1px solid var(--border)', paddingTop: 20 }}>
-                    <h3 style={{ fontWeight: 700, marginBottom: 12 }}>😴 Snooze Mode</h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
-                        Hide your profile from the swipe deck without deactivating your account.
+                <div className="glass-card holographic" style={{ padding: '24px', marginTop: '30px', border: isSnoozed ? '1px solid var(--primary)' : '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                        <span className="material-symbols-rounded">bedtime</span>
+                        <h3 className="font-serif" style={{ margin: 0 }}>Stellar Hibernate</h3>
+                    </div>
+                    <p style={{ fontSize: '0.9rem', opacity: 0.6, marginBottom: '20px' }}>
+                        Retreat from the cosmic grid temporarily. Your profile will be hidden from new seekers.
                     </p>
-                    <button className={isSnoozed ? "btn-primary" : "btn-secondary"} onClick={toggleSnooze} style={{ width: '100%' }}>
-                        <span className="material-symbols-outlined">{isSnoozed ? 'visibility' : 'visibility_off'}</span>
-                        {isSnoozed ? 'Turn Off Snooze (Be Visible)' : 'Snooze for 24 Hours'}
+                    <button
+                        className={isSnoozed ? "btn-primary holographic" : "btn-secondary"}
+                        onClick={toggleSnooze}
+                        style={{ width: '100%', padding: '15px' }}
+                    >
+                        <span className="material-symbols-rounded" style={{ marginRight: '8px' }}>{isSnoozed ? 'visibility' : 'visibility_off'}</span>
+                        {isSnoozed ? 'Re-materialize Profile' : 'Enter Stasis (24h)'}
                     </button>
                 </div>
 
-                {/* Link to Settings */}
-                <div style={{ marginTop: 20, paddingTop: 12 }}>
-                    <button className="btn-secondary" onClick={() => navigate('/settings')} style={{ width: '100%' }}>
-                        <span className="material-symbols-outlined">settings</span> Account Settings, Privacy & Safety
-                    </button>
-                </div>
+                {/* Settings Link */}
+                <button
+                    className="btn-ghost"
+                    onClick={() => navigate('/settings')}
+                    style={{ width: '100%', marginTop: '30px', padding: '15px', color: 'var(--text-secondary)' }}
+                >
+                    <span className="material-symbols-rounded" style={{ marginRight: '8px' }}>settings</span>
+                    Advanced Config & Privacy
+                </button>
             </div>
         </div>
     );
