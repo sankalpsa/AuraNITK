@@ -16,9 +16,9 @@ if (isPostgres) console.log('DATABASE_URL length:', process.env.DATABASE_URL.len
 console.log('-------------------------');
 
 if (process.env.NODE_ENV === 'production' && !isPostgres) {
-    console.error('❌ FATAL: Running in production but DATABASE_URL is not set!');
-    console.error('Data would be lost on restart. Exiting...');
-    process.exit(1);
+    console.warn('⚠️ WARNING: Running in production but DATABASE_URL is not set!');
+    console.warn('Using SQLite fallback. Note: Data will be lost on every restart unless a Disk is attached.');
+    // process.exit(1); 
 }
 
 let pool, sqlite;
