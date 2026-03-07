@@ -1,7 +1,7 @@
 {
   "name": "aura",
   "version": "1.0.0",
-  "description": "Aura — Campus dating platform for NITK Surathkal",
+  "description": "Aura — Unified campus dating platform for university students",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
