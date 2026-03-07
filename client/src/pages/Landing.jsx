@@ -69,7 +69,7 @@ export default function Landing() {
                         <p>Access exclusive to verified university members</p>
                     </div>
                     <div className="feature-card holographic">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--accent-magenta)', fontSize: '2.5rem' }}>tempest</span>
+                        <span className="material-symbols-rounded" style={{ color: 'var(--accent-magenta)', fontSize: '2.5rem' }}>diversity_2</span>
                         <h4>Vibe Alignment</h4>
                         <p>Matching that transcends simple interests</p>
                     </div>

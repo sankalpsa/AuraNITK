@@ -58,7 +58,7 @@ export default function Layout() {
                     ))}
                 </nav>
             )}
-            <div className={isLanding ? 'landing-wrapper' : 'app-container'}>
+            <div className={isLanding ? 'landing-wrapper' : 'app-container'} style={isLanding ? { paddingBottom: '60px' } : {}}>
                 <Outlet />
             </div>
         </div>

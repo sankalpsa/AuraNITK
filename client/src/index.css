@@ -1351,14 +1351,14 @@ select.input-field {
   /* Fluid tagline */
   color: var(--text);
   margin-bottom: 12px;
-  max-width: 280px;
+  max-width: 600px;
 }
 
 .hero-subtext {
   font-size: 0.9rem;
   color: var(--text-secondary);
-  max-width: 300px;
-  margin-bottom: 32px;
+  max-width: 600px;
+  margin-bottom: 40px;
   line-height: 1.5;
 }
 
@@ -1424,7 +1424,7 @@ select.input-field {
 }
 
 .landing-features {
-  padding: 60px 24px 100px;
+  padding: 60px 24px 140px;
   max-width: 1100px;
   margin: 0 auto;
 }
