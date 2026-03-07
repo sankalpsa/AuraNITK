@@ -31,12 +31,16 @@ body {
 
 /* ---------- Design Tokens ---------- */
 :root {
-  --primary: #ee2b9d;
-  --primary-dark: #d4207e;
-  --primary-light: #ff5ec0;
-  --primary-soft: rgba(238, 43, 157, 0.1);
-  --secondary: #b721ff;
-  --accent: #21d4fd;
+  /* Midnight Elegance Palette */
+  --primary: #D4AF37;
+  /* Champagne Gold */
+  --primary-dark: #A38421;
+  --primary-light: #F3E5AB;
+  --primary-soft: rgba(212, 175, 55, 0.1);
+  --secondary: #2B1B3D;
+  /* Deep Velvet */
+  --accent: #E5E4E2;
+  /* Platinum */
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
@@ -48,7 +52,7 @@ body {
   --radius-xl: 24px;
   --radius-full: 9999px;
 
-  --gradient-primary: linear-gradient(135deg, #ee2b9d 0%, #b721ff 50%, #21d4fd 100%);
+  --gradient-primary: linear-gradient(135deg, #FFDF73 0%, #D4AF37 50%, #A38421 100%);
 
   transition: background 0.3s ease, color 0.3s ease;
 }
@@ -56,8 +60,10 @@ body {
 /* ---------- Dark Theme (Default) ---------- */
 [data-theme='dark'],
 :root:not([data-theme='light']) {
-  --bg: #0a0a0f;
-  --bg-card: #141420;
+  --bg: #050505;
+  /* Profound Black */
+  --bg-card: #0F0F13;
+  /* Deep Charcoal */
   --bg-elevated: #1c1c2e;
   --bg-hover: #22223a;
   --bg-input: #181828;
@@ -69,13 +75,14 @@ body {
   --border: rgba(255, 255, 255, 0.08);
   --border-light: rgba(255, 255, 255, 0.12);
 
-  --gradient-card: linear-gradient(145deg, #141420, #1c1c2e);
-  --gradient-hero: linear-gradient(180deg, transparent, rgba(10, 10, 15, 0.9));
+  --gradient-card: linear-gradient(145deg, #0F0F13, #16161C);
+  --gradient-hero: linear-gradient(180deg, transparent, rgba(5, 5, 5, 0.95));
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 30px rgba(238, 43, 157, 0.3);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 40px rgba(212, 175, 55, 0.15);
+  /* Soft Gold Glow */
 }
 
 /* ---------- Light Theme ---------- */

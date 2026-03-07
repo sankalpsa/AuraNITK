@@ -10,7 +10,7 @@ export default function Landing() {
         container.className = 'global-particles';
         document.body.appendChild(container);
 
-        const emojis = ['💕', '💖', '✨', '💫', '🌸', '💝', '🎀', '💗'];
+        const emojis = ['✨', '💎', '🥂', '🌙', '⭐', '✨', '⚜️', '🥂'];
         for (let i = 0; i < 40; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
@@ -39,46 +39,46 @@ export default function Landing() {
     return (
         <div className="landing-page view-animate">
             <div className="hero-section">
-                <div className="hero-eyebrow">NITK Surathkal · Est. 2025</div>
-                <div className="hero-logo">Aura</div>
-                <p className="hero-tagline">Swipe. Match. Connect.</p>
+                <div className="hero-eyebrow">An Exclusive NITK Society · Est. 2025</div>
+                <div className="hero-logo" style={{ color: 'var(--primary)' }}>Aura</div>
+                <p className="hero-tagline">Elevate your baseline.</p>
                 <p className="hero-subtext">
-                    The dating app made exclusively for NITK Surathkal students.
-                    Find your campus connection today.
+                    The premium dating circle reserved exclusively for NITK Surathkal students.
+                    Curated connections await.
                 </p>
                 <div className="hero-actions">
                     <button className="hero-cta btn-primary" onClick={() => navigate('/signup')}>
-                        <span className="material-symbols-outlined fill-icon">favorite</span>
-                        Start Swiping
+                        <span className="material-symbols-outlined fill-icon">diamond</span>
+                        Enter Aura
                     </button>
                     <button className="btn-ghost" onClick={() => navigate('/login')}>
-                        <span className="material-symbols-outlined">login</span>
-                        Log In
+                        <span className="material-symbols-outlined">key</span>
+                        Member Login
                     </button>
                 </div>
             </div>
             <div className="landing-features">
-                <h3>Why Aura?</h3>
+                <h3>The Aura Standard</h3>
                 <div className="features-grid">
                     <div className="feature-card">
-                        <span className="material-symbols-outlined fill-icon">verified_user</span>
-                        <h4>NITK Verified</h4>
-                        <p>Only real students with nitk.edu.in emails</p>
+                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>verified_user</span>
+                        <h4>Strictly Verified</h4>
+                        <p>Access requires an active nitk.edu.in credential</p>
                     </div>
                     <div className="feature-card">
-                        <span className="material-symbols-outlined fill-icon">style</span>
-                        <h4>Smart Matching</h4>
-                        <p>Matches based on shared interests</p>
+                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>auto_awesome</span>
+                        <h4>Curated Quality</h4>
+                        <p>Intelligent matching based on shared lifestyles</p>
                     </div>
                     <div className="feature-card">
-                        <span className="material-symbols-outlined fill-icon">chat_bubble</span>
-                        <h4>Real-time Chat</h4>
-                        <p>Message instantly with your matches</p>
+                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>chat_bubble</span>
+                        <h4>Seamless Dialogue</h4>
+                        <p>End-to-end encrypted real-time messaging</p>
                     </div>
                     <div className="feature-card">
-                        <span className="material-symbols-outlined fill-icon">security</span>
-                        <h4>Safe & Private</h4>
-                        <p>Easy reporting, anonymous until match</p>
+                        <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>security</span>
+                        <h4>Absolute Privacy</h4>
+                        <p>Anonymous browsing until a mutual match occurs</p>
                     </div>
                 </div>
             </div>
