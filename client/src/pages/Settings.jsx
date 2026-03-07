@@ -7,7 +7,7 @@ import { useTheme } from '../context/ThemeContext';
 
 export default function Settings() {
     const navigate = useNavigate();
-    const { user, logout, isAuthenticated } = useAuth();
+    const { user, logout, isAuthenticated, updateUser } = useAuth();
     const { showToast } = useToast();
     const { theme, toggleTheme } = useTheme();
     const [reports, setReports] = useState([]);
@@ -45,10 +45,11 @@ export default function Settings() {
 
     useEffect(() => {
         if (!isAuthenticated) navigate('/', { replace: true });
+        if (user) setIncognito(user.is_snoozed === 1);
         loadReports();
         loadPremiumData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated]);
+    }, [isAuthenticated, user]);
 
     async function loadReports() {
         try {
@@ -308,9 +309,20 @@ export default function Settings() {
                                     </div>
                                 </div>
                                 <label className="toggle-switch">
-                                    <input type="checkbox" checked={incognito} onChange={(e) => {
-                                        setIncognito(e.target.checked);
-                                        showToast(e.target.checked ? 'Incognito Mode ON 🕵️‍♀️' : 'Incognito Mode OFF', 'success');
+                                    <input type="checkbox" checked={incognito} onChange={async (e) => {
+                                        const newVal = e.target.checked;
+                                        setIncognito(newVal);
+                                        try {
+                                            const resp = await apiFetch('/api/account/incognito', {
+                                                method: 'PUT',
+                                                body: JSON.stringify({ is_snoozed: newVal })
+                                            });
+                                            if (user) updateUser({ ...user, is_snoozed: resp.is_snoozed });
+                                            showToast(newVal ? 'Ghost Mode ON 🕵️‍♀️' : 'Ghost Mode OFF', 'success');
+                                        } catch (err) {
+                                            setIncognito(!newVal);
+                                            showToast('Failed to toggle Ghost Mode', 'error');
+                                        }
                                     }} />
                                     <span className="toggle-slider"></span>
                                 </label>

@@ -203,6 +203,12 @@ export default function ViewProfile() {
                             <span className="material-symbols-outlined fill-icon vp-verified">verified</span>
                         )}
                     </div>
+                    {profile.match_percent && (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(212, 175, 55, 0.15)', color: 'var(--primary)', borderRadius: 16, fontSize: '0.85rem', fontWeight: 600, marginTop: 8 }}>
+                            <span className="material-symbols-outlined fill-icon" style={{ fontSize: 16 }}>diamond</span>
+                            Aura Score: {profile.match_percent}%
+                        </div>
+                    )}
                     <p className="vp-meta">
                         <span className="material-symbols-outlined" style={{ fontSize: 14 }}>school</span>
                         {profile.branch || 'NITK'} · {profile.year || ''}
@@ -210,9 +216,6 @@ export default function ViewProfile() {
                         <span className="material-symbols-outlined" style={{ fontSize: 14 }}>location_on</span>
                         Surathkal
                     </p>
-                    {profile.match_percent && (
-                        <div className="vp-match-pill">✨ {profile.match_percent}% match</div>
-                    )}
                 </div>
 
                 {/* Photo counter */}

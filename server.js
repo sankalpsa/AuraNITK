@@ -921,9 +921,18 @@ app.get('/api/discover', authenticate, async (req, res) => {
         const result = await Promise.all(profiles.map(async (p) => {
             const s = await sanitizeUser(p);
             const shared = s.interests.filter(i => userInterests.includes(i));
+
+            // Aura Compatibility Algorithm
+            let baseScore = 40; // baseline connection
+            baseScore += (shared.length * 8); // +8 per shared interest
+            if (p.branch && p.branch === req.user.branch) baseScore += 12; // +12 for same branch
+            if (p.year && p.year === req.user.year) baseScore += 8; // +8 for same year
+
+            // Cap at 99%, add random noise for profiles with no data
             s.match_percent = userInterests.length > 0
-                ? Math.min(99, Math.round((shared.length / Math.max(userInterests.length, 1)) * 100 + 40))
+                ? Math.min(99, Math.round(baseScore))
                 : Math.floor(60 + Math.random() * 30);
+
             s.shared_interests = shared;
             // Attach profile prompts
             try { s.prompts = await db.query('SELECT id, question, answer FROM profile_prompts WHERE user_id = ? ORDER BY position ASC', [s.id]); } catch { s.prompts = []; }
@@ -1283,6 +1292,22 @@ app.post('/api/messages/:matchId/read', authenticate, async (req, res) => {
         }
         res.json({ success: true, changes: result.changes });
     } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// ========================================
+// ACCOUNT SETTINGS & GHOST MODE
+// ========================================
+
+app.put('/api/account/incognito', authenticate, async (req, res) => {
+    try {
+        const { is_snoozed } = req.body;
+        const snoozedVal = is_snoozed ? 1 : 0;
+        await db.run('UPDATE users SET is_snoozed = ? WHERE id = ?', [snoozedVal, req.user.id]);
+        res.json({ message: 'Ghost mode updated', is_snoozed: snoozedVal });
+    } catch (e) {
+        console.error('Ghost mode error:', e);
         res.status(500).json({ error: 'Server error' });
     }
 });

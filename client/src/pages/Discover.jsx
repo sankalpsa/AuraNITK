@@ -112,7 +112,7 @@ export default function Discover() {
                                 <div className="radar-detail">{p.branch}</div>
                             </div>
                             {(p.match_percent || 70) >= 85 && (
-                                <div className="radar-badge">Highly Compatible</div>
+                                <div className="radar-badge" style={{ background: 'rgba(212, 175, 55, 0.9)', color: '#111' }}>Top Aura 💎</div>
                             )}
                         </div>
                     ))}
