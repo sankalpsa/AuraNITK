@@ -109,14 +109,54 @@ function checkEmailConfig() {
 }
 
 async function sendOTPEmail(toEmail, otp) {
-    const displayEmail = (process.env.SENDER_DISPLAY_EMAIL || 'noreply@aura.app').trim();
+    const smtpEmail = (process.env.SMTP_EMAIL || '').trim();
+    const displayEmail = (process.env.SENDER_DISPLAY_EMAIL || smtpEmail || 'noreply@aura.app').trim();
     const displayName = 'Aura';
     const subject = '🔐 Aura — Your Verification Code';
     const html = OTP_HTML(otp);
 
     const errors = [];
 
-    // --- 1. Resend API ---
+    // --- 1. Gmail SMTP (Now Primary) ---
+    if (smtpEmail && process.env.SMTP_PASSWORD?.trim()) {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: smtpEmail,
+                pass: process.env.SMTP_PASSWORD.trim()
+            },
+            // Render specific tweaks for connections
+            pool: true,
+            maxConnections: 1,
+            maxMessages: 10,
+            tls: { rejectUnauthorized: false },
+            family: 4,
+            connectionTimeout: 20000,
+            greetingTimeout: 20000,
+            socketTimeout: 20000
+        });
+
+        try {
+            const info = await transporter.sendMail({
+                from: `"${displayName}" <${smtpEmail}>`,
+                replyTo: `"${displayName}" <${displayEmail}>`,
+                to: toEmail,
+                subject: subject,
+                html: html,
+                headers: { 'X-Mailer': 'Aura App' }
+            });
+
+            console.log(`✅ [Gmail SMTP] OTP sent to ${toEmail} (msgId: ${info.messageId})`);
+            return;
+        } catch (smtpErr) {
+            console.error(`❌ [Gmail SMTP] Failed to send to ${toEmail}:`, smtpErr.message);
+            errors.push(`SMTP Error: ${smtpErr.message}`);
+        } finally {
+            transporter.close();
+        }
+    }
+
+    // --- 2. Resend API ---
     if (process.env.RESEND_API_KEY?.trim()) {
         try {
             const res = await fetch('https://api.resend.com/emails', {
@@ -145,7 +185,7 @@ async function sendOTPEmail(toEmail, otp) {
         }
     }
 
-    // --- 2. Brevo (Sendinblue) API ---
+    // --- 3. Brevo (Sendinblue) API ---
     if (process.env.BREVO_API_KEY?.trim()) {
         try {
             const res = await fetch('https://api.brevo.com/v3/smtp/email', {
@@ -174,7 +214,7 @@ async function sendOTPEmail(toEmail, otp) {
         }
     }
 
-    // --- 3. Mailjet API ---
+    // --- 4. Mailjet API ---
     if (process.env.MAILJET_API_KEY?.trim() && process.env.MAILJET_SECRET_KEY?.trim()) {
         try {
             const auth = Buffer.from(`${process.env.MAILJET_API_KEY.trim()}:${process.env.MAILJET_SECRET_KEY.trim()}`).toString('base64');
@@ -206,7 +246,7 @@ async function sendOTPEmail(toEmail, otp) {
         }
     }
 
-    // --- 4. SendGrid API ---
+    // --- 5. SendGrid API ---
     if (process.env.SENDGRID_API_KEY?.trim()) {
         try {
             const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
@@ -236,48 +276,10 @@ async function sendOTPEmail(toEmail, otp) {
         }
     }
 
-    // --- 5. Gmail SMTP (Final Fallback) ---
-    if (!process.env.SMTP_EMAIL?.trim() || !process.env.SMTP_PASSWORD?.trim()) {
-        const errorMsg = 'All API providers failed and SMTP is not configured. Add SMTP_EMAIL and SMTP_PASSWORD to your .env';
-        console.error(errorMsg, errors);
-        throw new Error(errorMsg);
-    }
-
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.SMTP_EMAIL.trim(),
-            pass: process.env.SMTP_PASSWORD.trim()
-        },
-        // Render specific tweaks for connections
-        pool: true,
-        maxConnections: 1,
-        maxMessages: 10,
-        tls: { rejectUnauthorized: false },
-        family: 4,
-        connectionTimeout: 20000, // Increased timeout for slow Render dynos
-        greetingTimeout: 20000,
-        socketTimeout: 20000
-    });
-
-    try {
-        const info = await transporter.sendMail({
-            from: `"${displayName}" <${process.env.SMTP_EMAIL.trim()}>`,
-            replyTo: `"${displayName}" <${displayEmail}>`,
-            to: toEmail,
-            subject: subject,
-            html: html,
-            headers: { 'X-Mailer': 'Aura App' }
-        });
-        console.log(`✅ [Gmail SMTP] OTP sent to ${toEmail} (msgId: ${info.messageId})`);
-    } catch (smtpErr) {
-        console.error(`❌ [Gmail SMTP] Failed to send to ${toEmail}:`, smtpErr.message);
-        errors.push(`SMTP Error: ${smtpErr.message}`);
-        throw new Error(`All email delivery attempts failed. Details: \n${errors.join('\n')}`);
-    } finally {
-        // Ensure pool connection is closed to prevent hanging
-        transporter.close();
-    }
+    // Final failure check
+    const errorMsg = 'All email delivery attempts failed. Please contact support.';
+    console.error(errorMsg, errors);
+    throw new Error(`${errorMsg} Details: ${errors.join(' | ')}`);
 }
 
 
