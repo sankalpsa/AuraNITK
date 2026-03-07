@@ -1,12 +1,12 @@
 databases:
-  - name: nitknot-db
+  - name: aura-db
     plan: free
-    databaseName: nitknot
-    user: nitknot
+    databaseName: aura
+    user: aura
 
 services:
   - type: web
-    name: nitknot
+    name: AuraNITK
     plan: free
     runtime: node
     buildCommand: npm install && cd client && npm install --include=dev && npm run build && cd ..

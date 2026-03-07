@@ -528,10 +528,10 @@ export default function Settings() {
                     <div className="about-card">
                         <img src="/aura-logo.png" className="logo-img-large" alt="Aura Logo" style={{ marginBottom: 16 }} />
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                            The dating app made exclusively for NITK Surathkal students.
+                            The premier dating network for university students.
                         </p>
                         <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginTop: 6 }}>
-                            Version 2.0 • Made with ❤️ for NITK
+                            Version 2.0 • Made with ❤️ for Students
                         </p>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 12 }}>
                             <span className="about-badge">🎓 Campus Only</span>

@@ -15,7 +15,7 @@ export const COMMON_EMOJIS = [
 ];
 
 export const AURA_ICEBREAKERS = [
-    "What's your most controversial opinion about NITK?",
+    "What's your most controversial opinion about your college?",
     "If we skipped the small talk, what would we talk about?",
     "What's a red flag you're currently ignoring?",
     "Best place in Surathkal for a 2 AM deep conversation?",

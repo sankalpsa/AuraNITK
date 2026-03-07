@@ -39,11 +39,11 @@ export default function Landing() {
     return (
         <div className="landing-page view-animate">
             <div className="hero-section">
-                <div className="hero-eyebrow">An Exclusive NITK Society · Est. 2025</div>
+                <div className="hero-eyebrow">An Exclusive University Society · Est. 2025</div>
                 <img src="/aura-logo.png" className="logo-img-large" alt="Aura Logo" style={{ marginBottom: 16 }} />
                 <p className="hero-tagline">Elevate your baseline.</p>
                 <p className="hero-subtext">
-                    The premium dating circle reserved exclusively for NITK Surathkal students.
+                    The premium dating circle for ambitious university students.
                     Curated connections await.
                 </p>
                 <div className="hero-actions">
@@ -63,7 +63,7 @@ export default function Landing() {
                     <div className="feature-card">
                         <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>verified_user</span>
                         <h4>Strictly Verified</h4>
-                        <p>Access requires an active nitk.edu.in credential</p>
+                        <p>Access requires an active university credential</p>
                     </div>
                     <div className="feature-card">
                         <span className="material-symbols-outlined fill-icon" style={{ color: 'var(--primary)' }}>auto_awesome</span>

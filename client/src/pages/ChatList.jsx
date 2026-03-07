@@ -80,7 +80,7 @@ export default function ChatList() {
     const getPreview = (m) => {
         const msg = m.last_message;
         if (!msg) return <span style={{ color: 'var(--primary)', fontWeight: 600 }}>New match! Say hi 👋</span>;
-        if ((msg.startsWith('/uploads/') || (msg.startsWith('http') && msg.includes('/nitknot-')))) {
+        if ((msg.startsWith('/uploads/') || (msg.startsWith('http') && msg.includes('/aura-')))) {
             const isVoice = msg.includes('voice') || msg.includes('webm');
             const isImg = msg.includes('image') || msg.includes('jpg') || msg.includes('png');
             const prefix = m.last_message_mine ? 'You: ' : '';

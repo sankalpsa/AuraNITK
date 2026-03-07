@@ -1,32 +1,32 @@
 // ========================================
-// NITKnot — API Service
+// Aura — API Service
 // ========================================
 
 const API = '';
 
 export function getToken() {
-    return localStorage.getItem('nk_token');
+    return localStorage.getItem('aura_token');
 }
 
 export function setToken(t) {
-    localStorage.setItem('nk_token', t);
+    localStorage.setItem('aura_token', t);
 }
 
 export function clearToken() {
-    localStorage.removeItem('nk_token');
-    localStorage.removeItem('nk_user');
+    localStorage.removeItem('aura_token');
+    localStorage.removeItem('aura_user');
 }
 
 export function getCachedUser() {
     try {
-        return JSON.parse(localStorage.getItem('nk_user'));
+        return JSON.parse(localStorage.getItem('aura_user'));
     } catch {
         return null;
     }
 }
 
 export function setCachedUser(u) {
-    localStorage.setItem('nk_user', JSON.stringify(u));
+    localStorage.setItem('aura_user', JSON.stringify(u));
 }
 
 export async function apiFetch(path, opts = {}) {

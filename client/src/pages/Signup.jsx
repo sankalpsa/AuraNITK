@@ -29,8 +29,8 @@ export default function Signup() {
 
     const handleSendOtp = async (e) => {
         e.preventDefault();
-        if (!email.endsWith('@nitk.edu.in')) {
-            return showToast('Use your @nitk.edu.in email', 'error');
+        if (!email.trim()) {
+            return showToast('Please enter your email', 'error');
         }
         setLoading(true);
         try {
@@ -145,10 +145,10 @@ export default function Signup() {
                         <div className="auth-icon-large">
                             <span className="material-symbols-outlined fill-icon" style={{ fontSize: '3rem', color: 'var(--primary)' }}>mail</span>
                         </div>
-                        <h3>Your NITK Email</h3>
-                        <p className="auth-hint">We'll verify you're a real NITK student</p>
+                        <h3>Your University Email</h3>
+                        <p className="auth-hint">We'll verify you're a real student</p>
                         <div className="input-group">
-                            <input className="input-field" type="email" placeholder="your.name@nitk.edu.in"
+                            <input className="input-field" type="email" placeholder="your.email@university.edu"
                                 value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
                         </div>
                         <button className="btn-primary" type="submit" disabled={loading}>

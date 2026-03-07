@@ -46,7 +46,7 @@ export default function MatchOverlay({ matchedUser, onClose, onChat }) {
                 <div className="match-hearts">✨</div>
                 <h2 className="match-title">It's a Match!</h2>
                 <p className="match-subtitle">
-                    Matched at <strong>NITK Surathkal</strong>
+                    Matched on <strong>Aura</strong>
                 </p>
                 <div className="match-photos">
                     <div className="match-photo-container">

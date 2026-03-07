@@ -292,7 +292,7 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'nitknot_dev_secret_change_in_production';
+const JWT_SECRET = process.env.JWT_SECRET || 'aura_dev_secret_2025_safe';
 
 const onlineUsers = new Set();
 
@@ -383,7 +383,7 @@ if (useCloudinary) {
     storage = new CloudinaryStorage({
         cloudinary,
         params: {
-            folder: 'nitknot-photos',
+            folder: 'aura-photos',
             allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
             public_id: (req, file) => {
                 const hash = crypto.createHash('sha256')
@@ -510,9 +510,6 @@ app.post('/api/auth/send-otp', otpLimiter, async (req, res) => {
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email is required' });
         const normalizedEmail = email.toLowerCase().trim();
-        if (!normalizedEmail.endsWith('@nitk.edu.in')) {
-            return res.status(400).json({ error: 'Only @nitk.edu.in emails are allowed.' });
-        }
         const existing = await db.queryOne('SELECT id FROM users WHERE email = ?', [normalizedEmail]);
         if (existing) return res.status(409).json({ error: 'Email already registered. Please login.' });
 
@@ -560,8 +557,6 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(400).json({ error: 'All fields are required' });
 
         const normalizedEmail = email.toLowerCase().trim();
-        if (!normalizedEmail.endsWith('@nitk.edu.in'))
-            return res.status(400).json({ error: 'Only @nitk.edu.in emails allowed.' });
 
         const otpData = otpStore.get(normalizedEmail);
         const isProd = process.env.NODE_ENV === 'production';
@@ -580,11 +575,19 @@ app.post('/api/auth/register', async (req, res) => {
         if (existing) return res.status(409).json({ error: 'Email already registered' });
 
         const hash = bcrypt.hashSync(password, 10);
+
+        // Extract Institute from email domain
+        const domain = normalizedEmail.split('@')[1] || '';
+        let institute = domain.split('.')[0].toUpperCase();
+        if (domain === 'nitk.edu.in') institute = 'NITK Surathkal';
+        else if (domain.includes('.edu')) institute = institute + ' University';
+        else institute = domain || 'Global Aura';
+
         const result = await db.run(
-            `INSERT INTO users (name, email, password, age, gender, branch, year, bio, show_me, interests, green_flags, red_flags, is_verified)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO users (name, email, password, age, gender, institute, branch, year, bio, show_me, interests, green_flags, red_flags, is_verified)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                name, normalizedEmail, hash, age, gender, branch, year,
+                name, normalizedEmail, hash, age, gender, institute, branch, year,
                 bio || "Hey there! I'm on Aura ✨",
                 show_me || 'all',
                 JSON.stringify(interests || []),
@@ -892,11 +895,12 @@ app.get('/api/discover', authenticate, async (req, res) => {
         else if (showMe === 'female') genderFilter = "AND u.gender = 'female'";
 
         // Campus filters from query params
-        const { branch, year } = req.query;
+        const { branch, year, local } = req.query;
         let campusFilter = '';
         const extraParams = [];
         if (branch && branch !== 'all') { campusFilter += ' AND u.branch = ?'; extraParams.push(branch); }
         if (year && year !== 'all') { campusFilter += ' AND u.year = ?'; extraParams.push(year); }
+        if (local === 'true') { campusFilter += ' AND u.institute = ?'; extraParams.push(req.user.institute || 'NITK Surathkal'); }
 
         const randomFn = 'RANDOM()';
 
@@ -923,8 +927,11 @@ app.get('/api/discover', authenticate, async (req, res) => {
             const shared = s.interests.filter(i => userInterests.includes(i));
 
             // Aura Compatibility Algorithm
-            let baseScore = 40; // baseline connection
+            let baseScore = 20; // baseline connection
             baseScore += (shared.length * 8); // +8 per shared interest
+
+            // Institute & Academic Alignment
+            if (p.institute && p.institute === req.user.institute) baseScore += 30; // Massive boost for same college
             if (p.branch && p.branch === req.user.branch) baseScore += 12; // +12 for same branch
             if (p.year && p.year === req.user.year) baseScore += 8; // +8 for same year
 
@@ -1187,7 +1194,7 @@ app.post('/api/messages/:matchId', authenticate,
                 if (useCloudinary) {
                     try {
                         const result = await cloudinary.uploader.upload(imageFile.path, {
-                            folder: 'nitknot-chat',
+                            folder: 'aura-chat',
                             public_id: `msg-img-${crypto.randomBytes(12).toString('hex')}`,
                             transformation: [{ width: 1200, quality: 'auto' }]
                         });
@@ -1202,7 +1209,7 @@ app.post('/api/messages/:matchId', authenticate,
                 if (useCloudinary) {
                     try {
                         const result = await cloudinary.uploader.upload(audioFile.path, {
-                            folder: 'nitknot-voice',
+                            folder: 'aura-voice',
                             public_id: `msg-audio-${crypto.randomBytes(12).toString('hex')}`,
                             resource_type: 'video', // Cloudinary uses 'video' for audio files
                             format: 'webm'

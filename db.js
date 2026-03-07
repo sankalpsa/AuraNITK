@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === 'production' && !isPostgres) {
 let pool, sqlite;
 let useSqlJs = false;
 let sqlJsDb = null;
-const DB_PATH = path.join(__dirname, 'nitknot.db');
+const DB_PATH = path.join(__dirname, 'aura.db');
 
 if (isPostgres) {
     const { Pool } = require('pg');
@@ -204,6 +204,7 @@ async function initTables() {
                 password TEXT NOT NULL,
                 age INTEGER NOT NULL,
                 gender TEXT NOT NULL,
+                institute TEXT NOT NULL DEFAULT 'NITK Surathkal',
                 branch TEXT NOT NULL,
                 year TEXT NOT NULL,
                 bio TEXT DEFAULT '',
@@ -309,6 +310,14 @@ async function initTables() {
 
             CREATE INDEX IF NOT EXISTS idx_premium_req_user ON premium_requests(user_id);
             CREATE INDEX IF NOT EXISTS idx_premium_req_status ON premium_requests(status);
+
+            -- Migration: Add institute to users if it doesn't exist
+            DO $$ 
+            BEGIN 
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='institute') THEN
+                    ALTER TABLE users ADD COLUMN institute TEXT NOT NULL DEFAULT 'NITK Surathkal';
+                END IF;
+            END $$;
         `);
     } else {
         // Use whichever SQLite engine is available
@@ -320,6 +329,7 @@ async function initTables() {
                 password TEXT NOT NULL,
                 age INTEGER NOT NULL,
                 gender TEXT NOT NULL,
+                institute TEXT NOT NULL DEFAULT 'NITK Surathkal',
                 branch TEXT NOT NULL,
                 year TEXT NOT NULL,
                 bio TEXT DEFAULT '',
@@ -478,6 +488,7 @@ async function initTables() {
         // Premium system
         'ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0',
         "ALTER TABLE users ADD COLUMN premium_until TEXT",
+        "ALTER TABLE users ADD COLUMN institute TEXT NOT NULL DEFAULT 'NITK Surathkal'"
     ];
 
     for (const migration of migrations) {

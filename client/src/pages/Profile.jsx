@@ -320,7 +320,7 @@ export default function Profile() {
                             <span>
                                 {user.verification_status === 'pending'
                                     ? 'Your ID is being reviewed. Usually 24 hours.'
-                                    : 'Upload your NITK ID to get the blue tick ✓'}
+                                    : 'Upload your Student ID to get the blue tick ✓'}
                             </span>
                         </div>
                         {(!user.verification_status || user.verification_status === 'unverified') && (

@@ -209,12 +209,12 @@ export default function ViewProfile() {
                             Aura Score: {profile.match_percent}%
                         </div>
                     )}
-                    <p className="vp-meta">
-                        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>school</span>
-                        {profile.branch || 'NITK'} · {profile.year || ''}
-                        &nbsp;&nbsp;
-                        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>location_on</span>
-                        Surathkal
+                    <p className="vp-meta" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>school</span>
+                        <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{profile.institute || 'Global Aura'}</span>
+                    </p>
+                    <p className="vp-meta" style={{ marginTop: 4, opacity: 0.7, fontSize: '0.85rem' }}>
+                        {profile.branch} · {profile.year}
                     </p>
                 </div>
 
