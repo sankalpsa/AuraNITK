@@ -40,7 +40,7 @@ export default function Landing() {
         <div className="landing-page view-animate">
             <div className="hero-section">
                 <div className="hero-eyebrow">An Exclusive NITK Society · Est. 2025</div>
-                <div className="hero-logo" style={{ color: 'var(--primary)' }}>Aura</div>
+                <img src="/aura-logo.png" className="logo-img-large" alt="Aura Logo" style={{ marginBottom: 16 }} />
                 <p className="hero-tagline">Elevate your baseline.</p>
                 <p className="hero-subtext">
                     The premium dating circle reserved exclusively for NITK Surathkal students.

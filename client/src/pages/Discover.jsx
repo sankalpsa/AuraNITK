@@ -49,7 +49,10 @@ export default function Discover() {
     if (loading) {
         return (
             <div className="discover-page view-animate">
-                <div className="page-header"><h1 className="font-serif">Aura Radar</h1></div>
+                <div className="page-header" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <img src="/aura-logo.png" className="logo-img-small" alt="Aura" />
+                    <h1 className="font-serif">Radar</h1>
+                </div>
                 <div className="empty-state"><div className="spinner" style={{ width: 32, height: 32 }} /><h3>Locating elite connections...</h3></div>
             </div>
         );

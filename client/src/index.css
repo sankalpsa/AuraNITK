@@ -1623,7 +1623,7 @@ select.input-field {
 .msg-context {
   padding: 6px 10px;
   margin-bottom: 4px;
-  background: rgba(238, 43, 157, 0.1);
+  background: rgba(212, 175, 55, 0.1);
   border-left: 3px solid var(--primary);
   border-radius: 4px;
   font-size: 0.78rem;

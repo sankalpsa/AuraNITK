@@ -514,7 +514,7 @@ export default function Settings() {
                         </div>
                     </div>
                     <div className="about-card">
-                        <div className="about-logo">Aura</div>
+                        <img src="/aura-logo.png" className="logo-img-large" alt="Aura Logo" style={{ marginBottom: 16 }} />
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
                             The dating app made exclusively for NITK Surathkal students.
                         </p>
