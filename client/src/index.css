@@ -7562,3 +7562,39 @@ select.input-field {
   margin-bottom: 6px;
   border: 1px solid var(--border);
 }
+
+/* ---------- Aura Icebreakers ---------- */
+.icebreaker-drawer {
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  padding: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.icebreaker-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.icebreaker-chip {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icebreaker-chip:hover,
+.icebreaker-chip:active {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: var(--primary);
+  color: var(--primary);
+}

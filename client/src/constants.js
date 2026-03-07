@@ -14,6 +14,18 @@ export const COMMON_EMOJIS = [
     '😘', '🤗', '😌', '🥰', '😜', '🎂', '👏', '🤝', '✌️', '💖'
 ];
 
+export const AURA_ICEBREAKERS = [
+    "What's your most controversial opinion about NITK?",
+    "If we skipped the small talk, what would we talk about?",
+    "What's a red flag you're currently ignoring?",
+    "Best place in Surathkal for a 2 AM deep conversation?",
+    "What's the worst pickup line someone's used on you here?",
+    "If you had to delete one app forever, which one?",
+    "What's your toxic trait during midsem season?",
+    "Tell me an unpopular opinion you stand by.",
+    "First date: coffee, drinks, or a walk on the beach?"
+];
+
 export const BRANCHES = [
     "Computer Science", "IT", "Electronics", "EEE", "Mechanical",
     "Civil", "Chemical", "Metallurgy", "Mining", "Math & Computing", "Physics"

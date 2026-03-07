@@ -4,7 +4,7 @@ import { apiFetch, apiUpload, markAsRead } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { defaultAvatar, formatTime } from '../utils/helpers';
-import { COMMON_EMOJIS, REACTION_EMOJIS } from '../constants';
+import { COMMON_EMOJIS, REACTION_EMOJIS, AURA_ICEBREAKERS } from '../constants';
 import ImageViewer from '../components/common/ImageViewer';
 import ReportModal from '../components/common/ReportModal';
 
@@ -23,6 +23,7 @@ export default function ChatConvo() {
     const [messages, setMessages] = useState([]);
     const [text, setText] = useState('');
     const [emojiOpen, setEmojiOpen] = useState(false);
+    const [icebreakersOpen, setIcebreakersOpen] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const [onlineStatus, setOnlineStatus] = useState('...');
     const [replyState, setReplyState] = useState(null);
@@ -162,6 +163,7 @@ export default function ChatConvo() {
         setText('');
         if (file) clearImgSelection();
         setEmojiOpen(false);
+        setIcebreakersOpen(false);
 
         const replyData = replyState ? { ...replyState } : null;
         setReplyState(null);
@@ -421,10 +423,31 @@ export default function ChatConvo() {
                         ))}
                     </div>
                 )}
+                {icebreakersOpen && (
+                    <div className="icebreaker-drawer">
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 8, padding: '0 8px', fontWeight: 'bold' }}>
+                            Aura Icebreakers ✨
+                        </div>
+                        <div className="icebreaker-chips">
+                            {AURA_ICEBREAKERS.map((prompt, i) => (
+                                <button key={i} className="icebreaker-chip" onClick={() => {
+                                    setText(prompt);
+                                    setIcebreakersOpen(false);
+                                }}>
+                                    {prompt}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 <div className="chat-input-bar">
                     <button className="btn-icon" style={{ width: 38, height: 38, background: 'none', border: 'none' }}
-                        onClick={() => setEmojiOpen(!emojiOpen)}>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--text-secondary)' }}>sentiment_satisfied</span>
+                        onClick={() => { setEmojiOpen(!emojiOpen); setIcebreakersOpen(false); }}>
+                        <span className="material-symbols-outlined" style={{ color: emojiOpen ? 'var(--primary)' : 'var(--text-secondary)' }}>sentiment_satisfied</span>
+                    </button>
+                    <button className="btn-icon" style={{ width: 38, height: 38, background: 'none', border: 'none' }}
+                        onClick={() => { setIcebreakersOpen(!icebreakersOpen); setEmojiOpen(false); }}>
+                        <span className="material-symbols-outlined" style={{ color: icebreakersOpen ? 'var(--primary)' : 'var(--text-secondary)' }}>local_fire_department</span>
                     </button>
                     <input type="file" ref={fileInputRef} accept="image/*" style={{ display: 'none' }} onChange={handleImgSelect} />
                     <button className="btn-icon" style={{ width: 38, height: 38, background: 'none', border: 'none' }}
