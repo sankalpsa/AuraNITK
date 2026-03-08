@@ -1503,10 +1503,12 @@ app.delete('/api/anonymous-questions/:id', authenticate, async (req, res) => {
 // ========================================
 
 const isAdmin = (req, res, next) => {
-    if (req.user && req.user.is_admin === 1) {
+    const MASTER_ADMIN = 'sankalpbeerappa.253it002@nitk.edu.in';
+    if (req.user && req.user.is_admin === 1 && req.user.email === MASTER_ADMIN) {
         next();
     } else {
-        res.status(403).json({ error: 'Admin access required' });
+        console.warn(`🛑 Unauthorized Admin Attempt: ${req.user?.email} tried to access ${req.path}`);
+        res.status(403).json({ error: 'Access Denied: Restricted Admin Control' });
     }
 };
 
