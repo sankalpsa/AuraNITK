@@ -19,7 +19,7 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const crypto = require('crypto');
 const db = require('./db');
 const { OAuth2Client } = require('google-auth-library');
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || 'dummy');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '763153801999-pggubb51vqlli45492dop5pkmdu1fdvc.apps.googleusercontent.com');
 console.log('✅ Modules loaded');
 
 // ========================================
