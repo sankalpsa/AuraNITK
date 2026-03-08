@@ -269,36 +269,36 @@ export default function Profile() {
             {/* Profile Stats */}
             <div className="profile-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '20px', marginTop: '-30px', position: 'relative', zIndex: 10 }}>
                 <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '16px 8px' }}>
-                    <span className="stat-value" style={{ display: 'block', fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary-light)' }}>{stats.matches}</span>
-                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>Connections</span>
+                    <span className="stat-value text-glow-purple" style={{ display: 'block', fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary-light)' }}>{stats.matches}</span>
+                    <span className="stat-label" style={{ fontSize: '0.6rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>Connections</span>
                 </div>
                 <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '16px 8px' }}>
-                    <span className="stat-value" style={{ display: 'block', fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>{stats.likes_received}</span>
-                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>Received</span>
+                    <span className="stat-value text-glow-cyan" style={{ display: 'block', fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>{stats.likes_received}</span>
+                    <span className="stat-label" style={{ fontSize: '0.6rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>Received</span>
                 </div>
                 <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '16px 8px' }}>
-                    <span className="stat-value" style={{ display: 'block', fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-magenta)' }}>{stats.likes_given}</span>
-                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>Sent</span>
+                    <span className="stat-value text-glow-magenta" style={{ display: 'block', fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-magenta)' }}>{stats.likes_given}</span>
+                    <span className="stat-label" style={{ fontSize: '0.6rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>Sent</span>
                 </div>
             </div>
 
             {/* The Manifesto (Bio & Pickup Line) */}
             <div style={{ padding: '0 20px', marginBottom: '32px' }}>
-                <div className="glass-card holographic" style={{ padding: '24px', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', top: '-20px', right: '-20px', opacity: 0.05 }}>
-                        <span className="material-symbols-rounded" style={{ fontSize: '120px' }}>format_quote</span>
+                <div className="glass-card holographic" style={{ padding: '28px', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: '-15px', right: '-15px', opacity: 0.1, color: 'var(--primary-light)' }}>
+                        <span className="material-symbols-rounded" style={{ fontSize: '100px' }}>history_edu</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: 'var(--primary-light)' }}>
-                        <span className="material-symbols-rounded" style={{ fontSize: 18 }}>history_edu</span>
-                        <span className="font-serif" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>Manifesto</span>
+                        <span className="material-symbols-rounded" style={{ fontSize: 18 }}>menu_book</span>
+                        <span className="font-serif" style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700 }}>The Manifesto</span>
                     </div>
-                    <p className="font-serif" style={{ fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '20px', fontStyle: 'italic', position: 'relative', zIndex: 1 }}>
-                        "{user.bio || "Searching for cosmic resonance."}"
+                    <p className="font-serif" style={{ fontSize: '1.25rem', lineHeight: '1.5', marginBottom: '24px', color: 'var(--text)', position: 'relative', zIndex: 1 }}>
+                        {user.bio || "Searching for cosmic resonance."}
                     </p>
                     {user.pickup_line && (
-                        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-                            <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px' }}>Cosmic Signal</div>
-                            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{user.pickup_line}</p>
+                        <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '16px' }}>
+                            <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.1em' }}>Cosmic Signal</div>
+                            <p className="font-serif" style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{user.pickup_line}</p>
                         </div>
                     )}
                 </div>

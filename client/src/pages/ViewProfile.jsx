@@ -181,7 +181,7 @@ export default function ViewProfile() {
                     <div className="hero-overlay-info" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px 20px', zIndex: 5 }}>
                         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '16px' }}>
                             <div>
-                                <h1 className="font-serif" style={{ fontSize: '2.8rem', lineHeight: 1 }}>{profile.name}, {profile.age}</h1>
+                                <h1 className="font-serif text-glow-purple" style={{ fontSize: '3rem', lineHeight: 1, marginBottom: '8px' }}>{profile.name}, {profile.age}</h1>
                                 <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                                     <span className="badge-pill">
                                         <span className="material-symbols-rounded" style={{ fontSize: 14 }}>school</span>
@@ -215,15 +215,16 @@ export default function ViewProfile() {
                 {/* About/Bio Section */}
                 {profile.bio && (
                     <section className="profile-section" style={{ marginBottom: '32px' }}>
-                        <div className="glass-card holographic" style={{ padding: '24px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: 'var(--primary-light)' }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>auto_awesome</span>
-                                <h4 className="font-serif" style={{ margin: 0, fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Essence</h4>
+                        <div className="glass-card holographic" style={{ padding: '28px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: 'var(--primary-light)' }}>
+                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>menu_book</span>
+                                <h4 className="font-serif" style={{ margin: 0, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700 }}>The Manifesto</h4>
                             </div>
-                            <p style={{ fontSize: '1.1rem', lineHeight: 1.6, margin: 0 }}>{profile.bio}</p>
+                            <p className="font-serif" style={{ fontSize: '1.25rem', lineHeight: 1.5, margin: 0, color: 'var(--text)' }}>{profile.bio}</p>
                             {profile.pickup_line && (
-                                <div style={{ marginTop: '20px', padding: '12px', background: 'var(--primary-soft)', borderRadius: '12px', borderLeft: '3px solid var(--primary)' }}>
-                                    <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.95rem' }}>"{profile.pickup_line}"</p>
+                                <div style={{ marginTop: '24px', padding: '16px', background: 'var(--primary-soft)', borderRadius: '16px', borderLeft: '4px solid var(--primary)' }}>
+                                    <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.1em' }}>Cosmic Signal</div>
+                                    <p className="font-serif" style={{ margin: 0, fontStyle: 'italic', fontSize: '1.05rem', color: 'var(--text-secondary)' }}>"{profile.pickup_line}"</p>
                                 </div>
                             )}
                         </div>
