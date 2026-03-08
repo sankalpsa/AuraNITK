@@ -209,6 +209,18 @@ export default function Profile() {
 
     if (!user) return null;
 
+    // Calculate Profile Completeness
+    let completeness = 0;
+    if (user.bio?.length > 10) completeness += 15;
+    if (photos.length > 0) completeness += 20;
+    if (photos.length > 2) completeness += 15;
+    if (user.interests && user.interests.length >= 3) completeness += 15;
+    if ((user.green_flags && user.green_flags.length > 0) || (user.red_flags && user.red_flags.length > 0)) completeness += 15;
+    if (user.spotify_artist || user.spotify_song) completeness += 10;
+    if (user.pickup_line) completeness += 10;
+    // Cap at 100% just in case
+    completeness = Math.min(100, completeness);
+
     return (
         <div className="profile-page view-animate" style={{ paddingBottom: '120px' }}>
             {/* Top Bar Navigation */}
@@ -223,6 +235,28 @@ export default function Profile() {
                     </button>
                 </div>
             </div>
+
+            {/* Completeness Indicator */}
+            {completeness < 100 && (
+                <div style={{ padding: '16px 20px', background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span className="material-symbols-rounded" style={{ fontSize: 16, color: 'var(--primary-light)' }}>magic_button</span>
+                            Profile Power
+                        </span>
+                        <span style={{ color: completeness > 70 ? 'var(--accent-cyan)' : 'var(--primary-light)' }}>{completeness}%</span>
+                    </div>
+                    <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{
+                            height: '100%',
+                            width: `${completeness}%`,
+                            background: completeness > 70 ? 'var(--accent-cyan)' : 'var(--gradient-primary)',
+                            borderRadius: '3px',
+                            transition: 'width 1s ease-out'
+                        }} />
+                    </div>
+                </div>
+            )}
 
             {/* Profile Hero */}
             <div className="profile-hero" style={{ height: '450px', position: 'relative', overflow: 'hidden' }}>

@@ -216,6 +216,7 @@ async function initTables() {
                 is_active INTEGER DEFAULT 1,
                 reset_token TEXT DEFAULT NULL,
                 reset_token_expires TIMESTAMP DEFAULT NULL,
+                last_active_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
@@ -343,6 +344,7 @@ async function initTables() {
                 is_active INTEGER DEFAULT 1,
                 reset_token TEXT DEFAULT NULL,
                 reset_token_expires TEXT DEFAULT NULL,
+                last_active_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )`,
             `CREATE TABLE IF NOT EXISTS swipes (
@@ -494,7 +496,9 @@ async function initTables() {
         "ALTER TABLE users ADD COLUMN institute TEXT NOT NULL DEFAULT 'NITK Surathkal'",
         // Password reset support
         'ALTER TABLE users ADD COLUMN reset_token TEXT DEFAULT NULL',
-        'ALTER TABLE users ADD COLUMN reset_token_expires TEXT DEFAULT NULL'
+        'ALTER TABLE users ADD COLUMN reset_token_expires TEXT DEFAULT NULL',
+        // Last Active Status
+        'ALTER TABLE users ADD COLUMN last_active_at TEXT DEFAULT CURRENT_TIMESTAMP'
     ];
 
     for (const migration of migrations) {

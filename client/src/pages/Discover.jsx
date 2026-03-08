@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { defaultAvatar } from '../utils/helpers';
+import { defaultAvatar, getTimeAgo } from '../utils/helpers';
 import { BRANCHES, YEARS } from '../constants';
 import MatchOverlay from '../components/common/MatchOverlay';
 
@@ -153,6 +153,10 @@ export default function Discover() {
                                 <div className="radar-stats-tag">
                                     <span className="material-symbols-rounded" style={{ fontSize: 12 }}>school</span>
                                     {p.branch}
+                                </div>
+                                <div className="radar-active-tag" style={{ fontSize: '0.65rem', color: 'var(--accent-cyan)', marginTop: '4px', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <span className="material-symbols-rounded" style={{ fontSize: 10 }}>nest_clock_farsight_analog</span>
+                                    {getTimeAgo(p.last_active_at)}
                                 </div>
                             </div>
                             {(p.match_percent || 70) >= 85 && (

@@ -18,6 +18,8 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const crypto = require('crypto');
 const db = require('./db');
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || 'dummy');
 console.log('✅ Modules loaded');
 
 // ========================================
@@ -355,12 +357,19 @@ if (!fs.existsSync(spaRoot) && process.env.NODE_ENV === 'production') {
     console.warn('⚠️  React build directory not found. Please run "npm run build" in the client folder.');
 }
 app.use(express.static(spaRoot, {
-    maxAge: '1d',
     etag: true,
     setHeaders: (res, filePath) => {
         // Cache hashed assets (JS/CSS) for 1 year
         if (filePath.match(/\.[a-f0-9]{8}\.(js|css)$/)) {
             res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        } else if (filePath.endsWith('index.html')) {
+            // Never cache index.html so updates are immediate
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        } else {
+            // Short cache for other static files
+            res.setHeader('Cache-Control', 'public, max-age=86400');
         }
     }
 }));
@@ -483,6 +492,8 @@ const uploadMsg = multer({
 // ========================================
 // Auth Middleware
 // ========================================
+const lastActiveCache = new Map();
+
 async function authenticate(req, res, next) {
     const header = req.headers.authorization;
     if (!header || !header.startsWith('Bearer ')) return res.status(401).json({ error: 'Not authenticated' });
@@ -492,6 +503,14 @@ async function authenticate(req, res, next) {
         if (!user) return res.status(401).json({ error: 'User not found' });
         req.user = user;
         next();
+
+        // Efficiently update last active status (debounce 5 mins)
+        const now = Date.now();
+        const lastUpdate = lastActiveCache.get(user.id) || 0;
+        if (now - lastUpdate > 5 * 60 * 1000) {
+            lastActiveCache.set(user.id, now);
+            db.run('UPDATE users SET last_active_at = CURRENT_TIMESTAMP WHERE id = ?', [user.id]).catch(() => { });
+        }
     } catch (e) {
         return res.status(401).json({ error: 'Invalid token' });
     }
@@ -737,6 +756,60 @@ app.post('/api/auth/change-password', authenticate, async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+
+app.post('/api/auth/google', async (req, res) => {
+    try {
+        const { credential } = req.body;
+        if (!credential) return res.status(400).json({ error: 'Missing credential' });
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        const email = payload.email.toLowerCase().trim();
+        const name = payload.name;
+        const photo = payload.picture;
+
+        let user = await db.queryOne('SELECT * FROM users WHERE email = ?', [email]);
+
+        if (!user) {
+            const dummyPassword = crypto.randomBytes(16).toString('hex');
+            const hash = bcrypt.hashSync(dummyPassword, 10);
+
+            const domain = email.split('@')[1] || '';
+            let institute = domain.split('.')[0].toUpperCase();
+            if (domain === 'nitk.edu.in') institute = 'NITK Surathkal';
+            else if (domain.includes('.edu')) institute = institute + ' University';
+            else institute = domain || 'Global Aura';
+
+            // Insert core required fields with Google defaults
+            const result = await db.run(
+                `INSERT INTO users (name, email, password, age, gender, institute, branch, year, bio, show_me, interests, green_flags, red_flags, is_verified, photo, is_active)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    name, email, hash, 18, 'Other', institute, 'Unknown', '1st Year',
+                    "Hey there! I joined Aura via Google ✨",
+                    'all', JSON.stringify([]), JSON.stringify([]), JSON.stringify([]),
+                    1 /* Verified via Google */, photo, 1
+                ]
+            );
+            user = await db.queryOne('SELECT * FROM users WHERE id = ?', [result.lastId]);
+        } else {
+            if (user.is_active === 0) {
+                await db.run('UPDATE users SET is_active = 1 WHERE id = ?', [user.id]);
+                user.is_active = 1;
+            }
+        }
+
+        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
+        res.json({ token, user: await sanitizeUser(user) });
+    } catch (e) {
+        console.error('Google Auth Error:', e);
+        res.status(500).json({ error: 'Failed to authenticate with Google' });
+    }
+});
+
 
 // Reports against the current user (so they know why they were reported)
 app.get('/api/reports/me', authenticate, async (req, res) => {
