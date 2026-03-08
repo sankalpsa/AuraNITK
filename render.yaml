@@ -32,3 +32,7 @@ services:
         sync: false
       - key: ADMIN_MASTER_PASSWORD
         sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
