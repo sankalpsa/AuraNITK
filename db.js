@@ -341,6 +341,8 @@ async function initTables() {
                 red_flags TEXT DEFAULT '[]',
                 is_verified INTEGER DEFAULT 0,
                 is_active INTEGER DEFAULT 1,
+                reset_token TEXT DEFAULT NULL,
+                reset_token_expires TEXT DEFAULT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )`,
             `CREATE TABLE IF NOT EXISTS swipes (
@@ -489,7 +491,10 @@ async function initTables() {
         // Premium system
         'ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0',
         "ALTER TABLE users ADD COLUMN premium_until TEXT",
-        "ALTER TABLE users ADD COLUMN institute TEXT NOT NULL DEFAULT 'NITK Surathkal'"
+        "ALTER TABLE users ADD COLUMN institute TEXT NOT NULL DEFAULT 'NITK Surathkal'",
+        // Password reset support
+        'ALTER TABLE users ADD COLUMN reset_token TEXT DEFAULT NULL',
+        'ALTER TABLE users ADD COLUMN reset_token_expires TEXT DEFAULT NULL'
     ];
 
     for (const migration of migrations) {

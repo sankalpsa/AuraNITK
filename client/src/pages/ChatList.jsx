@@ -126,13 +126,17 @@ export default function ChatList() {
                         <p style={{ opacity: 0.5 }}>Tuning signals...</p>
                     </div>
                 ) : filtered.length === 0 ? (
-                    <div className="glass-card holographic" style={{ padding: '60px 20px', textAlign: 'center' }}>
-                        <span className="material-symbols-rounded" style={{ fontSize: '3rem', opacity: 0.2, marginBottom: '20px' }}>auto_awesome</span>
-                        <h3 className="font-serif" style={{ margin: 0 }}>No Resonance Yet</h3>
-                        <p style={{ opacity: 0.6, fontSize: '0.9rem', marginTop: '10px' }}>Match with someone to start a transmission!</p>
-                        <button className="btn-primary" onClick={() => navigate('/discover')} style={{ marginTop: '20px', padding: '10px 24px', borderRadius: '30px' }}>
-                            Begin Discovery
-                        </button>
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh', padding: '0 20px' }}>
+                        <div className="glass-card holographic" style={{ padding: '60px 40px', textAlign: 'center', borderRadius: '32px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ background: 'rgba(139,92,246,0.15)', width: '96px', height: '96px', borderRadius: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(139,92,246,0.3)', border: '1px solid rgba(139,92,246,0.3)' }}>
+                                <span className="material-symbols-rounded" style={{ color: 'var(--primary-light)', fontSize: '3rem' }}>auto_awesome</span>
+                            </div>
+                            <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '12px' }}>No Resonance Yet</h3>
+                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '32px', fontSize: '0.95rem' }}>Match with someone to start a cosmic transmission!</p>
+                            <button className="btn-primary" onClick={() => navigate('/discover')} style={{ width: '100%', padding: '14px', borderRadius: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>radar</span> Begin Discovery
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     filtered.map(m => {

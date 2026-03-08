@@ -36,10 +36,19 @@ export default function Likes() {
                 {loading ? (
                     <div className="empty-state"><div className="spinner" style={{ width: 32, height: 32 }} /><h3>Loading...</h3></div>
                 ) : likes.length === 0 ? (
-                    <div className="empty-state" style={{ paddingTop: 60 }}>
-                        <span className="material-symbols-rounded fill-icon" style={{ color: 'var(--primary)' }}>favorite_border</span>
-                        <h3>No likes yet</h3>
-                        <p>Keep swiping! Your likes will show up here.</p>
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', padding: '0 20px' }}>
+                        <div className="empty-state glass-card holographic" style={{ padding: '60px 40px', textAlign: 'center', borderRadius: '32px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ background: 'rgba(244, 63, 94, 0.15)', width: '96px', height: '96px', borderRadius: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(244, 63, 94, 0.3)', border: '1px solid rgba(244, 63, 94, 0.3)' }}>
+                                <span className="material-symbols-rounded" style={{ color: '#f43f5e', fontSize: '3.5rem' }}>favorite_border</span>
+                            </div>
+                            <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Awaiting Resonance</h3>
+                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '32px', fontSize: '0.95rem' }}>
+                                No one has tuned into your frequency yet. Keep radiating your aura — likes will appear here.
+                            </p>
+                            <button className="btn-primary" style={{ width: '100%', padding: '14px', borderRadius: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={() => navigate('/discover')}>
+                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>explore</span> Explore Radar
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <>
