@@ -349,15 +349,25 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve React build
+// Serve React build with proper caching for static assets
 const spaRoot = path.join(__dirname, 'client', 'dist');
 if (!fs.existsSync(spaRoot) && process.env.NODE_ENV === 'production') {
     console.warn('⚠️  React build directory not found. Please run "npm run build" in the client folder.');
 }
-app.use(express.static(spaRoot));
+app.use(express.static(spaRoot, {
+    maxAge: '1d',
+    etag: true,
+    setHeaders: (res, filePath) => {
+        // Cache hashed assets (JS/CSS) for 1 year
+        if (filePath.match(/\.[a-f0-9]{8}\.(js|css)$/)) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+    }
+}));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.use((req, res, next) => {
+// Only disable caching for API endpoints, not static files
+app.use('/api', (req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
