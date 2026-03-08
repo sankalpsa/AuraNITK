@@ -79,7 +79,16 @@ export default function Login() {
                         </div>
 
                         <div className="input-group" style={{ marginTop: '16px' }}>
-                            <label>Pass-key</label>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                <label style={{ margin: 0 }}>Pass-key</label>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/forgot-password')}
+                                    style={{ background: 'none', border: 'none', color: 'var(--primary-light)', fontSize: '0.75rem', cursor: 'pointer', padding: 0 }}
+                                >
+                                    Forgot Pass-key?
+                                </button>
+                            </div>
                             <div style={{ position: 'relative' }}>
                                 <input
                                     className="input-field"

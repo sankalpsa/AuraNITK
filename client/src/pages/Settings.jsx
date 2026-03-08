@@ -525,18 +525,22 @@ export default function Settings() {
                             <p className="settings-section-desc">App info and credits</p>
                         </div>
                     </div>
-                    <div className="about-card">
-                        <img src="/aura-logo.png" className="logo-img-large" alt="Aura Logo" style={{ marginBottom: 16 }} />
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                            The premier dating network for university students.
-                        </p>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginTop: 6 }}>
-                            Version 2.0 • Made with ❤️ for Students
-                        </p>
-                        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 12 }}>
-                            <span className="about-badge">🎓 Campus Only</span>
-                            <span className="about-badge">🔒 Secure</span>
-                            <span className="about-badge">✨ Free Forever</span>
+                    <div className="about-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border)' }}>
+                        <div style={{ background: '#000', width: '100%', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <img src="/aura-logo.png" alt="Aura Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        </div>
+                        <div style={{ padding: '20px' }}>
+                            <p className="font-serif" style={{ color: 'var(--text-main)', fontSize: '1.05rem', margin: '0 0 8px' }}>
+                                The premier dating network for university students.
+                            </p>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: 0 }}>
+                                Version 2.0 • Made with ❤️ for Students
+                            </p>
+                            <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+                                <span className="about-badge" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', padding: '6px 12px', borderRadius: '20px', fontSize: '0.7rem' }}>🎓 Campus Only</span>
+                                <span className="about-badge" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', padding: '6px 12px', borderRadius: '20px', fontSize: '0.7rem' }}>🔒 Secure</span>
+                                <span className="about-badge" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', padding: '6px 12px', borderRadius: '20px', fontSize: '0.7rem' }}>✨ Free Forever</span>
+                            </div>
                         </div>
                     </div>
                 </div>}

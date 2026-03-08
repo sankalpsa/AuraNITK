@@ -637,23 +637,84 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
+// ========================================
+// PASSWORD RESET FLOW
+// ========================================
 app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
     try {
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email required' });
-        const user = await db.queryOne('SELECT * FROM users WHERE email = ?', [email.toLowerCase().trim()]);
-        if (!user) return res.status(404).json({ error: 'No account found with this email' });
-        const tempPass = Math.random().toString(36).slice(-8);
-        const hashed = bcrypt.hashSync(tempPass, 10);
-        await db.run('UPDATE users SET password = ? WHERE id = ?', [hashed, user.id]);
-        try {
-            await sendOTPEmail(email, `Your temporary password: <strong>${tempPass}</strong><br>Login and change it immediately.`);
-        } catch (e) {
-            console.error("Failed to send password reset email:", e.message);
-            return res.status(500).json({ error: "Could not send reset email. Please try again." });
+
+        const normalizedEmail = email.toLowerCase().trim();
+        const user = await db.queryOne('SELECT id, name FROM users WHERE email = ?', [normalizedEmail]);
+
+        // Always return success to prevent email enumeration attacks
+        if (!user) return res.json({ success: true, message: 'If an account exists, a reset link has been sent.' });
+
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const tokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+        await db.run(
+            'UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?',
+            [resetToken, tokenExpiry.toISOString(), user.id]
+        );
+
+        const resetUrl = `${process.env.CLIENT_URL || 'https://nitknot.online'}/reset-password/${resetToken}`;
+
+        const smtpEmail = (process.env.SMTP_EMAIL || '').trim();
+        if (smtpEmail && process.env.SMTP_PASSWORD?.trim()) {
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: { user: smtpEmail, pass: process.env.SMTP_PASSWORD.trim() }
+            });
+            await transporter.sendMail({
+                from: `"Aura" <${smtpEmail}>`,
+                to: normalizedEmail,
+                subject: '🔐 Aura — Password Reset Request',
+                html: `
+                    <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#1a1a2e;border-radius:16px;color:#fff;">
+                        <h1 style="text-align:center;color:#D4AF37;">Aura ✨</h1>
+                        <p>Hi ${user.name},</p>
+                        <p>Someone requested a password reset for your Aura account. Click the button below to set a new password:</p>
+                        <div style="text-align:center;margin:32px 0;">
+                            <a href="${resetUrl}" style="background:linear-gradient(135deg, #8B5CF6, #EC4899);color:white;padding:16px 32px;text-decoration:none;border-radius:30px;font-weight:bold;display:inline-block;">Reset Password</a>
+                        </div>
+                        <p style="color:#888;font-size:12px;text-align:center;">This link expires in 1 hour.<br>If you didn't request this, safely ignore this email.</p>
+                    </div>
+                `
+            });
         }
-        res.json({ success: true, message: 'Temporary password sent to your email' });
+        res.json({ success: true, message: 'If an account exists, a reset link has been sent.' });
     } catch (e) {
+        console.error('Forgot password error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+        if (!token || !newPassword) return res.status(400).json({ error: 'Token and new password required' });
+        if (newPassword.length < 4) return res.status(400).json({ error: 'Password must be at least 4 characters' });
+
+        const user = await db.queryOne('SELECT id, reset_token_expires FROM users WHERE reset_token = ?', [token]);
+
+        if (!user) return res.status(400).json({ error: 'Invalid or expired reset token' });
+
+        const expiry = new Date(user.reset_token_expires);
+        if (Date.now() > expiry.getTime()) {
+            return res.status(400).json({ error: 'Reset token has expired. Please request a new one.' });
+        }
+
+        const hash = bcrypt.hashSync(newPassword, 10);
+        await db.run(
+            'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?',
+            [hash, user.id]
+        );
+
+        res.json({ success: true, message: 'Password successfully reset' });
+    } catch (e) {
+        console.error('Reset password error:', e);
         res.status(500).json({ error: 'Server error' });
     }
 });

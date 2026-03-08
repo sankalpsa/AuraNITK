@@ -214,6 +214,8 @@ async function initTables() {
                 red_flags TEXT DEFAULT '[]',
                 is_verified INTEGER DEFAULT 0,
                 is_active INTEGER DEFAULT 1,
+                reset_token TEXT DEFAULT NULL,
+                reset_token_expires TIMESTAMP DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 

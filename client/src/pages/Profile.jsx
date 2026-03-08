@@ -267,18 +267,18 @@ export default function Profile() {
             </div>
 
             {/* Profile Stats */}
-            <div className="profile-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '20px', marginTop: '-30px', position: 'relative', zIndex: 10 }}>
-                <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '16px 8px' }}>
-                    <span className="stat-value text-glow-purple" style={{ display: 'block', fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary-light)' }}>{stats.matches}</span>
-                    <span className="stat-label" style={{ fontSize: '0.6rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>Connections</span>
+            <div className="profile-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', padding: '0 20px', marginTop: '-30px', position: 'relative', zIndex: 10 }}>
+                <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '20px 10px', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="stat-value text-glow-purple" style={{ display: 'block', fontSize: '1.6rem', fontWeight: 800, color: 'var(--primary-light)', marginBottom: '4px' }}>{stats.matches}</span>
+                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em' }}>Connections</span>
                 </div>
-                <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '16px 8px' }}>
-                    <span className="stat-value text-glow-cyan" style={{ display: 'block', fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>{stats.likes_received}</span>
-                    <span className="stat-label" style={{ fontSize: '0.6rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>Received</span>
+                <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '20px 10px', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="stat-value text-glow-cyan" style={{ display: 'block', fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-cyan)', marginBottom: '4px' }}>{stats.likes_received}</span>
+                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em' }}>Received</span>
                 </div>
-                <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '16px 8px' }}>
-                    <span className="stat-value text-glow-magenta" style={{ display: 'block', fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-magenta)' }}>{stats.likes_given}</span>
-                    <span className="stat-label" style={{ fontSize: '0.6rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.1em' }}>Sent</span>
+                <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '20px 10px', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="stat-value text-glow-magenta" style={{ display: 'block', fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-magenta)', marginBottom: '4px' }}>{stats.likes_given}</span>
+                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em' }}>Sent</span>
                 </div>
             </div>
 

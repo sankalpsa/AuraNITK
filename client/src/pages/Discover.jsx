@@ -123,17 +123,19 @@ export default function Discover() {
             )}
 
             {cards.length === 0 ? (
-                <div className="empty-state auth-card holographic" style={{ padding: '60px 20px', textAlign: 'center' }}>
-                    <div className="auth-icon-large" style={{ background: 'var(--primary-soft)', marginBottom: '24px' }}>
-                        <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '3rem' }}>satellite_alt</span>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', padding: '0 20px' }}>
+                    <div className="empty-state glass-card holographic" style={{ padding: '60px 40px', textAlign: 'center', borderRadius: '32px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ background: 'var(--primary-soft)', width: '96px', height: '96px', borderRadius: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)', border: '1px solid rgba(139, 92, 246, 0.4)' }}>
+                            <span className="material-symbols-rounded" style={{ color: 'var(--primary-light)', fontSize: '3rem' }}>satellite_alt</span>
+                        </div>
+                        <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Static on the Radar</h3>
+                        <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '32px', fontSize: '0.95rem' }}>
+                            All known frequencies have been explored. Expand your parameters to find more.
+                        </p>
+                        <button className="btn-primary" style={{ width: '100%', padding: '14px', borderRadius: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={loadProfiles}>
+                            <span className="material-symbols-rounded" style={{ fontSize: 20 }}>refresh</span> Re-scan Area
+                        </button>
                     </div>
-                    <h3 className="font-serif" style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Static on the Radar</h3>
-                    <p style={{ maxWidth: 280, margin: '0 auto 32px', color: 'var(--text-secondary)' }}>
-                        All known frequencies have been explored. Expand your parameters to find more.
-                    </p>
-                    <button className="btn-primary" style={{ margin: '0 auto' }} onClick={loadProfiles}>
-                        <span className="material-symbols-rounded">refresh</span>Re-scan Area
-                    </button>
                 </div>
             ) : (
                 <div className="aura-radar-grid">

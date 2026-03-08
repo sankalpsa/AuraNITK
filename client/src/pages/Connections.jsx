@@ -36,13 +36,19 @@ export default function Connections() {
                 {loading ? (
                     <div className="empty-state"><div className="spinner" style={{ width: 32, height: 32 }} /><h3>Loading...</h3></div>
                 ) : matches.length === 0 ? (
-                    <div className="empty-state auth-card holographic" style={{ marginTop: 40 }}>
-                        <span className="material-symbols-rounded fill-icon" style={{ color: 'var(--primary)', fontSize: '4rem' }}>group</span>
-                        <h3 className="font-serif" style={{ fontSize: '1.5rem', marginTop: 16 }}>Resonance Required</h3>
-                        <p style={{ opacity: 0.6, maxWidth: 260 }}>Your aura is unique. Continue exploring to find compatible frequencies.</p>
-                        <button className="btn-primary holographic" style={{ marginTop: 24 }} onClick={() => navigate('/discover')}>
-                            <span className="material-symbols-rounded">radar</span> Begin Scan
-                        </button>
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', padding: '0 20px' }}>
+                        <div className="empty-state glass-card holographic" style={{ padding: '60px 40px', textAlign: 'center', borderRadius: '32px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ background: 'rgba(236,72,153, 0.15)', width: '96px', height: '96px', borderRadius: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(236,72,153,0.3)', border: '1px solid rgba(236,72,153,0.3)' }}>
+                                <span className="material-symbols-rounded" style={{ color: '#ec4899', fontSize: '3.5rem' }}>group</span>
+                            </div>
+                            <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Resonance Required</h3>
+                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '32px', fontSize: '0.95rem' }}>
+                                Your aura is unique. Continue exploring the radar to find compatible frequencies.
+                            </p>
+                            <button className="btn-primary" style={{ width: '100%', padding: '14px', borderRadius: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={() => navigate('/discover')}>
+                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>radar</span> Begin Scan
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <>

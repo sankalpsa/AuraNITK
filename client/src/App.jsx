@@ -5,6 +5,8 @@ import Layout from './components/Layout/Layout';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Discover from './pages/Discover';
 import Connections from './pages/Connections';
 import Likes from './pages/Likes';
@@ -37,6 +39,8 @@ function AppRoutes() {
         <Route path="/" element={<PublicRoute><Landing /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+        <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+        <Route path="/reset-password/:token" element={<PublicRoute><ResetPassword /></PublicRoute>} />
 
         {/* Protected routes */}
         <Route path="/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
