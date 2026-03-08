@@ -428,16 +428,18 @@ export default function Profile() {
                 </section>
 
                 {/* Subconscious Echoes */}
-                <section className="profile-section" style={{ marginBottom: '40px' }}>
-                    <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                        <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Subconscious Echoes</h3>
-                        <span className="badge-pill" style={{ fontSize: '0.7rem', opacity: 0.6 }}>{anonQuestions.length} Received</span>
+                <section className="profile-section" style={{ marginBottom: '32px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', padding: '0 10px' }}>
+                        <h3 className="font-serif" style={{ fontSize: '1.25rem', margin: 0, fontWeight: 700 }}>Subconscious Echoes</h3>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{anonQuestions.length} Received</span>
                     </div>
                     <div className="anon-questions-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         {anonQuestions.length === 0 ? (
-                            <div className="empty-section-card glass-card" style={{ padding: '30px', textAlign: 'center', opacity: 0.6 }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '2rem', marginBottom: '8px' }}>psychology</span>
-                                <p style={{ fontSize: '0.9rem' }}>No echoes detected yet.</p>
+                            <div className="glass-card holographic" style={{ padding: '40px 20px', textAlign: 'center', borderRadius: '24px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+                                    <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', opacity: 0.5, color: 'var(--text-secondary)' }}>psychology</span>
+                                </div>
+                                <p style={{ fontSize: '1rem', color: 'var(--text-muted)', margin: 0 }}>No echoes detected yet.</p>
                             </div>
                         ) : (
                             anonQuestions.map(q => (
@@ -482,16 +484,39 @@ export default function Profile() {
 
                 {/* Identity Manifest (Verification) */}
                 {user.is_verified === 0 && (
-                    <section className="profile-section" style={{ marginBottom: '40px' }}>
-                        <div className="verification-card glass-card holographic" style={{ padding: '24px', textAlign: 'center' }}>
-                            <div className="auth-icon-large" style={{ margin: '0 auto 16px', background: 'var(--primary-soft)' }}>
-                                <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '2rem' }}>verified_user</span>
+                    <section className="profile-section" style={{ marginBottom: '120px' }}>
+                        <div className="verification-card glass-card holographic" style={{ padding: '20px', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                            <div style={{ flex: '0 0 auto', width: 48, height: 72, borderRadius: '24px', background: 'rgba(139, 92, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+                                <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '1.8rem' }}>verified_user</span>
                             </div>
-                            <h3 className="font-serif" style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Verify Your Aura</h3>
-                            <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '0.85rem' }}>
-                                Upload your university ID to unlock global frequencies and the verified badge.
-                            </p>
-                            <button className="btn-primary" style={{ width: '100%' }} onClick={() => idInputRef.current?.click()} disabled={uploadingID}>
+                            <div style={{ flex: 1 }}>
+                                <h3 className="font-serif" style={{ fontSize: '1.2rem', marginBottom: '4px', margin: 0, fontWeight: 700 }}>Verify<br />Your<br />Aura</h3>
+                                <p style={{ color: 'var(--text-muted)', margin: '8px 0 0 0', fontSize: '0.85rem', lineHeight: 1.4 }}>
+                                    Upload your university ID to unlock global frequencies and the verified badge.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => idInputRef.current?.click()}
+                                disabled={uploadingID}
+                                style={{
+                                    flex: '0 0 auto',
+                                    width: 100,
+                                    height: 100,
+                                    borderRadius: '50%',
+                                    background: 'var(--gradient-primary)',
+                                    border: 'none',
+                                    color: 'white',
+                                    fontWeight: 800,
+                                    fontSize: '0.85rem',
+                                    lineHeight: 1.2,
+                                    boxShadow: '0 10px 30px rgba(236,72,153,0.4)',
+                                    cursor: uploadingID ? 'not-allowed' : 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    textAlign: 'center',
+                                    padding: '16px'
+                                }}>
                                 {uploadingID ? 'Encrypting...' : 'Upload ID Manifest'}
                             </button>
                         </div>
