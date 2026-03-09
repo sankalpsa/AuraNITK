@@ -243,8 +243,10 @@ h4 {
 .profile-card,
 .auth-card {
   background: var(--bg-card);
+  -webkit-backdrop-filter: blur(24px);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
   border: 1px solid var(--border-light);
   box-shadow: var(--glass-glow), var(--shadow-md);
   border-radius: var(--radius-lg);
@@ -3218,8 +3220,10 @@ select.input-field {
   width: min(450px, calc(100% - 40px));
   height: 70px;
   background: var(--bg-glass);
+  -webkit-backdrop-filter: blur(25px);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
+  backdrop-filter: blur(25px);
   border: 1px solid var(--border);
   border-radius: 35px;
   display: flex;
@@ -3345,6 +3349,7 @@ select.input-field {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   z-index: 2000;
   display: flex;
@@ -5730,6 +5735,7 @@ select.input-field {
   color: #fff;
   cursor: pointer;
   transition: background 0.2s;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -5826,6 +5832,7 @@ select.input-field {
   margin-top: 6px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -5842,6 +5849,7 @@ select.input-field {
   background: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);
   border: 1px solid rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -6054,6 +6062,7 @@ select.input-field {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   transition: background 0.2s;
 }
@@ -6080,6 +6089,7 @@ select.input-field {
   border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 600;
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 
@@ -6570,8 +6580,10 @@ select.input-field {
   padding: 12px 16px;
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
 }
 
 .vp-back-btn {
@@ -6585,6 +6597,7 @@ select.input-field {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   transition: background 0.2s;
   flex-shrink: 0;
@@ -6761,6 +6774,7 @@ select.input-field {
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: var(--radius-full);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   z-index: 5;
 }
@@ -7006,7 +7020,6 @@ select.input-field {
 }
 
 /* Anon section */
-.vp-anon-section {}
 
 .vp-anon-sub {
   font-size: 0.84rem;
@@ -7080,8 +7093,10 @@ select.input-field {
   padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px));
   background: var(--bg-card);
   border-top: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   z-index: 100;
 }
 
@@ -7268,8 +7283,10 @@ select.input-field {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.85);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -7487,8 +7504,10 @@ select.input-field {
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.1);
+  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
   z-index: 5;
 }
 
