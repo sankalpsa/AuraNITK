@@ -13,6 +13,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
@@ -2917,7 +2918,6 @@ select.input-field {
   overflow-y: auto;
   overflow-x: hidden;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
   background: var(--bg);
 }
 
@@ -7339,6 +7339,7 @@ select.input-field {
   margin-bottom: 12px;
   background: var(--gradient-text);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -7387,6 +7388,7 @@ select.input-field {
 .broadcast-modal.warning h2 {
   background: linear-gradient(135deg, #ff6b6b, #ee5253);
   -webkit-background-clip: text !important;
+  background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
 }
 
@@ -7398,6 +7400,7 @@ select.input-field {
 .broadcast-modal.success h2 {
   background: linear-gradient(135deg, #1dd1a1, #10ac84);
   -webkit-background-clip: text !important;
+  background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
 }
 
