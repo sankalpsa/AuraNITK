@@ -1,0 +1,5 @@
+{
+    "css.lint.compatibleVendorPrefixes": "ignore",
+    "css.lint.vendorPrefix": "ignore",
+    "html.validate.styles": false
+}
