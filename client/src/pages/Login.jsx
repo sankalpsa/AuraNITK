@@ -126,43 +126,44 @@ export default function Login() {
                             )}
                         </button>
 
-                        <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                            <div style={{
-                                display: 'flex', alignItems: 'center', width: '100%',
-                                color: 'var(--text-muted)', fontSize: '0.85rem'
-                            }}>
-                                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
-                                <span style={{ padding: '0 12px' }}>or</span>
-                                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
-                            </div>
-
-                            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', borderRadius: '24px', overflow: 'hidden' }}>
-                                <GoogleLogin
-                                    onSuccess={async (credentialResponse) => {
-                                        setLoading(true);
-                                        try {
-                                            const data = await apiFetch('/api/auth/google', {
-                                                method: 'POST',
-                                                body: JSON.stringify({ credential: credentialResponse.credential }),
-                                            });
-                                            login(data.token, data.user);
-                                            showToast(`Welcome via Google, ${data.user.name}! ✨`, 'success');
-                                        } catch (e) {
-                                            showToast(e.message || 'Google login failed', 'error');
-                                        }
-                                        setLoading(false);
-                                    }}
-                                    onError={() => {
-                                        showToast('Google login failed', 'error');
-                                    }}
-                                    theme="filled_black"
-                                    size="large"
-                                    text="signin_with"
-                                    shape="circle"
-                                />
-                            </div>
-                        </div>
                     </form>
+
+                    <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                        <div style={{
+                            display: 'flex', alignItems: 'center', width: '100%',
+                            color: 'var(--text-muted)', fontSize: '0.85rem'
+                        }}>
+                            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+                            <span style={{ padding: '0 12px' }}>or</span>
+                            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+                        </div>
+
+                        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', borderRadius: '24px', overflow: 'hidden' }}>
+                            <GoogleLogin
+                                onSuccess={async (credentialResponse) => {
+                                    setLoading(true);
+                                    try {
+                                        const data = await apiFetch('/api/auth/google', {
+                                            method: 'POST',
+                                            body: JSON.stringify({ credential: credentialResponse.credential }),
+                                        });
+                                        login(data.token, data.user);
+                                        showToast(`Welcome via Google, ${data.user.name}! ✨`, 'success');
+                                    } catch (e) {
+                                        showToast(e.message || 'Google login failed', 'error');
+                                    }
+                                    setLoading(false);
+                                }}
+                                onError={() => {
+                                    showToast('Google login failed', 'error');
+                                }}
+                                theme="filled_black"
+                                size="large"
+                                text="signin_with"
+                                shape="circle"
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <div style={{ textAlign: 'center', marginTop: 24 }}>
