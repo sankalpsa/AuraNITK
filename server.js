@@ -764,7 +764,7 @@ app.post('/api/auth/google', async (req, res) => {
 
         const ticket = await googleClient.verifyIdToken({
             idToken: credential,
-            audience: process.env.GOOGLE_CLIENT_ID,
+            audience: process.env.GOOGLE_CLIENT_ID || '763153801999-pggubb51vqlli45492dop5pkmdu1fdvc.apps.googleusercontent.com',
         });
         const payload = ticket.getPayload();
         const email = payload.email.toLowerCase().trim();
@@ -810,6 +810,51 @@ app.post('/api/auth/google', async (req, res) => {
     }
 });
 
+// ========================================
+// ACCOUNT MANAGEMENT ROUTES
+// ========================================
+
+app.post('/api/account/deactivate', authenticate, async (req, res) => {
+    try {
+        await db.run('UPDATE users SET is_active = 0 WHERE id = ?', [req.user.id]);
+        res.json({ success: true, message: 'Account deactivated' });
+    } catch (e) {
+        console.error('Deactivate account error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.delete('/api/account', authenticate, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        await db.run('DELETE FROM messages WHERE sender_id = ? OR match_id IN (SELECT id FROM matches WHERE user1_id = ? OR user2_id = ?)', [userId, userId, userId]);
+        await db.run('DELETE FROM matches WHERE user1_id = ? OR user2_id = ?', [userId, userId]);
+        await db.run('DELETE FROM swipes WHERE user_id = ? OR target_id = ?', [userId, userId]);
+        await db.run('DELETE FROM reports WHERE reporter_id = ? OR reported_id = ?', [userId, userId]);
+        await db.run('DELETE FROM user_photos WHERE user_id = ?', [userId]);
+        try { await db.run('DELETE FROM message_reactions WHERE user_id = ?', [userId]); } catch { }
+        try { await db.run('DELETE FROM profile_prompts WHERE user_id = ?', [userId]); } catch { }
+        try { await db.run('DELETE FROM anonymous_questions WHERE sender_id = ? OR receiver_id = ?', [userId, userId]); } catch { }
+        try { await db.run('DELETE FROM premium_requests WHERE user_id = ?', [userId]); } catch { }
+
+        await db.run('DELETE FROM users WHERE id = ?', [userId]);
+        res.json({ success: true, message: 'Account deleted' });
+    } catch (e) {
+        console.error('Delete account error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.put('/api/account/incognito', authenticate, async (req, res) => {
+    try {
+        const { is_snoozed } = req.body;
+        await db.run('UPDATE users SET is_snoozed = ? WHERE id = ?', [is_snoozed ? 1 : 0, req.user.id]);
+        res.json({ success: true, is_snoozed: is_snoozed ? 1 : 0 });
+    } catch (e) {
+        console.error('Incognito error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
 
 // Reports against the current user (so they know why they were reported)
 app.get('/api/reports/me', authenticate, async (req, res) => {
