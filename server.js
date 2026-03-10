@@ -544,8 +544,20 @@ app.post('/api/auth/send-otp', otpLimiter, async (req, res) => {
         const existing = await db.queryOne('SELECT id FROM users WHERE email = ?', [normalizedEmail]);
         if (existing) return res.status(409).json({ error: 'Email already registered. Please login.' });
 
-        const otp = generateOTP();
+        let otp = generateOTP();
+        if (process.env.NODE_ENV !== 'production' && normalizedEmail.startsWith('test')) {
+            otp = '123456'; 
+        }
         otpStore.set(normalizedEmail, { otp, expiresAt: Date.now() + OTP_EXPIRY_MS, verified: false });
+
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`\n[DEV SECURITY] 🚀 OTP for ${normalizedEmail}: ${otp}\n`);
+        }
+
+        // Skip SMTP sequence for test accounts to prevent 20s connection timeouts and hanging UI
+        if (process.env.NODE_ENV !== 'production' && normalizedEmail.startsWith('test')) {
+            return res.json({ success: true, message: "Test mode active: OTP logged to console." });
+        }
 
         try {
             await sendOTPEmail(normalizedEmail, otp);
