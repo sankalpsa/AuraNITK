@@ -373,6 +373,8 @@ app.use(express.static(spaRoot, {
     setHeaders: (res, filePath) => {
         res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
         res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        res.setHeader("Access-Control-Allow-Origin", "*");
         if (filePath.match(/\.[a-f0-9]{8}\.(js|css)$/)) {
             res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         } else if (filePath.endsWith('index.html')) {
