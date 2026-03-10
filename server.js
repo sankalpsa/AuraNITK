@@ -381,7 +381,8 @@ if (!fs.existsSync(spaRoot) && process.env.NODE_ENV === 'production') {
 app.use(express.static(spaRoot, {
     etag: true,
     setHeaders: (res, filePath) => {
-        // Cache hashed assets (JS/CSS) for 1 year
+        res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+        res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
         if (filePath.match(/\.[a-f0-9]{8}\.(js|css)$/)) {
             res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         } else if (filePath.endsWith('index.html')) {
