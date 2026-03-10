@@ -22,6 +22,16 @@ const { OAuth2Client } = require('google-auth-library');
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '763153801999-pggubb51vqlli45492dop5pkmdu1fdvc.apps.googleusercontent.com');
 console.log('✅ Modules loaded');
 
+// DEFINITIVE CORS / G-AUTH HEADERS
+app.use((req, res, next) => {
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+    // Only set COEP if not already set by helmet to avoid conflicts
+    if (!res.getHeader("Cross-Origin-Embedder-Policy")) {
+        res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+    }
+    next();
+});
+
 // ========================================
 // OTP Storage
 // ========================================
