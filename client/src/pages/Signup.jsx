@@ -188,7 +188,6 @@ export default function Signup() {
                                 <GoogleLogin
                                     use_fedcm={false}
                                     onSuccess={async (credentialResponse) => {
-                                        console.log('✅ Google Auth Signup Success', credentialResponse ? 'Token Received' : 'No Token');
                                         setLoading(true);
                                         try {
                                             const data = await apiFetch('/api/auth/google', {
