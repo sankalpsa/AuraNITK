@@ -6,7 +6,9 @@
 const path = require('path');
 const fs = require('fs');
 
-const isPostgres = !!process.env.DATABASE_URL;
+const isPostgres = !!process.env.DATABASE_URL &&
+    (process.env.DATABASE_URL.startsWith('postgres://') ||
+        process.env.DATABASE_URL.startsWith('postgresql://'));
 
 console.log('--- DEBUG ENVIRONMENT ---');
 console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -79,7 +81,7 @@ function saveSqlJsDb() {
     if (sqlJsDb) {
         const data = sqlJsDb.export();
         const buffer = Buffer.from(data);
-        fs.writeFileSync(DB_PATH, buffer);
+        fs.writeFileSync(SQLITE_DB_PATH, buffer);
     }
 }
 
@@ -154,8 +156,8 @@ async function ensureSqlJsReady() {
     sqlJsReadyPromise = (async () => {
         const initSqlJs = require('sql.js');
         const SQL = await initSqlJs();
-        if (fs.existsSync(DB_PATH)) {
-            const fileBuffer = fs.readFileSync(DB_PATH);
+        if (fs.existsSync(SQLITE_DB_PATH)) {
+            const fileBuffer = fs.readFileSync(SQLITE_DB_PATH);
             sqlJsDb = new SQL.Database(fileBuffer);
         } else {
             sqlJsDb = new SQL.Database();

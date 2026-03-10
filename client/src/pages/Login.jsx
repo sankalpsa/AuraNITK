@@ -140,6 +140,7 @@ export default function Login() {
 
                         <div style={{ width: '100%', display: 'flex', justifyContent: 'center', borderRadius: '24px', overflow: 'hidden' }}>
                             <GoogleLogin
+                                use_fedcm={false}
                                 onSuccess={async (credentialResponse) => {
                                     setLoading(true);
                                     try {
