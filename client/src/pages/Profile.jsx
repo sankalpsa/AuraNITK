@@ -343,22 +343,37 @@ export default function Profile() {
                 {/* Spectral Anthem (Spotify) */}
                 {(user.spotify_artist || user.spotify_song) && (
                     <section className="profile-section view-animate" style={{ animationDelay: '0.3s', marginBottom: '40px' }}>
-                        <div className="spotify-card glass-card card-hover-zoom" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '20px', background: 'rgba(29, 185, 84, 0.05)', border: '1px solid rgba(29, 185, 84, 0.2)' }}>
-                            <div className="spotify-icon-container" style={{ background: '#1DB954', width: '50px', height: '50px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(29, 185, 84, 0.4)' }}>
-                                <span className="material-symbols-rounded" style={{ color: 'white' }}>music_note</span>
+                        {user.spotify_artist === 'iframe' ? (
+                            <div className="spotify-embed-container" style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(29, 185, 84, 0.2)' }}>
+                                <iframe 
+                                    style={{ borderRadius: '12px' }} 
+                                    src={`https://open.spotify.com/embed/track/${user.spotify_song}?utm_source=generator&theme=0`} 
+                                    width="100%" 
+                                    height="152" 
+                                    frameBorder="0" 
+                                    allowFullScreen="" 
+                                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                    loading="lazy"
+                                />
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: '#1DB954', marginBottom: '4px' }}>Spectral Anthem</div>
-                                <div style={{ fontWeight: 700, fontSize: '1rem' }}>{user.spotify_song || 'Unidentified Track'}</div>
-                                <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>{user.spotify_artist || 'Unknown Artist'}</div>
+                        ) : (
+                            <div className="spotify-card glass-card card-hover-zoom" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '20px', background: 'rgba(29, 185, 84, 0.05)', border: '1px solid rgba(29, 185, 84, 0.2)' }}>
+                                <div className="spotify-icon-container" style={{ background: '#1DB954', width: '50px', height: '50px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(29, 185, 84, 0.4)' }}>
+                                    <span className="material-symbols-rounded" style={{ color: 'white' }}>music_note</span>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: '#1DB954', marginBottom: '4px' }}>Spectral Anthem</div>
+                                    <div style={{ fontWeight: 700, fontSize: '1rem', wordBreak: 'break-word' }}>{user.spotify_song || 'Unidentified Track'}</div>
+                                    <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>{user.spotify_artist || 'Unknown Artist'}</div>
+                                </div>
+                                <div className="spotify-bars" style={{ display: 'flex', gap: '3px', alignItems: 'flex-end', height: '20px' }}>
+                                    <div style={{ width: '3px', height: '60%', background: '#1DB954', borderRadius: '2px' }} />
+                                    <div style={{ width: '3px', height: '100%', background: '#1DB954', borderRadius: '2px' }} />
+                                    <div style={{ width: '3px', height: '40%', background: '#1DB954', borderRadius: '2px' }} />
+                                    <div style={{ width: '3px', height: '80%', background: '#1DB954', borderRadius: '2px' }} />
+                                </div>
                             </div>
-                            <div className="spotify-bars" style={{ display: 'flex', gap: '3px', alignItems: 'flex-end', height: '20px' }}>
-                                <div style={{ width: '3px', height: '60%', background: '#1DB954', borderRadius: '2px' }} />
-                                <div style={{ width: '3px', height: '100%', background: '#1DB954', borderRadius: '2px' }} />
-                                <div style={{ width: '3px', height: '40%', background: '#1DB954', borderRadius: '2px' }} />
-                                <div style={{ width: '3px', height: '80%', background: '#1DB954', borderRadius: '2px' }} />
-                            </div>
-                        </div>
+                        )}
                     </section>
                 )}
 

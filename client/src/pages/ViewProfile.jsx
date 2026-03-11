@@ -231,9 +231,40 @@ export default function ViewProfile() {
                     </section>
                 )}
 
+                {/* Spectral Anthem (Spotify) */}
+                {(profile.spotify_artist || profile.spotify_song) && (
+                    <section className="profile-section view-animate" style={{ animationDelay: '0.2s', marginBottom: '32px' }}>
+                        <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px' }}>Spectral Anthem</h4>
+                        {profile.spotify_artist === 'iframe' ? (
+                            <div className="spotify-embed-container" style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(29, 185, 84, 0.2)' }}>
+                                <iframe 
+                                    style={{ borderRadius: '12px' }} 
+                                    src={`https://open.spotify.com/embed/track/${profile.spotify_song}?utm_source=generator&theme=0`} 
+                                    width="100%" 
+                                    height="152" 
+                                    frameBorder="0" 
+                                    allowFullScreen="" 
+                                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                    loading="lazy"
+                                />
+                            </div>
+                        ) : (
+                            <div className="spotify-card glass-card card-hover-zoom" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '20px', background: 'rgba(29, 185, 84, 0.05)', border: '1px solid rgba(29, 185, 84, 0.2)' }}>
+                                <div className="spotify-icon-container" style={{ background: '#1DB954', width: '50px', height: '50px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(29, 185, 84, 0.4)' }}>
+                                    <span className="material-symbols-rounded" style={{ color: 'white' }}>music_note</span>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: 700, fontSize: '1rem', wordBreak: 'break-word' }}>{profile.spotify_song || 'Unidentified Track'}</div>
+                                    <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>{profile.spotify_artist || 'Unknown Artist'}</div>
+                                </div>
+                            </div>
+                        )}
+                    </section>
+                )}
+
                 {/* Interests Fragment */}
                 {interests.length > 0 && (
-                    <section className="profile-section view-animate" style={{ animationDelay: '0.2s', marginBottom: '32px' }}>
+                    <section className="profile-section view-animate" style={{ animationDelay: '0.3s', marginBottom: '32px' }}>
                         <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px' }}>Elemental Interests</h4>
                         <div className="tag-cloud" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                             {interests.map(tag => (
@@ -253,7 +284,7 @@ export default function ViewProfile() {
                 )}
 
                 {/* Subconscious Echoes (Q&A) */}
-                <section className="profile-section view-animate" style={{ animationDelay: '0.3s', marginBottom: '120px' }}>
+                <section className="profile-section view-animate" style={{ animationDelay: '0.4s', marginBottom: '120px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                         <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', margin: 0 }}>Subconscious Echoes</h4>
                         {!isMatch && (

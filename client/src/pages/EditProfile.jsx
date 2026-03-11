@@ -24,7 +24,7 @@ export default function EditProfile() {
     // New feature states
     const [isSnoozed, setIsSnoozed] = useState(user?.is_snoozed === 1);
     const [spotifyArtist, setSpotifyArtist] = useState(user?.spotify_artist || '');
-    const [spotifySong, setSpotifySong] = useState(user?.spotify_song || '');
+    const [spotifyLink, setSpotifyLink] = useState(user?.spotify_artist === 'iframe' ? `https://open.spotify.com/track/${user?.spotify_song}` : (user?.spotify_song || ''));
     const [prompts, setPrompts] = useState([]);
     const [newPromptQ, setNewPromptQ] = useState('');
     const [newPromptA, setNewPromptA] = useState('');
@@ -70,10 +70,20 @@ export default function EditProfile() {
             updateUser(data.user);
 
             // Save Spotify info
-            if (spotifyArtist || spotifySong) {
+            let finalArtist = spotifyArtist;
+            let finalSong = spotifyLink;
+            
+            // Try to extract track ID if it's a Spotify link
+            const trackMatch = spotifyLink.match(/track\/([a-zA-Z0-9]+)/);
+            if (trackMatch && trackMatch[1]) {
+                finalSong = trackMatch[1];
+                finalArtist = 'iframe';
+            }
+
+            if (finalArtist || finalSong) {
                 await apiFetch('/api/profile/spotify', {
                     method: 'PUT',
-                    body: JSON.stringify({ artist: spotifyArtist.trim(), song: spotifySong.trim() }),
+                    body: JSON.stringify({ artist: finalArtist.trim(), song: finalSong.trim() }),
                 });
             }
 
@@ -274,20 +284,21 @@ export default function EditProfile() {
 
                     {/* Spotify Section */}
                     <div className="glass-card holographic" style={{ padding: '24px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#1DB954' }}>
-                            <span className="material-symbols-rounded">music_note</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: '#1DB954' }}>
+                            <span className="material-symbols-rounded">library_music</span>
                             <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Spectral Anthem</h3>
                         </div>
+                        <p style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '20px' }}>Paste a Spotify Track link to embed a playable Anthem on your profile.</p>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                            <div className="input-group">
-                                <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Artist</label>
-                                <input className="input-field glass-input" value={spotifyArtist} onChange={e => setSpotifyArtist(e.target.value)} placeholder="e.g. Weeknd" style={{ width: '100%' }} />
-                            </div>
-                            <div className="input-group">
-                                <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Song</label>
-                                <input className="input-field glass-input" value={spotifySong} onChange={e => setSpotifySong(e.target.value)} placeholder="e.g. Starboy" style={{ width: '100%' }} />
-                            </div>
+                        <div className="input-group">
+                            <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Spotify Share Link</label>
+                            <input 
+                                className="input-field glass-input" 
+                                value={spotifyLink} 
+                                onChange={e => setSpotifyLink(e.target.value)} 
+                                placeholder="https://open.spotify.com/track/..." 
+                                style={{ width: '100%' }} 
+                            />
                         </div>
                     </div>
 
