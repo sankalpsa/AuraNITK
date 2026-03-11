@@ -140,8 +140,8 @@ export default function Discover() {
             ) : (
                 <div className="aura-radar-grid">
                     {cards.map((p) => (
-                        <div key={p.id} className="radar-tile holographic glass-card" onClick={() => handleTileClick(p)}>
-                            <div className="radar-photo-container">
+                        <div key={p.id} className="radar-tile holographic glass-card card-hover-zoom" onClick={() => handleTileClick(p)}>
+                            <div className="radar-photo-container image-parallax">
                                 <img src={p.photo || defaultAvatar(p.name)} alt={p.name} className="radar-photo" loading="lazy" onError={(e) => { e.target.src = defaultAvatar(p.name); }} />
                                 <div className="radar-photo-gradient" />
                             </div>
@@ -160,7 +160,7 @@ export default function Discover() {
                                 </div>
                             </div>
                             {(p.match_percent || 70) >= 85 && (
-                                <div className="radar-badge">
+                                <div className="radar-badge btn-aura-pulse">
                                     <span className="badge-bg" />
                                     <span className="badge-text"><span className="material-symbols-rounded" style={{ fontSize: 12 }}>star</span> TOP AURA</span>
                                 </div>

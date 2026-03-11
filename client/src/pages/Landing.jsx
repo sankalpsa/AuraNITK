@@ -37,8 +37,25 @@ export default function Landing() {
     }, []);
 
     return (
-        <div className="landing-page view-animate">
-            <div className="hero-section">
+        <div className="landing-page view-animate aura-cosmic-bg">
+            <div className="stardust-layer">
+                {[...Array(60)].map((_, i) => (
+                    <div 
+                        key={i} 
+                        className="stardust" 
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            '--duration': `${3 + Math.random() * 7}s`,
+                            animationDelay: `${Math.random() * 5}s`,
+                            width: `${1 + Math.random() * 2}px`,
+                            height: `${1 + Math.random() * 2}px`
+                        }}
+                    />
+                ))}
+            </div>
+
+            <div className="hero-section" style={{ position: 'relative', zIndex: 10 }}>
                 <div className="hero-eyebrow">A New Dimension of Connection · Est. 2025</div>
                 <h1 className="hero-title font-serif">
                     Experience <span className="text-aurora">Aura</span>
@@ -49,7 +66,7 @@ export default function Landing() {
                     Where ambition meets attraction.
                 </p>
                 <div className="hero-actions">
-                    <button className="hero-cta btn-primary" onClick={() => navigate('/signup')}>
+                    <button className="hero-cta btn-primary btn-aura-pulse" onClick={() => navigate('/signup')}>
                         <span className="material-symbols-rounded">auto_awesome</span>
                         Ascend Now
                     </button>

@@ -792,6 +792,12 @@ app.post('/api/auth/change-password', authenticate, async (req, res) => {
     }
 });
 
+app.post('/api/auth/logout', (req, res) => {
+    // Session is handled client-side via JWT, but we provide this endpoint
+    // for future server-side session invalidation support.
+    res.json({ success: true, message: 'Logged out successfully' });
+});
+
 app.post('/api/auth/google', async (req, res) => {
     try {
         const { credential } = req.body;
@@ -799,7 +805,10 @@ app.post('/api/auth/google', async (req, res) => {
 
         const ticket = await googleClient.verifyIdToken({
             idToken: credential,
-            audience: process.env.GOOGLE_CLIENT_ID || '763153801999-pggubb51vqlli45492dop5pkmdu1fdvc.apps.googleusercontent.com',
+            audience: [
+                process.env.GOOGLE_CLIENT_ID,
+                '763153801999-pggubb51vqlli45492dop5pkmdu1fdvc.apps.googleusercontent.com'
+            ].filter(Boolean),
         });
         const payload = ticket.getPayload();
         const email = payload.email.toLowerCase().trim();
@@ -818,7 +827,6 @@ app.post('/api/auth/google', async (req, res) => {
             else if (domain.includes('.edu')) institute = institute + ' University';
             else institute = domain || 'Global Aura';
 
-            // Insert core required fields with Google defaults
             const result = await db.run(
                 `INSERT INTO users (name, email, password, age, gender, institute, branch, year, bio, show_me, interests, green_flags, red_flags, is_verified, photo, is_active)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -840,8 +848,8 @@ app.post('/api/auth/google', async (req, res) => {
         const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
         res.json({ token, user: await sanitizeUser(user) });
     } catch (e) {
-        console.error('Google Auth Error:', e);
-        res.status(500).json({ error: 'Failed to authenticate with Google' });
+        console.error('Google Auth Error:', e.message);
+        res.status(500).json({ error: 'Failed to authenticate with Google. Ensure origin is authorized.' });
     }
 });
 

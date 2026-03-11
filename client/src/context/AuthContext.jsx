@@ -20,12 +20,22 @@ export function AuthProvider({ children }) {
         setUser(userData);
     }, []);
 
-    const logout = useCallback(() => {
+    const logout = useCallback(async () => {
+        try {
+            // Optional: notify backend of logout
+            await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+        } catch (e) {
+            console.error('API logout error:', e);
+        }
+        
         if (socketRef.current) {
             socketRef.current.disconnect();
             socketRef.current = null;
         }
         clearToken();
+        // Fallback: clear everything if clearToken missed something
+        localStorage.clear(); 
+        
         setTokenState(null);
         setUser(null);
         setSocket(null);
@@ -43,7 +53,9 @@ export function AuthProvider({ children }) {
             setUser(data.user);
             return data.user;
         } catch (e) {
-            if (e.message.includes('Session') || e.message.includes('expired')) {
+            // If we get a network error (refused connection), we don't necessarily logout,
+            // but if it's an Auth error, we MUST logout to prevent redirect loops.
+            if (e.message.includes('Session') || e.message.includes('expired') || e.message.includes('401')) {
                 logout();
             }
             return null;
