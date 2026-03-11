@@ -214,7 +214,7 @@ export default function ViewProfile() {
 
                 {/* About/Bio Section */}
                 {profile.bio && (
-                    <section className="profile-section" style={{ marginBottom: '32px' }}>
+                    <section className="profile-section view-animate" style={{ animationDelay: '0.1s', marginBottom: '32px' }}>
                         <div className="glass-card holographic" style={{ padding: '28px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: 'var(--primary-light)' }}>
                                 <span className="material-symbols-rounded" style={{ fontSize: 20 }}>menu_book</span>
@@ -233,7 +233,7 @@ export default function ViewProfile() {
 
                 {/* Interests Fragment */}
                 {interests.length > 0 && (
-                    <section className="profile-section" style={{ marginBottom: '32px' }}>
+                    <section className="profile-section view-animate" style={{ animationDelay: '0.2s', marginBottom: '32px' }}>
                         <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px' }}>Elemental Interests</h4>
                         <div className="tag-cloud" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                             {interests.map(tag => (
@@ -253,8 +253,8 @@ export default function ViewProfile() {
                 )}
 
                 {/* Subconscious Echoes (Q&A) */}
-                <section className="profile-section" style={{ marginBottom: '32px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <section className="profile-section view-animate" style={{ animationDelay: '0.3s', marginBottom: '120px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                         <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', margin: 0 }}>Subconscious Echoes</h4>
                         {!isMatch && (
                             <button className="btn-ghost" onClick={() => setShowAskInput(!showAskInput)} style={{ fontSize: '0.75rem' }}>
@@ -289,7 +289,7 @@ export default function ViewProfile() {
                             </div>
                         ) : (
                             answeredQs.map(q => (
-                                <div key={q.id} className="echo-card glass-card holographic" style={{ padding: '20px' }}>
+                                <div key={q.id} className="echo-card glass-card holographic card-hover-zoom" style={{ padding: '20px' }}>
                                     <p style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '12px', color: 'var(--primary-light)' }}>Q: {q.question_text}</p>
                                     <div style={{ background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '10px' }}>
                                         <p style={{ margin: 0, fontSize: '0.95rem' }}>{q.answer_text}</p>

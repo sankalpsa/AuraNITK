@@ -222,7 +222,7 @@ export default function Profile() {
     completeness = Math.min(100, completeness);
 
     return (
-        <div className="profile-page view-animate" style={{ paddingBottom: '120px' }}>
+        <div className="profile-page view-animate" style={{ paddingBottom: '180px' }}>
             {/* Top Bar Navigation */}
             <div className="profile-nav-header glass-card holographic" style={{ borderBottom: '1px solid var(--border)', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, borderRadius: 0 }}>
                 <h1 className="font-serif" style={{ fontSize: '1.2rem', margin: 0 }}>My Aura</h1>
@@ -301,7 +301,7 @@ export default function Profile() {
             </div>
 
             {/* Profile Stats */}
-            <div className="profile-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', padding: '0 20px', marginTop: '-30px', position: 'relative', zIndex: 10 }}>
+            <div className="profile-stats-grid view-animate" style={{ animationDelay: '0.1s', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', padding: '0 20px', marginTop: '-30px', position: 'relative', zIndex: 10 }}>
                 <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '20px 10px', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                     <span className="stat-value text-glow-purple" style={{ display: 'block', fontSize: '1.6rem', fontWeight: 800, color: 'var(--primary-light)', marginBottom: '4px' }}>{stats.matches}</span>
                     <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em' }}>Connections</span>
@@ -317,7 +317,7 @@ export default function Profile() {
             </div>
 
             {/* The Manifesto (Bio & Pickup Line) */}
-            <div style={{ padding: '0 20px', marginBottom: '32px' }}>
+            <div className="view-animate" style={{ animationDelay: '0.2s', padding: '0 20px', marginTop: '24px', marginBottom: '32px' }}>
                 <div className="glass-card holographic" style={{ padding: '28px', position: 'relative', overflow: 'hidden' }}>
                     <div style={{ position: 'absolute', top: '-15px', right: '-15px', opacity: 0.1, color: 'var(--primary-light)' }}>
                         <span className="material-symbols-rounded" style={{ fontSize: '100px' }}>history_edu</span>
@@ -342,8 +342,8 @@ export default function Profile() {
             <div style={{ padding: '0 20px' }}>
                 {/* Spectral Anthem (Spotify) */}
                 {(user.spotify_artist || user.spotify_song) && (
-                    <section className="profile-section" style={{ marginBottom: '40px' }}>
-                        <div className="spotify-card glass-card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '20px', background: 'rgba(29, 185, 84, 0.05)', border: '1px solid rgba(29, 185, 84, 0.2)' }}>
+                    <section className="profile-section view-animate" style={{ animationDelay: '0.3s', marginBottom: '40px' }}>
+                        <div className="spotify-card glass-card card-hover-zoom" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '20px', background: 'rgba(29, 185, 84, 0.05)', border: '1px solid rgba(29, 185, 84, 0.2)' }}>
                             <div className="spotify-icon-container" style={{ background: '#1DB954', width: '50px', height: '50px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(29, 185, 84, 0.4)' }}>
                                 <span className="material-symbols-rounded" style={{ color: 'white' }}>music_note</span>
                             </div>
@@ -364,7 +364,7 @@ export default function Profile() {
 
                 {/* Elemental Resonance (Interests) */}
                 {user.interests && user.interests.length > 0 && (
-                    <section className="profile-section" style={{ marginBottom: '40px' }}>
+                    <section className="profile-section view-animate" style={{ animationDelay: '0.4s', marginBottom: '40px' }}>
                         <div className="section-header" style={{ marginBottom: '16px' }}>
                             <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Elemental Resonance</h3>
                         </div>
@@ -380,7 +380,7 @@ export default function Profile() {
 
                 {/* Aura Spectrum (Flags) */}
                 {((user.green_flags && user.green_flags.length > 0) || (user.red_flags && user.red_flags.length > 0)) && (
-                    <section className="profile-section" style={{ marginBottom: '40px' }}>
+                    <section className="profile-section view-animate" style={{ animationDelay: '0.5s', marginBottom: '40px' }}>
                         <div className="section-header" style={{ marginBottom: '16px' }}>
                             <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Aura Spectrum</h3>
                         </div>
@@ -417,13 +417,13 @@ export default function Profile() {
 
                 {/* Broadcast Prompts */}
                 {prompts.length > 0 && (
-                    <section className="profile-section" style={{ marginBottom: '40px' }}>
+                    <section className="profile-section view-animate" style={{ animationDelay: '0.6s', marginBottom: '40px' }}>
                         <div className="section-header" style={{ marginBottom: '16px' }}>
                             <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Broadcast Transmissions</h3>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {prompts.map(p => (
-                                <div key={p.id} className="glass-card holographic" style={{ padding: '20px' }}>
+                                <div key={p.id} className="glass-card holographic card-hover-zoom" style={{ padding: '20px' }}>
                                     <div style={{ fontSize: '0.8rem', color: 'var(--primary-light)', fontWeight: 700, marginBottom: '8px', borderBottom: '1px solid var(--border)', pb: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <span className="material-symbols-rounded" style={{ fontSize: 16 }}>sensors</span>
                                         {p.question}
@@ -435,7 +435,7 @@ export default function Profile() {
                     </section>
                 )}
                 {/* Visual Fragments */}
-                <section className="profile-section" style={{ marginBottom: '40px' }}>
+                <section className="profile-section view-animate" style={{ animationDelay: '0.7s', marginBottom: '40px' }}>
                     <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                         <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Visual Fragments</h3>
                         <button className="btn-ghost" onClick={() => fileInputRef.current?.click()} style={{ fontSize: '0.75rem', padding: '6px 12px' }}>
@@ -462,8 +462,8 @@ export default function Profile() {
                 </section>
 
                 {/* Subconscious Echoes */}
-                <section className="profile-section" style={{ marginBottom: '32px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', padding: '0 10px' }}>
+                <section className="profile-section view-animate" style={{ animationDelay: '0.8s', marginBottom: '32px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', padding: '0 10px' }}>
                         <h3 className="font-serif" style={{ fontSize: '1.25rem', margin: 0, fontWeight: 700 }}>Subconscious Echoes</h3>
                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{anonQuestions.length} Received</span>
                     </div>
@@ -518,7 +518,7 @@ export default function Profile() {
 
                 {/* Identity Manifest (Verification) */}
                 {user.is_verified === 0 && (
-                    <section className="profile-section" style={{ marginBottom: '120px' }}>
+                    <section className="profile-section view-animate" style={{ animationDelay: '0.9s', marginBottom: '160px' }}>
                         <div className="verification-card glass-card holographic" style={{ padding: '20px', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
                             <div style={{ flex: '0 0 auto', width: 48, height: 72, borderRadius: '24px', background: 'rgba(139, 92, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
                                 <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '1.8rem' }}>verified_user</span>
