@@ -12,8 +12,9 @@ export default function Signup() {
     const { login } = useAuth();
     const { showToast } = useToast();
 
-    const [step, setStep] = useState('email'); // email | otp | details
+    const [step, setStep] = useState('email'); // email | otp | tuning | details
     const [email, setEmail] = useState('');
+    const [frequency, setFrequency] = useState(null);
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [loading, setLoading] = useState(false);
     const otpRefs = useRef([]);
@@ -71,9 +72,9 @@ export default function Signup() {
                 method: 'POST',
                 body: JSON.stringify({ email: email.toLowerCase(), otp: code }),
             });
-            showToast('Email verified! ✅ Create your profile.', 'success');
+            showToast('Email verified! ✅ Tune your aura frequency.', 'success');
             setName(extractNameFromEmail(email));
-            setStep('details');
+            setStep('tuning');
         } catch (e) {
             showToast(e.message, 'error');
         }
@@ -113,7 +114,7 @@ export default function Signup() {
                     gender,
                     branch,
                     year,
-                    bio,
+                    bio: bio || `My frequency is tuned to ${frequency || 'Aura'}. ✨`,
                     interests,
                 }),
             });
@@ -254,6 +255,53 @@ export default function Signup() {
                                 Reissue code
                             </button>
                         </form>
+                    </div>
+                )}
+
+                {step === 'tuning' && (
+                    <div className="auth-card holographic" style={{ padding: '32px 24px', textAlign: 'center' }}>
+                        <h3 className="font-serif text-aurora" style={{ fontSize: '2rem', marginBottom: '8px' }}>Tune Your Aura</h3>
+                        <p style={{ color: 'var(--text-muted)' }}>Select the frequency of your soul.</p>
+                        
+                        <div className="tuning-container" style={{ margin: '40px 0' }}>
+                            {/* Central Core */}
+                            <div className="aura-orb aura-orb-core">
+                                <div style={{ fontSize: '1.2rem', fontWeight: 300, letterSpacing: '0.1em' }}>
+                                    {frequency ? frequency.toUpperCase() : "..."}
+                                </div>
+                            </div>
+                            
+                            {/* Floating Vibes */}
+                            {[
+                                { id: 'ethereal', label: 'Ethereal', color: '#d8b4fe', top: '10%', left: '15%', delay: '0s' },
+                                { id: 'intense', label: 'Intense', color: '#ef4444', top: '80%', left: '20%', delay: '1.5s' },
+                                { id: 'chill', label: 'Mellow', color: '#60a5fa', top: '40%', left: '75%', delay: '3s' }
+                            ].map((vibe) => (
+                                <div 
+                                    key={vibe.id}
+                                    className={`aura-orb aura-orb-vibe floating-tuning ${frequency === vibe.id ? 'active' : ''}`}
+                                    style={{ 
+                                        top: vibe.top, 
+                                        left: vibe.left,
+                                        animationDelay: vibe.delay
+                                    }}
+                                    onClick={() => setFrequency(vibe.id)}
+                                >
+                                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{vibe.label}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <button 
+                            className="btn-primary btn-aura-pulse" 
+                            style={{ width: '100%' }}
+                            onClick={() => {
+                                if(!frequency) return showToast('Please select your Aura Frequency', 'error');
+                                setStep('details');
+                            }}
+                        >
+                            Manifest Reality <span className="material-symbols-rounded" style={{ fontSize: 18, marginLeft: 8 }}>arrow_forward</span>
+                        </button>
                     </div>
                 )}
 
