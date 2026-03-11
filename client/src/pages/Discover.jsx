@@ -73,8 +73,7 @@ export default function Discover() {
     }, [isAuthenticated]);
 
     useEffect(() => {
-        if (isAuthenticated && coords) loadProfiles();
-        // If location denied or not ready yet, loadProfiles will be called by the first useEffect
+        if (isAuthenticated) loadProfiles();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterBranch, filterYear, searchMode, coords]);
 

@@ -2379,6 +2379,20 @@ async function start() {
         console.error('Failed to set admin status:', e.message);
     }
 
+    // Seed default payment method if none exist
+    try {
+        const existingMethods = await db.query('SELECT id FROM payment_methods LIMIT 1');
+        if (!existingMethods || existingMethods.length === 0) {
+            await db.run(
+                'INSERT INTO payment_methods (label, type, upi_id, is_active) VALUES (?, ?, ?, ?)',
+                ['UPI Payment', 'upi', 'sankalpbeerappa@oksbi', 1]
+            );
+            console.log('💳 Default UPI payment method seeded');
+        }
+    } catch (e) {
+        console.error('Payment seed error:', e.message);
+    }
+
     server.listen(PORT, () => {
         console.log(`\n🚀 Aura running at http://localhost:${PORT}`);
         console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}\n`);
