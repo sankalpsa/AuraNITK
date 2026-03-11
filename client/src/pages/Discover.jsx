@@ -19,6 +19,16 @@ export default function Discover() {
     const [filterBranch, setFilterBranch] = useState('all');
     const [filterYear, setFilterYear] = useState('all');
     const [searchMode, setSearchMode] = useState('local'); // 'local' or 'global'
+    const [coords, setCoords] = useState(null);
+
+    async function updateLocation(lat, lon) {
+        try {
+            await apiFetch('/api/profile/location', {
+                method: 'PUT',
+                body: JSON.stringify({ latitude: lat, longitude: lon })
+            });
+        } catch { /* Fail silently */ }
+    }
 
     async function loadProfiles() {
         setLoading(true);
@@ -28,6 +38,12 @@ export default function Discover() {
             if (filterBranch !== 'all') params.push(`branch=${encodeURIComponent(filterBranch)}`);
             if (filterYear !== 'all') params.push(`year=${encodeURIComponent(filterYear)}`);
             if (searchMode === 'local') params.push(`local=true`);
+            
+            if (coords) {
+                params.push(`lat=${coords.latitude}`);
+                params.push(`lon=${coords.longitude}`);
+            }
+
             if (params.length > 0) url += '?' + params.join('&');
             const data = await apiFetch(url);
             setCards(data.profiles || []);
@@ -39,9 +55,28 @@ export default function Discover() {
 
     useEffect(() => {
         if (!isAuthenticated) return navigate('/', { replace: true });
-        loadProfiles();
+        
+        // Get geolocation
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const c = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+                setCoords(c);
+                updateLocation(c.latitude, c.longitude);
+            }, (err) => {
+                console.warn("Location error:", err.message);
+                loadProfiles(); // Load without coordinates if denied
+            });
+        } else {
+            loadProfiles();
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated, filterBranch, filterYear, searchMode]);
+    }, [isAuthenticated]);
+
+    useEffect(() => {
+        if (isAuthenticated && coords) loadProfiles();
+        // If location denied or not ready yet, loadProfiles will be called by the first useEffect
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filterBranch, filterYear, searchMode, coords]);
 
     const handleTileClick = (profile) => {
         // Direct users to ViewProfile where they can read Prompts and decide to Like/Pass
@@ -158,6 +193,12 @@ export default function Discover() {
                                     <span className="material-symbols-rounded" style={{ fontSize: 10 }}>nest_clock_farsight_analog</span>
                                     {getTimeAgo(p.last_active_at)}
                                 </div>
+                                {p.distance_sq !== undefined && p.latitude && (
+                                    <div style={{ fontSize: '0.65rem', color: 'var(--primary-light)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: 10 }}>location_on</span>
+                                        Nearby
+                                    </div>
+                                )}
                             </div>
                             {(p.match_percent || 70) >= 85 && (
                                 <div className="radar-badge btn-aura-pulse">

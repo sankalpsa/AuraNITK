@@ -219,7 +219,9 @@ async function initTables() {
                 reset_token TEXT DEFAULT NULL,
                 reset_token_expires TIMESTAMP DEFAULT NULL,
                 last_active_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                latitude REAL DEFAULT NULL,
+                longitude REAL DEFAULT NULL
             );
 
             CREATE TABLE IF NOT EXISTS swipes (
@@ -347,7 +349,9 @@ async function initTables() {
                 reset_token TEXT DEFAULT NULL,
                 reset_token_expires TEXT DEFAULT NULL,
                 last_active_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                latitude REAL DEFAULT NULL,
+                longitude REAL DEFAULT NULL
             )`,
             `CREATE TABLE IF NOT EXISTS swipes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -500,7 +504,10 @@ async function initTables() {
         'ALTER TABLE users ADD COLUMN reset_token TEXT DEFAULT NULL',
         'ALTER TABLE users ADD COLUMN reset_token_expires TEXT DEFAULT NULL',
         // Last Active Status
-        'ALTER TABLE users ADD COLUMN last_active_at TEXT DEFAULT CURRENT_TIMESTAMP'
+        'ALTER TABLE users ADD COLUMN last_active_at TEXT DEFAULT CURRENT_TIMESTAMP',
+        // Location (GPS matching)
+        'ALTER TABLE users ADD COLUMN latitude REAL DEFAULT NULL',
+        'ALTER TABLE users ADD COLUMN longitude REAL DEFAULT NULL'
     ];
 
     for (const migration of migrations) {

@@ -911,6 +911,18 @@ app.get('/api/auth/me', authenticate, async (req, res) => {
 // PROFILE ROUTES
 // ========================================
 
+// Update GPS Location
+app.put('/api/profile/location', authenticate, async (req, res) => {
+    try {
+        const { latitude, longitude } = req.body;
+        if (latitude === undefined || longitude === undefined) return res.status(400).json({ error: 'Coordinates required' });
+        await db.run('UPDATE users SET latitude = ?, longitude = ? WHERE id = ?', [latitude, longitude, req.user.id]);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 app.put('/api/profile', authenticate, async (req, res) => {
     try {
         const { name, bio, pickup_line, branch, year, show_me, interests, green_flags, red_flags } = req.body;
@@ -1120,17 +1132,28 @@ app.get('/api/discover', authenticate, async (req, res) => {
         else if (showMe === 'female') genderFilter = "AND u.gender = 'female'";
 
         // Campus filters from query params
-        const { branch, year, local } = req.query;
+        const { branch, year, local, lat, lon } = req.query;
         let campusFilter = '';
         const extraParams = [];
         if (branch && branch !== 'all') { campusFilter += ' AND u.branch = ?'; extraParams.push(branch); }
         if (year && year !== 'all') { campusFilter += ' AND u.year = ?'; extraParams.push(year); }
         if (local === 'true') { campusFilter += ' AND u.institute = ?'; extraParams.push(req.user.institute || 'NITK Surathkal'); }
 
+        let distanceSelect = '';
+        let distanceOrder = '';
+        const distanceParams = [];
+
+        if (lat && lon) {
+            // Simplified distance for both SQLite and Postgres (ordering only)
+            distanceSelect = `, ((u.latitude - ?)*(u.latitude - ?) + (u.longitude - ?)*(u.longitude - ?)) AS distance_sq`;
+            distanceParams.push(parseFloat(lat), parseFloat(lat), parseFloat(lon), parseFloat(lon));
+            distanceOrder = 'CASE WHEN u.latitude IS NULL THEN 1 ELSE 0 END, distance_sq ASC, ';
+        }
+
         const randomFn = 'RANDOM()';
 
         const profiles = await db.query(
-            `SELECT u.* FROM users u
+            `SELECT u.* ${distanceSelect} FROM users u
              WHERE u.id != ?
                AND u.is_active = 1
                AND (u.is_snoozed = 0 OR u.is_snoozed IS NULL)
@@ -1141,9 +1164,9 @@ app.get('/api/discover', authenticate, async (req, res) => {
                )
                ${genderFilter}
                ${campusFilter}
-             ORDER BY u.is_verified DESC, ${randomFn}
+             ORDER BY ${distanceOrder} u.is_verified DESC, ${randomFn}
              LIMIT 20`,
-            [userId, userId, userId, userId, userId, ...extraParams]
+            [...distanceParams, userId, userId, userId, userId, userId, ...extraParams]
         );
 
         const userInterests = req.user.interests ? JSON.parse(req.user.interests) : [];
