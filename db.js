@@ -317,6 +317,27 @@ async function initTables() {
             CREATE INDEX IF NOT EXISTS idx_premium_req_user ON premium_requests(user_id);
             CREATE INDEX IF NOT EXISTS idx_premium_req_status ON premium_requests(status);
 
+            CREATE TABLE IF NOT EXISTS message_reactions (
+                id SERIAL PRIMARY KEY,
+                message_id INTEGER NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                reaction TEXT NOT NULL DEFAULT '❤️',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(message_id, user_id)
+            );
+
+            CREATE TABLE IF NOT EXISTS profile_prompts (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                question TEXT NOT NULL,
+                answer TEXT NOT NULL,
+                position INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_message_reactions_msg ON message_reactions(message_id);
+            CREATE INDEX IF NOT EXISTS idx_profile_prompts_user ON profile_prompts(user_id);
+
             -- Migration: Add institute to users if it doesn't exist
             DO $$ 
             BEGIN 
