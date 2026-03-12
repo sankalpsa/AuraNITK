@@ -61,13 +61,13 @@ export default function Login() {
                                 auto_awesome
                             </span>
                         </div>
-                        <h3 style={{ textAlign: 'center', marginBottom: '8px' }}>Dimensional Re-entry</h3>
+                        <h3 className="text-glow-purple" style={{ textAlign: 'center', marginBottom: '8px' }}>Ignite Your Flame</h3>
                         <p className="auth-hint" style={{ textAlign: 'center', marginBottom: '32px', color: 'var(--text-muted)' }}>
-                            Sign in to your Aura account
+                            Re-sync with your SPARK account
                         </p>
 
                         <div className="input-group">
-                            <label>University Identity</label>
+                            <label>Soul Identity</label>
                             <input
                                 className="input-field"
                                 type="email"
@@ -120,7 +120,7 @@ export default function Login() {
                         <button className="btn-primary" type="submit" disabled={loading} style={{ width: '100%', marginTop: '32px' }}>
                             {loading ? <div className="spinner" style={{ width: 18, height: 18, borderTopColor: 'white' }} /> : (
                                 <>
-                                    <span>Sync Aura</span>
+                                    <span>Sync SPARK</span>
                                     <span className="material-symbols-rounded">login</span>
                                 </>
                             )}

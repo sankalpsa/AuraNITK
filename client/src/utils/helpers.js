@@ -1,5 +1,5 @@
 // ========================================
-// Aura — Helper Utilities
+// SPARK — Helper Utilities
 // ========================================
 
 export function defaultAvatar(name = 'user', size = 200) {

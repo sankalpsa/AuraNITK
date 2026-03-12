@@ -113,7 +113,7 @@ export default function ViewProfile() {
                 method: 'POST',
                 body: JSON.stringify({ receiver_id: profile.id, question: anonQuestion.trim() }),
             });
-            showToast(data.message || 'Question sent!', 'success');
+            showToast(data.message || 'Whisper Sent!', 'success');
             setAnonQuestion('');
             setShowAskInput(false);
         } catch (e) { showToast(e.message, 'error'); }
@@ -157,7 +157,7 @@ export default function ViewProfile() {
                 )}
 
                 <button className="btn-icon" onClick={() => setShowReport(true)} style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '50%' }}>
-                    <span className="material-symbols-rounded">flag</span>
+                    <span className="material-symbols-rounded">gavel</span>
                 </button>
             </div>
 
@@ -217,13 +217,13 @@ export default function ViewProfile() {
                     <section className="profile-section view-animate" style={{ animationDelay: '0.1s', marginBottom: '32px' }}>
                         <div className="glass-card holographic" style={{ padding: '28px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: 'var(--primary-light)' }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>menu_book</span>
-                                <h4 className="font-serif" style={{ margin: 0, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700 }}>The Manifesto</h4>
+                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>whatshot</span>
+                                <h4 className="font-serif" style={{ margin: 0, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700 }}>The Ignition</h4>
                             </div>
                             <p className="font-serif" style={{ fontSize: '1.25rem', lineHeight: 1.5, margin: 0, color: 'var(--text)' }}>{profile.bio}</p>
                             {profile.pickup_line && (
                                 <div style={{ marginTop: '24px', padding: '16px', background: 'var(--primary-soft)', borderRadius: '16px', borderLeft: '4px solid var(--primary)' }}>
-                                    <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.1em' }}>Cosmic Signal</div>
+                                    <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.1em' }}>Spark Signal</div>
                                     <p className="font-serif" style={{ margin: 0, fontStyle: 'italic', fontSize: '1.05rem', color: 'var(--text-secondary)' }}>"{profile.pickup_line}"</p>
                                 </div>
                             )}
@@ -234,7 +234,7 @@ export default function ViewProfile() {
                 {/* Spectral Anthem (Spotify) */}
                 {(profile.spotify_artist || profile.spotify_song) && (
                     <section className="profile-section view-animate" style={{ animationDelay: '0.2s', marginBottom: '32px' }}>
-                        <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px' }}>Spectral Anthem</h4>
+                        <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px' }}>Soul Anthem</h4>
                         {profile.spotify_artist === 'iframe' ? (
                             <div className="spotify-embed-container" style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(29, 185, 84, 0.2)' }}>
                                 <iframe 
@@ -265,7 +265,7 @@ export default function ViewProfile() {
                 {/* Interests Fragment */}
                 {interests.length > 0 && (
                     <section className="profile-section view-animate" style={{ animationDelay: '0.3s', marginBottom: '32px' }}>
-                        <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px' }}>Elemental Interests</h4>
+                        <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px' }}>Soul Resonance</h4>
                         <div className="tag-cloud" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                             {interests.map(tag => (
                                 <span key={tag} className={`tag-pill glass-card ${sharedInterests.includes(tag) ? 'shared holographic' : ''}`} style={{
@@ -286,11 +286,11 @@ export default function ViewProfile() {
                 {/* Subconscious Echoes (Q&A) */}
                 <section className="profile-section view-animate" style={{ animationDelay: '0.4s', marginBottom: '120px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                        <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', margin: 0 }}>Subconscious Echoes</h4>
+                        <h4 className="font-serif" style={{ fontSize: '0.8rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.2em', margin: 0 }}>Anonymous Whispers</h4>
                         {!isMatch && (
                             <button className="btn-ghost" onClick={() => setShowAskInput(!showAskInput)} style={{ fontSize: '0.75rem' }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: 16 }}>add_comment</span>
-                                Broadcast
+                                <span className="material-symbols-rounded" style={{ fontSize: 16 }}>bolt</span>
+                                Ignite Connection
                             </button>
                         )}
                     </div>
@@ -298,7 +298,7 @@ export default function ViewProfile() {
                     {showAskInput && (
                         <div className="ask-input-card glass-card holographic view-animate" style={{ padding: '20px', marginBottom: '20px' }}>
                             <textarea
-                                placeholder={`Ask ${firstName} something mysterious...`}
+                                placeholder={`Whisper a seductive secret to ${firstName}...`}
                                 className="textarea-field"
                                 value={anonQuestion}
                                 onChange={e => setAnonQuestion(e.target.value)}
@@ -306,7 +306,7 @@ export default function ViewProfile() {
                             />
                             <div style={{ display: 'flex', gap: '10px' }}>
                                 <button className="btn-primary" style={{ flex: 1 }} onClick={sendAnonQuestion} disabled={!anonQuestion.trim() || sendingQ}>
-                                    {sendingQ ? 'Transmitting...' : 'Send Message'}
+                                    {sendingQ ? 'Igniting Connection...' : 'Ignite'}
                                 </button>
                                 <button className="btn-ghost" onClick={() => setShowAskInput(false)}>Cancel</button>
                             </div>
@@ -316,7 +316,7 @@ export default function ViewProfile() {
                     <div className="answered-qs-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {answeredQs.length === 0 ? (
                             <div className="glass-card" style={{ padding: '30px', textAlign: 'center', opacity: 0.5 }}>
-                                <p style={{ fontSize: '0.9rem', margin: 0 }}>Silence in the void. No echoes yet.</p>
+                                <p style={{ fontSize: '0.9rem', margin: 0 }}>Silence. No whispers ignited yet.</p>
                             </div>
                         ) : (
                             answeredQs.map(q => (
@@ -378,7 +378,7 @@ export default function ViewProfile() {
                             width: '64px',
                             height: '64px',
                             borderRadius: '50%',
-                            background: 'var(--gradient-aurora)',
+                            background: 'var(--gradient-spark)',
                             color: 'white',
                             display: 'flex',
                             alignItems: 'center',

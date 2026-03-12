@@ -18,6 +18,7 @@ import ViewProfile from './pages/ViewProfile';
 import Settings from './pages/Settings';
 import AdminDashboard from './pages/AdminDashboard';
 import BroadcastListener from './components/common/BroadcastListener';
+import GlobalEffects from './components/common/GlobalEffects';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -70,6 +71,7 @@ export default function App() {
         <ToastProvider>
           <AuthProvider>
             <BroadcastListener />
+            <GlobalEffects />
             <AppRoutes />
           </AuthProvider>
         </ToastProvider>

@@ -72,7 +72,7 @@ export default function Signup() {
                 method: 'POST',
                 body: JSON.stringify({ email: email.toLowerCase(), otp: code }),
             });
-            showToast('Email verified! ✅ Tune your aura frequency.', 'success');
+            showToast('Email verified! ✅ Tune your spark frequency.', 'success');
             setName(extractNameFromEmail(email));
             setStep('tuning');
         } catch (e) {
@@ -114,12 +114,12 @@ export default function Signup() {
                     gender,
                     branch,
                     year,
-                    bio: bio || `My frequency is tuned to ${frequency || 'Aura'}. ✨`,
+                    bio: bio || `My frequency is tuned to ${frequency || 'SPARK'}. ✨`,
                     interests,
                 }),
             });
             login(data.token, data.user);
-            showToast(`Welcome to Aura, ${data.user.name}! ✨`, 'success');
+            showToast(`Welcome to SPARK, ${data.user.name}! ✨`, 'success');
             // Deliberately NOT calling navigate('/discover') here.
             // The <PublicRoute> wrapper automatically handles redirection when auth state changes.
         } catch (e) {
@@ -148,12 +148,12 @@ export default function Signup() {
                             <div className="auth-icon-large">
                                 <span className="material-symbols-rounded" style={{ fontSize: '3rem' }}>alternate_email</span>
                             </div>
-                            <h3 style={{ textAlign: 'center', marginBottom: '8px' }}>Your Student Portal</h3>
+                            <h3 className="text-glow-purple" style={{ textAlign: 'center', marginBottom: '8px' }}>Ignition Registry</h3>
                             <p className="auth-hint" style={{ textAlign: 'center', marginBottom: '32px', color: 'var(--text-muted)' }}>
-                                Verification required for university exclusivity.
+                                Authentic entry for the university elite.
                             </p>
                             <div className="input-group">
-                                <label>University Email</label>
+                                <label>Portal Identity</label>
                                 <input
                                     className="input-field"
                                     type="email"
@@ -240,7 +240,7 @@ export default function Signup() {
                             <button className="btn-primary" type="submit" disabled={loading} style={{ width: '100%', marginBottom: '16px' }}>
                                 {loading ? <div className="spinner" style={{ width: 18, height: 18, borderTopColor: 'white' }} /> : (
                                     <>
-                                        <span>Unlock Aura</span>
+                                        <span>Unlock SPARK</span>
                                         <span className="material-symbols-rounded">key_visualize</span>
                                     </>
                                 )}
@@ -260,12 +260,12 @@ export default function Signup() {
 
                 {step === 'tuning' && (
                     <div className="auth-card holographic" style={{ padding: '32px 24px', textAlign: 'center' }}>
-                        <h3 className="font-serif text-aurora" style={{ fontSize: '2rem', marginBottom: '8px' }}>Tune Your Aura</h3>
+                        <h3 className="font-serif text-spark" style={{ fontSize: '2rem', marginBottom: '8px' }}>Tune Your SPARK</h3>
                         <p style={{ color: 'var(--text-muted)' }}>Select the frequency of your soul.</p>
                         
                         <div className="tuning-container" style={{ margin: '40px 0' }}>
                             {/* Central Core */}
-                            <div className="aura-orb aura-orb-core">
+                            <div className="spark-orb spark-orb-core">
                                 <div style={{ fontSize: '1.2rem', fontWeight: 300, letterSpacing: '0.1em' }}>
                                     {frequency ? frequency.toUpperCase() : "..."}
                                 </div>
@@ -279,7 +279,7 @@ export default function Signup() {
                             ].map((vibe) => (
                                 <div 
                                     key={vibe.id}
-                                    className={`aura-orb aura-orb-vibe floating-tuning ${frequency === vibe.id ? 'active' : ''}`}
+                                    className={`spark-orb spark-orb-vibe floating-tuning ${frequency === vibe.id ? 'active' : ''}`}
                                     style={{ 
                                         top: vibe.top, 
                                         left: vibe.left,
@@ -293,10 +293,10 @@ export default function Signup() {
                         </div>
 
                         <button 
-                            className="btn-primary btn-aura-pulse" 
+                            className="btn-primary btn-spark-pulse" 
                             style={{ width: '100%' }}
                             onClick={() => {
-                                if(!frequency) return showToast('Please select your Aura Frequency', 'error');
+                                if(!frequency) return showToast('Please select your SPARK Frequency', 'error');
                                 setStep('details');
                             }}
                         >
@@ -356,14 +356,14 @@ export default function Signup() {
                             </div>
 
                             <div className="input-group">
-                                <label>Bio / Your Aura (Optional)</label>
+                                <label>Bio / Your SPARK (Optional)</label>
                                 <textarea className="textarea-field" rows={3} placeholder="Tell us your frequency..."
                                     value={bio} onChange={(e) => setBio(e.target.value)} />
                             </div>
 
                             <div className="interests-section" style={{ marginTop: '24px' }}>
                                 <label style={{ display: 'block', marginBottom: '12px', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                                    Celestial Interests ({interests.length}/8)
+                                    Soul Resonance ({interests.length}/8)
                                 </label>
                                 <div className="interests-pill-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                     {INTEREST_OPTIONS.map(interest => (

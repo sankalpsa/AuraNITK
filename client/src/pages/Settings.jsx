@@ -38,7 +38,7 @@ export default function Settings() {
         account: !q || ['account', 'edit', 'profile', 'password', 'view', 'change'].some(k => k.includes(q) || q.includes(k)),
         privacy: !q || ['privacy', 'safety', 'block', 'premium', 'incognito', 'read', 'receipt', 'dark', 'mode', 'theme', 'pay', 'subscribe'].some(k => k.includes(q) || q.includes(k)),
         howTo: !q || ['how', 'use', 'swipe', 'like', 'match', 'tap', 'timer', 'help'].some(k => k.includes(q) || q.includes(k)),
-        about: !q || ['about', 'version', 'info', 'aura', 'credit'].some(k => k.includes(q) || q.includes(k)),
+        about: !q || ['about', 'version', 'info', 'spark', 'credit'].some(k => k.includes(q) || q.includes(k)),
         logins: !q || ['login', 'logout', 'log', 'admin', 'sign'].some(k => k.includes(q) || q.includes(k)),
         danger: !q || ['danger', 'deactivate', 'delete', 'account', 'remove'].some(k => k.includes(q) || q.includes(k)),
     }), [q]);
@@ -154,7 +154,7 @@ export default function Settings() {
                 <button className="btn-icon" onClick={() => navigate('/profile')}>
                     <span className="material-symbols-rounded">arrow_back</span>
                 </button>
-                <h2>Settings & Activity</h2>
+                <h2>SPARK Configuration</h2>
             </div>
 
             <div className="settings-body">
@@ -180,7 +180,7 @@ export default function Settings() {
                     <div className="settings-section-header">
                         <span className="material-symbols-rounded" style={{ fontSize: 20 }}>account_circle</span>
                         <div>
-                            <h3>Your account</h3>
+                            <h3>Soul Identity</h3>
                             <p className="settings-section-desc">Profile, password, activity and more</p>
                         </div>
                     </div>
@@ -277,7 +277,7 @@ export default function Settings() {
                         <span className="material-symbols-rounded settings-chevron">chevron_right</span>
                     </div>
 
-                    {/* Aura Premium Section */}
+                    {/* SPARK Premium Section */}
                     <div className="settings-section-header" style={{ marginTop: 20 }}>
                         <span className="material-symbols-rounded" style={{ fontSize: 20, color: '#f59e0b' }}>workspace_premium</span>
                         <div>
@@ -304,8 +304,8 @@ export default function Settings() {
                                 <div className="settings-item-left">
                                     <span className="material-symbols-rounded" style={{ color: '#a78bfa' }}>visibility_off</span>
                                     <div>
-                                        <span className="settings-item-title">Incognito Mode</span>
-                                        <span className="settings-item-sub">Only show profile to people you like</span>
+                                        <span className="settings-item-title">Ghost Embers</span>
+                                        <span className="settings-item-sub">Your flame only glows for those you choose.</span>
                                     </div>
                                 </div>
                                 <label className="toggle-switch">
@@ -318,7 +318,7 @@ export default function Settings() {
                                                 body: JSON.stringify({ is_snoozed: newVal })
                                             });
                                             if (user) updateUser({ ...user, is_snoozed: resp.is_snoozed });
-                                            showToast(newVal ? 'Ghost Mode ON 🕵️‍♀️' : 'Ghost Mode OFF', 'success');
+                                            showToast(newVal ? 'Embers Cloaked 🕵️‍♀️' : 'Flame Visible', 'success');
                                         } catch (err) {
                                             setIncognito(!newVal);
                                             showToast('Failed to toggle Ghost Mode', 'error');
@@ -333,8 +333,8 @@ export default function Settings() {
                                 <div className="settings-item-left">
                                     <span className="material-symbols-rounded" style={{ color: '#3b82f6' }}>done_all</span>
                                     <div>
-                                        <span className="settings-item-title">Read Receipts</span>
-                                        <span className="settings-item-sub">Let others see when you've read messages</span>
+                                        <span className="settings-item-title">Ignition Confirmation</span>
+                                        <span className="settings-item-sub">Show others when their whispers have been seen.</span>
                                     </div>
                                 </div>
                                 <label className="toggle-switch">
@@ -468,12 +468,12 @@ export default function Settings() {
                     </div>
                 )}
 
-                {/* How to use Aura */}
+                {/* How to use SPARK */}
                 {show.howTo && <div className="settings-section">
                     <div className="settings-section-header">
                         <span className="material-symbols-rounded" style={{ fontSize: 20 }}>help</span>
                         <div>
-                            <h3>How to use Aura</h3>
+                            <h3>The Art of the SPARK</h3>
                             <p className="settings-section-desc">Get the most out of the app</p>
                         </div>
                     </div>
@@ -482,8 +482,8 @@ export default function Settings() {
                         <div className="settings-item-left">
                             <span className="material-symbols-rounded">swipe</span>
                             <div>
-                                <span className="settings-item-title">Swipe right to like</span>
-                                <span className="settings-item-sub">Left to pass, right to like someone</span>
+                                <span className="settings-item-title">Swipe right to ignite</span>
+                                <span className="settings-item-sub">Left to fade, right to spark someone</span>
                             </div>
                         </div>
                     </div>
@@ -491,8 +491,8 @@ export default function Settings() {
                         <div className="settings-item-left">
                             <span className="material-symbols-rounded">favorite</span>
                             <div>
-                                <span className="settings-item-title">Mutual likes = Match!</span>
-                                <span className="settings-item-sub">Both swipe right? You can chat now</span>
+                                <span className="settings-item-title">Mutual Sparks = Fusion!</span>
+                                <span className="settings-item-sub">When two souls spark, a fusion is born.</span>
                             </div>
                         </div>
                     </div>
@@ -500,8 +500,8 @@ export default function Settings() {
                         <div className="settings-item-left">
                             <span className="material-symbols-rounded">touch_app</span>
                             <div>
-                                <span className="settings-item-title">Double-tap to react</span>
-                                <span className="settings-item-sub">Double-tap messages to send a ❤️</span>
+                                <span className="settings-item-title">Double-tap to resonate</span>
+                                <span className="settings-item-sub">Double-tap whispers to send a ❤️</span>
                             </div>
                         </div>
                     </div>
@@ -509,14 +509,14 @@ export default function Settings() {
                         <div className="settings-item-left">
                             <span className="material-symbols-rounded">timer</span>
                             <div>
-                                <span className="settings-item-title">48h match timer</span>
-                                <span className="settings-item-sub">Send a message within 48h or the match expires</span>
+                                <span className="settings-item-title">48h Fusion Decay</span>
+                                <span className="settings-item-sub">Ignite the conversation within 48h or the flame will fade.</span>
                             </div>
                         </div>
                     </div>
                 </div>}
 
-                {/* About Aura */}
+                {/* About SPARK */}
                 {show.about && <div className="settings-section">
                     <div className="settings-section-header">
                         <span className="material-symbols-rounded" style={{ fontSize: 20 }}>info</span>
@@ -527,7 +527,7 @@ export default function Settings() {
                     </div>
                     <div className="about-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border)' }}>
                         <div style={{ background: '#000', width: '100%', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <img src="/aura-logo.png" alt="Aura Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            <img src="/spark-logo.png" alt="SPARK Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         </div>
                         <div style={{ padding: '20px' }}>
                             <p className="font-serif" style={{ color: 'var(--text-main)', fontSize: '1.05rem', margin: '0 0 8px' }}>

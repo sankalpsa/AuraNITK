@@ -1,5 +1,5 @@
 // ========================================
-// Aura — Constants
+// SPARK — Constants
 // ========================================
 
 export const INTEREST_OPTIONS = [
@@ -14,7 +14,7 @@ export const COMMON_EMOJIS = [
     '😘', '🤗', '😌', '🥰', '😜', '🎂', '👏', '🤝', '✌️', '💖'
 ];
 
-export const AURA_ICEBREAKERS = [
+export const SPARK_ICEBREAKERS = [
     "What's your most controversial opinion about your college?",
     "If we skipped the small talk, what would we talk about?",
     "What's a red flag you're currently ignoring?",

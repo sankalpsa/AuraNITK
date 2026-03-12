@@ -40,7 +40,7 @@ export default function ForgotPassword() {
                 >
                     <span className="material-symbols-rounded">arrow_back</span>
                 </button>
-                <h2 className="font-serif">Reset Access</h2>
+                <h2 className="font-serif">Access Protocol</h2>
             </div>
 
             <div className="auth-body">
@@ -81,7 +81,7 @@ export default function ForgotPassword() {
                                     mark_email_read
                                 </span>
                             </div>
-                            <h3 className="font-serif" style={{ marginBottom: '16px', fontSize: '1.5rem' }}>Transmission Sent</h3>
+                            <h3 className="font-serif" style={{ marginBottom: '16px', fontSize: '1.5rem' }}>Protocol Dispatched</h3>
                             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '32px' }}>
                                 We've sent a secure reset protocol to <strong>{email}</strong>. Check your inbox (and spam folder) to set a new pass-key.
                             </p>

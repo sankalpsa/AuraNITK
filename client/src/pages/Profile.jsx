@@ -225,7 +225,7 @@ export default function Profile() {
         <div className="profile-page view-animate" style={{ paddingBottom: '180px' }}>
             {/* Top Bar Navigation */}
             <div className="profile-nav-header glass-card holographic" style={{ borderBottom: '1px solid var(--border)', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, borderRadius: 0 }}>
-                <h1 className="font-serif" style={{ fontSize: '1.2rem', margin: 0 }}>My Aura</h1>
+                <h1 className="font-serif" style={{ fontSize: '1.2rem', margin: 0 }}>My SPARK</h1>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="btn-icon" onClick={() => navigate('/settings')} style={{ background: 'var(--bg-elevated)', borderRadius: '50%' }}>
                         <span className="material-symbols-rounded">settings</span>
@@ -242,7 +242,7 @@ export default function Profile() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <span className="material-symbols-rounded" style={{ fontSize: 16, color: 'var(--primary-light)' }}>magic_button</span>
-                            Profile Power
+                            Flame Intensity
                         </span>
                         <span style={{ color: completeness > 70 ? 'var(--accent-cyan)' : 'var(--primary-light)' }}>{completeness}%</span>
                     </div>
@@ -286,7 +286,7 @@ export default function Profile() {
                             <div className="auth-icon-large" onClick={() => fileInputRef.current?.click()} style={{ cursor: 'pointer', marginBottom: '16px' }}>
                                 <span className="material-symbols-rounded" style={{ fontSize: '2.5rem' }}>add_a_photo</span>
                             </div>
-                            <p style={{ color: 'var(--text-muted)' }}>Manifest your visual Aura</p>
+                            <p style={{ color: 'var(--text-muted)' }}>Ignite your visual presence</p>
                             <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileSelect} />
                         </div>
                     )}
@@ -304,15 +304,15 @@ export default function Profile() {
             <div className="profile-stats-grid view-animate" style={{ animationDelay: '0.1s', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', padding: '0 20px', marginTop: '-30px', position: 'relative', zIndex: 10 }}>
                 <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '20px 10px', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                     <span className="stat-value text-glow-purple" style={{ display: 'block', fontSize: '1.6rem', fontWeight: 800, color: 'var(--primary-light)', marginBottom: '4px' }}>{stats.matches}</span>
-                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em' }}>Connections</span>
+                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em' }}>Seductive Fusions</span>
                 </div>
                 <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '20px 10px', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                     <span className="stat-value text-glow-cyan" style={{ display: 'block', fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-cyan)', marginBottom: '4px' }}>{stats.likes_received}</span>
-                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em' }}>Received</span>
+                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em' }}>Admired By</span>
                 </div>
                 <div className="stat-card glass-card holographic" style={{ textAlign: 'center', padding: '20px 10px', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                     <span className="stat-value text-glow-magenta" style={{ display: 'block', fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-magenta)', marginBottom: '4px' }}>{stats.likes_given}</span>
-                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em' }}>Sent</span>
+                    <span className="stat-label" style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em' }}>Sparked At</span>
                 </div>
             </div>
 
@@ -324,14 +324,14 @@ export default function Profile() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: 'var(--primary-light)' }}>
                         <span className="material-symbols-rounded" style={{ fontSize: 18 }}>menu_book</span>
-                        <span className="font-serif" style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700 }}>The Manifesto</span>
+                        <span className="font-serif" style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700 }}>The Ignition</span>
                     </div>
                     <p className="font-serif" style={{ fontSize: '1.25rem', lineHeight: '1.5', marginBottom: '24px', color: 'var(--text)', position: 'relative', zIndex: 1 }}>
                         {user.bio || "Searching for cosmic resonance."}
                     </p>
                     {user.pickup_line && (
                         <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '16px' }}>
-                            <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.1em' }}>Cosmic Signal</div>
+                            <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.1em' }}>Spark Signal</div>
                             <p className="font-serif" style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{user.pickup_line}</p>
                         </div>
                     )}
@@ -362,7 +362,7 @@ export default function Profile() {
                                     <span className="material-symbols-rounded" style={{ color: 'white' }}>music_note</span>
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: '#1DB954', marginBottom: '4px' }}>Spectral Anthem</div>
+                                    <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: '#1DB954', marginBottom: '4px' }}>Soul Anthem</div>
                                     <div style={{ fontWeight: 700, fontSize: '1rem', wordBreak: 'break-word' }}>{user.spotify_song || 'Unidentified Track'}</div>
                                     <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>{user.spotify_artist || 'Unknown Artist'}</div>
                                 </div>
@@ -393,11 +393,11 @@ export default function Profile() {
                     </section>
                 )}
 
-                {/* Aura Spectrum (Flags) */}
+                {/* SPARK Spectrum (Flags) */}
                 {((user.green_flags && user.green_flags.length > 0) || (user.red_flags && user.red_flags.length > 0)) && (
                     <section className="profile-section view-animate" style={{ animationDelay: '0.5s', marginBottom: '40px' }}>
                         <div className="section-header" style={{ marginBottom: '16px' }}>
-                            <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Aura Spectrum</h3>
+                            <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>SPARK Spectrum</h3>
                         </div>
                         <div className="flags-containers" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {user.green_flags && user.green_flags.length > 0 && (
@@ -434,7 +434,7 @@ export default function Profile() {
                 {prompts.length > 0 && (
                     <section className="profile-section view-animate" style={{ animationDelay: '0.6s', marginBottom: '40px' }}>
                         <div className="section-header" style={{ marginBottom: '16px' }}>
-                            <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Broadcast Transmissions</h3>
+                            <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Spark Transmissions</h3>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {prompts.map(p => (
@@ -452,7 +452,7 @@ export default function Profile() {
                 {/* Visual Fragments */}
                 <section className="profile-section view-animate" style={{ animationDelay: '0.7s', marginBottom: '40px' }}>
                     <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                        <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Visual Fragments</h3>
+                        <h3 className="font-serif" style={{ fontSize: '1.2rem' }}>Flame Fragments</h3>
                         <button className="btn-ghost" onClick={() => fileInputRef.current?.click()} style={{ fontSize: '0.75rem', padding: '6px 12px' }}>
                             <span className="material-symbols-rounded" style={{ fontSize: 16 }}>add</span> Add
                         </button>
@@ -479,7 +479,7 @@ export default function Profile() {
                 {/* Subconscious Echoes */}
                 <section className="profile-section view-animate" style={{ animationDelay: '0.8s', marginBottom: '32px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', padding: '0 10px' }}>
-                        <h3 className="font-serif" style={{ fontSize: '1.25rem', margin: 0, fontWeight: 700 }}>Subconscious Echoes</h3>
+                        <h3 className="font-serif" style={{ fontSize: '1.25rem', margin: 0, fontWeight: 700 }}>Anonymous Whispers</h3>
                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{anonQuestions.length} Received</span>
                     </div>
                     <div className="anon-questions-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -500,7 +500,7 @@ export default function Profile() {
                                     <p style={{ fontSize: '0.95rem', marginBottom: '16px', fontWeight: 500 }}>{q.question_text}</p>
                                     {q.answer_text ? (
                                         <div style={{ background: 'var(--primary-soft)', padding: '12px', borderRadius: '10px', fontSize: '0.9rem', position: 'relative' }}>
-                                            <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px', color: 'var(--primary)' }}>My Resonance</div>
+                                            <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px', color: 'var(--primary)' }}>My Ignition</div>
                                             <p style={{ margin: 0 }}>{q.answer_text}</p>
                                         </div>
                                     ) : (
@@ -517,7 +517,7 @@ export default function Profile() {
                                             />
                                             <div style={{ display: 'flex', gap: '8px' }}>
                                                 <button className="btn-primary" style={{ flex: 1, padding: '8px 0', fontSize: '0.8rem' }} disabled={submittingAnswer || !answerText.trim() || answeringId !== q.id} onClick={() => answerQuestion(q.id)}>
-                                                    Manifest
+                                                    Ignite Whisper
                                                 </button>
                                                 <button className="btn-ghost" style={{ padding: '8px 16px', fontSize: '0.8rem' }} onClick={() => deleteQuestion(q.id)}>
                                                     Discard
@@ -539,7 +539,7 @@ export default function Profile() {
                                 <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '1.8rem' }}>verified_user</span>
                             </div>
                             <div style={{ flex: 1 }}>
-                                <h3 className="font-serif" style={{ fontSize: '1.2rem', marginBottom: '4px', margin: 0, fontWeight: 700 }}>Verify<br />Your<br />Aura</h3>
+                                <h3 className="font-serif" style={{ fontSize: '1.2rem', marginBottom: '4px', margin: 0, fontWeight: 700 }}>Calibrate<br />Your<br />Soul</h3>
                                 <p style={{ color: 'var(--text-muted)', margin: '8px 0 0 0', fontSize: '0.85rem', lineHeight: 1.4 }}>
                                     Upload your university ID to unlock global frequencies and the verified badge.
                                 </p>
@@ -566,7 +566,7 @@ export default function Profile() {
                                     textAlign: 'center',
                                     padding: '16px'
                                 }}>
-                                {uploadingID ? 'Encrypting...' : 'Upload ID Manifest'}
+                                {uploadingID ? 'Encrypting...' : 'Calibrate Soul Identity'}
                             </button>
                         </div>
                     </section>

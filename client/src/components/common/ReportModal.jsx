@@ -24,8 +24,8 @@ export default function ReportModal({ userId, userName, onClose }) {
     };
 
     return (
-        <div className="modal-backdrop-aura" onClick={(e) => e.target === e.currentTarget && onClose()}>
-            <div className="modal-aura">
+        <div className="modal-backdrop-spark" onClick={(e) => e.target === e.currentTarget && onClose()}>
+            <div className="modal-spark">
                 <div style={{ padding: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
                     <h3 className="font-serif" style={{ margin: 0 }}>Safety Report</h3>
                     <button className="btn-icon" onClick={onClose} style={{ background: 'none' }}>
@@ -41,7 +41,7 @@ export default function ReportModal({ userId, userName, onClose }) {
                     {REPORT_REASONS.map((reason) => (
                         <button
                             key={reason}
-                            className="modal-item-aura"
+                            className="modal-item-spark"
                             onClick={() => handleSubmit(reason)}
                             disabled={submitting}
                         >
@@ -52,7 +52,7 @@ export default function ReportModal({ userId, userName, onClose }) {
                 </div>
 
                 <div style={{ padding: '20px', background: 'rgba(0,0,0,0.2)', textAlign: 'center', fontSize: '0.75rem', opacity: 0.4 }}>
-                    AURA SAFETY PROTOCOL • SECURE SUBMISSION
+                    SPARK SAFETY PROTOCOL • SECURE SUBMISSION
                 </div>
             </div>
         </div>

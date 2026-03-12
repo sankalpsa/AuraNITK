@@ -1,5 +1,5 @@
-﻿/* ========================================
-   Aura — Celestial Design System v3.0
+/* ========================================
+   SPARK — Celestial Design System v3.0
    ======================================== */
 
 /* ---------- CSS Reset ---------- */
@@ -22,18 +22,36 @@ body {
   min-height: 100vh;
   -webkit-user-select: none;
   user-select: none;
+  position: relative;
 }
+
+/* Premium Grain Texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  background-repeat: repeat;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 10000;
+  mix-blend-mode: overlay;
+}
+
 
 /* ---------- Design Tokens ---------- */
 :root {
-  /* Celestial Aura Palette */
-  --primary: #8B5CF6;
-  --primary-dark: #7C3AED;
-  --primary-light: #A78BFA;
-  --primary-soft: rgba(139, 92, 246, 0.12);
-  --secondary: #0F172A;
-  --accent-cyan: #06B6D4;
-  --accent-magenta: #EC4899;
+  /* Celestial SPARK Palette */
+  --primary: #FF2A54;
+  --primary-dark: #E11D48;
+  --primary-light: #FF4D79;
+  --primary-soft: rgba(255, 42, 84, 0.15);
+  --secondary: #0A0005;
+  --accent-cyan: #FF5E00;
+  --accent-magenta: #FF0055;
+  --accent-lust: #FF0044;
   --accent-emerald: #10B981;
   --accent-amber: #F59E0B;
   --success: #10B981;
@@ -47,9 +65,9 @@ body {
   --radius-xl: 32px;
   --radius-full: 9999px;
 
-  --gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #06B6D4 100%);
-  --gradient-aurora: linear-gradient(135deg, #7C3AED 0%, #EC4899 33%, #06B6D4 66%, #10B981 100%);
-  --gradient-card-border: linear-gradient(135deg, rgba(139, 92, 246, 0.5), rgba(236, 72, 153, 0.3), rgba(6, 182, 212, 0.5));
+  --gradient-primary: linear-gradient(135deg, #FF2A54 0%, #FF5E00 50%, #FFB000 100%);
+  --gradient-spark: linear-gradient(135deg, #E11D48 0%, #FF2A54 33%, #FF5E00 66%, #FFB000 100%);
+  --gradient-card-border: linear-gradient(135deg, rgba(255, 42, 84, 0.5), rgba(255, 94, 0, 0.3), rgba(255, 176, 0, 0.5));
   --glass-glow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
   --glass-glow-light: inset 0 1px 1px rgba(255, 255, 255, 0.4);
 
@@ -59,54 +77,54 @@ body {
 /* ---------- Dark Theme (Default) ---------- */
 [data-theme='dark'],
 :root:not([data-theme='light']) {
-  --bg: #090312;
-  /* Deepest Cosmic Void */
+  --bg: #0A0005;
+  /* Deepest Sensual Void */
 
   /* True Glassmorphism Tokens (Light/White Alpha on Dark BG) */
-  --bg-card: rgba(255, 255, 255, 0.03);
-  --bg-elevated: rgba(255, 255, 255, 0.06);
-  --bg-hover: rgba(255, 255, 255, 0.09);
-  --bg-input: rgba(0, 0, 0, 0.2);
-  --bg-glass: rgba(15, 10, 30, 0.6);
+  --bg-card: rgba(30, 0, 10, 0.6);
+  --bg-elevated: rgba(45, 0, 15, 0.7);
+  --bg-hover: rgba(60, 0, 20, 0.8);
+  --bg-input: rgba(0, 0, 0, 0.4);
+  --bg-glass: rgba(10, 0, 5, 0.7);
 
-  --text: #F8F7FF;
-  --text-secondary: #B8B2D6;
-  --text-muted: #827AA6;
+  --text: #FFF0F5;
+  --text-secondary: #FFB3C6;
+  --text-muted: #B37A8C;
 
-  --border: rgba(255, 255, 255, 0.08);
-  --border-light: rgba(255, 255, 255, 0.15);
+  --border: rgba(255, 42, 84, 0.2);
+  --border-light: rgba(255, 42, 84, 0.35);
 
-  --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
-  --gradient-hero: linear-gradient(180deg, transparent, rgba(9, 3, 18, 0.98) 90%, #090312 100%);
+  --gradient-card: linear-gradient(145deg, rgba(255, 42, 84, 0.08), rgba(255, 94, 0, 0.02));
+  --gradient-hero: linear-gradient(180deg, transparent, rgba(10, 0, 5, 0.98) 90%, #0A0005 100%);
 
-  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.15);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.8);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.9);
+  --shadow-glow: 0 0 50px rgba(255, 42, 84, 0.25);
 }
 
 /* ---------- Light Theme ---------- */
 [data-theme='light'] {
-  --bg: #F5F3FF;
+  --bg: #FFF5F7;
   --bg-card: rgba(255, 255, 255, 0.85);
-  --bg-elevated: rgba(245, 243, 255, 0.9);
-  --bg-hover: rgba(237, 233, 254, 0.8);
-  --bg-input: rgba(245, 243, 255, 0.9);
+  --bg-elevated: rgba(255, 240, 245, 0.9);
+  --bg-hover: rgba(255, 228, 235, 0.8);
+  --bg-input: rgba(255, 240, 245, 0.9);
 
-  --text: #1E1B4B;
-  --text-secondary: #4C3F8F;
-  --text-muted: #7C6FB5;
+  --text: #4A001F;
+  --text-secondary: #80003A;
+  --text-muted: #B34D70;
 
-  --border: rgba(139, 92, 246, 0.12);
-  --border-light: rgba(0, 0, 0, 0.12);
+  --border: rgba(255, 42, 84, 0.15);
+  --border-light: rgba(0, 0, 0, 0.08);
 
-  --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(245, 243, 255, 0.8));
-  --gradient-hero: linear-gradient(180deg, transparent, rgba(245, 243, 255, 0.95));
+  --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 240, 245, 0.8));
+  --gradient-hero: linear-gradient(180deg, transparent, rgba(255, 240, 245, 0.95));
 
-  --shadow-sm: 0 2px 12px rgba(139, 92, 246, 0.06);
-  --shadow-md: 0 4px 24px rgba(139, 92, 246, 0.1);
-  --shadow-lg: 0 8px 48px rgba(139, 92, 246, 0.12);
-  --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.1);
+  --shadow-sm: 0 2px 12px rgba(255, 42, 84, 0.08);
+  --shadow-md: 0 4px 24px rgba(255, 42, 84, 0.15);
+  --shadow-lg: 0 8px 48px rgba(255, 42, 84, 0.2);
+  --shadow-glow: 0 0 40px rgba(255, 42, 84, 0.15);
 }
 
 /* ---------- Theme Support Removed Auto Logic in favor of manual toggle ---------- */
@@ -118,15 +136,20 @@ body {
 }
 
 .text-glow-cyan {
-  text-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+  text-shadow: 0 0 15px rgba(255, 94, 0, 0.6);
 }
 
 .text-glow-magenta {
-  text-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
+  text-shadow: 0 0 15px rgba(255, 0, 85, 0.6);
 }
 
 .text-glow-purple {
-  text-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+  text-shadow: 0 0 20px rgba(255, 42, 84, 0.8);
+}
+
+.text-lust {
+  color: var(--accent-lust);
+  text-shadow: 0 0 10px rgba(255, 0, 68, 0.4);
 }
 
 h1,
@@ -157,7 +180,7 @@ h4 {
   z-index: 1;
 }
 
-/* Vibrant Animated Aurora Backgrounds */
+/* Vibrant Animated SPARK Backgrounds */
 #root::before,
 #root::after {
   content: "";
@@ -174,18 +197,18 @@ h4 {
 #root::before {
   top: -20%;
   left: -20%;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.7), transparent 70%);
-  animation: float-aurora-1 20s ease-in-out infinite alternate;
+  background: radial-gradient(circle, rgba(255, 42, 84, 0.6), transparent 70%);
+  animation: float-spark-1 20s ease-in-out infinite alternate;
 }
 
 #root::after {
   bottom: -20%;
   right: -20%;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.5), rgba(236, 72, 153, 0.4), transparent 70%);
-  animation: float-aurora-2 25s ease-in-out infinite alternate;
+  background: radial-gradient(circle, rgba(255, 94, 0, 0.4), rgba(255, 0, 85, 0.4), transparent 70%);
+  animation: float-spark-2 25s ease-in-out infinite alternate;
 }
 
-@keyframes float-aurora-1 {
+@keyframes float-spark-1 {
   0% {
     transform: translate(0, 0) scale(1);
   }
@@ -199,7 +222,7 @@ h4 {
   }
 }
 
-@keyframes float-aurora-2 {
+@keyframes float-spark-2 {
   0% {
     transform: translate(0, 0) scale(1);
   }
@@ -432,16 +455,16 @@ h4 {
   margin-bottom: 24px;
 }
 
-.text-aurora {
-  background: var(--gradient-aurora);
+.text-spark {
+  background: var(--gradient-spark);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   background-size: 300% 300%;
-  animation: aurora-mesh 12s infinite alternate ease-in-out;
+  animation: spark-mesh 12s infinite alternate ease-in-out;
 }
 
-@keyframes aurora-mesh {
+@keyframes spark-mesh {
   0% {
     background-position: 0% 50%;
   }
@@ -1126,7 +1149,100 @@ select.input-field {
   color: var(--text-secondary);
 }
 
-/* ---------- Bottom Navigation ---------- */
+/* ---------- Bottom Navigation SPARK ---------- */
+.bottom-nav-spark {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 440px;
+  height: 72px;
+  background: rgba(10, 0, 5, 0.75);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 42, 84, 0.2);
+  border-radius: 36px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 12px;
+  z-index: 1000;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 
+              0 0 20px rgba(255, 42, 84, 0.1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-item-spark {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-item-spark .material-symbols-rounded {
+  font-size: 26px;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.nav-item-spark.active {
+  color: var(--primary);
+  background: rgba(255, 42, 84, 0.1);
+}
+
+.nav-item-spark.active .material-symbols-rounded {
+  transform: scale(1.15);
+  font-variation-settings: 'FILL' 1, 'wght' 400;
+  text-shadow: 0 0 15px rgba(255, 42, 84, 0.6);
+}
+
+.nav-item-spark::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  width: 4px;
+  height: 4px;
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px var(--primary);
+}
+
+.nav-item-spark.active::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.nav-badge-spark {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--primary);
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #0A0005;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -1244,19 +1360,19 @@ select.input-field {
 }
 
 /* Chat Enhancements */
-.chat-item-aura-active {
+.chat-item-spark-active {
   background: var(--bg-elevated) !important;
 }
 
-.chat-item-aura:hover {
+.chat-item-spark:hover {
   transform: scale(1.01);
   background: var(--bg-elevated);
 }
 
-.typing-aura {
+.typing-spark {
   color: var(--primary-light);
   font-style: italic;
-  animation: aura-pulse 2s infinite;
+  animation: spark-pulse 2s infinite;
 }
 
 .msg-bubble {
@@ -1296,7 +1412,7 @@ select.input-field {
   transition: border-color 0.3s ease;
 }
 
-.msg-action-sheet-aura {
+.msg-action-sheet-spark {
   background: var(--bg-glass);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
@@ -1306,7 +1422,7 @@ select.input-field {
   animation: slide-up 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes aura-pulse {
+@keyframes spark-pulse {
 
   0%,
   100% {
@@ -1697,8 +1813,52 @@ select.input-field {
   border-color: var(--primary);
 }
 
-/* ---------- Aura Radar (Member Grid) ---------- */
-.aura-radar-grid {
+/* ---------- SPARK Grid Items (Likes/Connections) ---------- */
+.spark-grid-item {
+  position: relative;
+  aspect-ratio: 3/4;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.spark-grid-item:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 42, 84, 0.3);
+  border-color: var(--primary);
+}
+
+.spark-grid-item:hover img {
+  transform: scale(1.1);
+}
+
+.spark-grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease;
+}
+
+.spark-grid-item:hover img {
+  transform: scale(1.1);
+}
+
+.spark-item-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 30px 12px 12px;
+  background: linear-gradient(to top, rgba(10, 0, 5, 0.95) 0%, transparent 100%);
+  z-index: 2;
+  color: white;
+}
+
+/* ---------- SPARK Radar (Member Grid) ---------- */
+.spark-radar-grid {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -1723,7 +1883,7 @@ select.input-field {
 .radar-tile:hover {
   transform: translateY(-8px) scale(1.02);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), var(--shadow-glow);
-  border-color: rgba(139, 92, 246, 0.5);
+  border-color: rgba(255, 42, 84, 0.5);
 }
 
 .radar-photo-container {
@@ -1747,10 +1907,10 @@ select.input-field {
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom,
-      rgba(10, 1, 24, 0.2) 0%,
+      rgba(10, 0, 5, 0.2) 0%,
       transparent 40%,
-      rgba(10, 1, 24, 0.8) 75%,
-      rgba(10, 1, 24, 0.98) 100%);
+      rgba(10, 0, 5, 0.8) 75%,
+      rgba(10, 0, 5, 0.98) 100%);
   z-index: 2;
 }
 
@@ -1809,7 +1969,7 @@ select.input-field {
   position: absolute;
   inset: 0;
   background: var(--gradient-primary);
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
 .badge-text {
@@ -1824,34 +1984,187 @@ select.input-field {
   gap: 6px;
 }
 
-/* Cosmic Loader */
-.cosmic-loader {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* SPARK Loader — Celestial Pulse */
+.spark-loader {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.cosmic-loader::after {
-  content: "";
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 2px solid var(--primary-soft);
-  animation: cosmic-pulse 2s infinite ease-out;
-}
-
-@keyframes cosmic-pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(1.5);
+.spark-loader::before,
+.spark-loader::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
     opacity: 0;
+    animation: celestial-pulse 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+.spark-loader::after {
+    animation-delay: 1.25s;
+    border-color: var(--secondary);
+}
+
+@keyframes celestial-pulse {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+        box-shadow: 0 0 0 rgba(255, 42, 84, 0);
+    }
+    50% {
+        opacity: 0.6;
+        box-shadow: 0 0 30px rgba(255, 42, 84, 0.4);
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+        box-shadow: 0 0 60px rgba(255, 42, 84, 0);
+    }
+}
+
+/* Radar Pulse Background */
+.radar-pulse-bg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+  opacity: 0.4;
+}
+
+.radar-pulse-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border: 1px solid var(--primary-soft);
+  border-radius: 50%;
+  animation: radar-expand 6s infinite ease-out;
+}
+
+.delay-1 { animation-delay: 2s; }
+.delay-2 { animation-delay: 4s; }
+
+@keyframes radar-expand {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.9;
+    border-width: 3px;
+    box-shadow: 0 0 30px var(--primary-soft), inset 0 0 20px var(--primary-soft);
   }
+  50% {
+    opacity: 0.4;
+    border-width: 1.5px;
+  }
+  100% {
+    width: 180vmax;
+    height: 180vmax;
+    opacity: 0;
+    border-width: 0.5px;
+  }
+}
+
+/* Spark Radar Grid */
+.spark-radar-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.radar-tile {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  aspect-ratio: 1/1.2;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.radar-tile:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px var(--primary-soft);
+}
+
+.radar-photo-container {
+  width: 100%;
+  height: 100%;
+}
+
+.radar-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.radar-tile:hover .radar-photo {
+  transform: scale(1.1);
+}
+
+.radar-photo-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10, 1, 24, 0.9) 0%, transparent 40%, rgba(10, 1, 24, 0.2) 100%);
+}
+
+.radar-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.radar-name-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.radar-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.radar-stats-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+}
+
+.radar-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--gradient-spark);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 /* ---------- Connections Grid ---------- */
@@ -2029,7 +2342,7 @@ select.input-field {
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  background: rgba(10, 10, 15, 0.92);
+  background: rgba(10, 0, 5, 0.92);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
@@ -2159,7 +2472,7 @@ select.input-field {
 .msg-context {
   padding: 6px 10px;
   margin-bottom: 4px;
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(255, 42, 84, 0.1);
   border-left: 3px solid var(--primary);
   border-radius: 4px;
   font-size: 0.78rem;
@@ -2270,7 +2583,7 @@ select.input-field {
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
-  background: rgba(238, 43, 157, 0.08);
+  background: rgba(255, 42, 84, 0.08);
   border-left: 3px solid var(--primary);
 }
 
@@ -3206,7 +3519,7 @@ select.input-field {
 }
 
 /* Celestial Navbar */
-.bottom-nav-aura {
+.bottom-nav-spark {
   position: fixed;
   bottom: 20px;
   left: 50%;
@@ -3228,7 +3541,7 @@ select.input-field {
   padding: 0 20px;
 }
 
-.nav-item-aura {
+.nav-item-spark {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3241,17 +3554,17 @@ select.input-field {
   position: relative;
 }
 
-.nav-item-aura .material-symbols-rounded {
+.nav-item-spark .material-symbols-rounded {
   font-size: 28px;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-.nav-item-aura.active {
+.nav-item-spark.active {
   color: var(--primary-light);
   transform: translateY(-8px);
 }
 
-.nav-item-aura.active .material-symbols-rounded {
+.nav-item-spark.active .material-symbols-rounded {
   font-variation-settings: 'FILL' 1;
   filter: drop-shadow(0 0 10px var(--primary-soft));
 }
@@ -3289,7 +3602,7 @@ select.input-field {
   min-height: 40vh;
 }
 
-.nav-badge-aura {
+.nav-badge-spark {
   position: absolute;
   top: 5px;
   right: 5px;
@@ -3302,8 +3615,8 @@ select.input-field {
   border: 2px solid #050505;
 }
 
-/* Match Overlay Aura */
-.match-overlay-aura {
+/* Match Overlay SPARK */
+.match-overlay-spark {
   position: fixed;
   inset: 0;
   z-index: 2000;
@@ -3314,7 +3627,7 @@ select.input-field {
   animation: fadeIn 0.5s ease;
 }
 
-.match-card-aura {
+.match-card-spark {
   width: 90%;
   max-width: 400px;
   text-align: center;
@@ -3326,11 +3639,11 @@ select.input-field {
   height: 120px;
   border-radius: 50%;
   padding: 3px;
-  background: var(--gradient-aura);
+  background: var(--gradient-spark);
   position: relative;
 }
 
-.match-photo-aura {
+.match-photo-spark {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -3338,8 +3651,8 @@ select.input-field {
   border: 2px solid #000;
 }
 
-/* Modal Aura */
-.modal-backdrop-aura {
+/* Modal SPARK */
+.modal-backdrop-spark {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.8);
@@ -3351,7 +3664,7 @@ select.input-field {
   justify-content: center;
 }
 
-.modal-aura {
+.modal-spark {
   width: 90%;
   max-width: 400px;
   background: var(--bg-glass);
@@ -3361,7 +3674,7 @@ select.input-field {
   animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 
-.modal-item-aura {
+.modal-item-spark {
   width: 100%;
   padding: 18px 25px;
   background: none;
@@ -7678,14 +7991,14 @@ select.input-field {
   }
 }
 
-/* ========== GOLDEN AURA (High Match) ========== */
-.golden-aura {
+/* ========== GOLDEN SPARK (High Match) ========== */
+.golden-spark {
   box-shadow: 0 0 20px rgba(251, 191, 36, 0.4), 0 0 40px rgba(251, 191, 36, 0.1) !important;
   border: 1px solid rgba(251, 191, 36, 0.8) !important;
-  animation: auraPulse 2s infinite alternate ease-in-out;
+  animation: sparkPulse 2s infinite alternate ease-in-out;
 }
 
-@keyframes auraPulse {
+@keyframes sparkPulse {
   0% {
     box-shadow: 0 0 15px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.1);
   }
@@ -8296,7 +8609,7 @@ select.input-field {
   border: 1px solid var(--border);
 }
 
-/* ---------- Aura Icebreakers ---------- */
+/* ---------- SPARK Icebreakers ---------- */
 .icebreaker-drawer {
   background: var(--bg-card);
   border-top: 1px solid var(--border);
@@ -8327,7 +8640,164 @@ select.input-field {
 
 .icebreaker-chip:hover,
 .icebreaker-chip:active {
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(255, 42, 84, 0.1);
   border-color: var(--primary);
   color: var(--primary);
+}
+
+/* ========== SPARK — Premium Ignite Animations ========== */
+
+/* Ember floating particles */
+@keyframes ember-float {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-40vh) translateX(15px) scale(0.8);
+    opacity: 0.4;
+  }
+  90% {
+    opacity: 0.1;
+  }
+  100% {
+    transform: translateY(-80vh) translateX(-10px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* SPARK text flicker/glow effect */
+.spark-text-flicker {
+  background: linear-gradient(135deg, #FF2A54 0%, #FF5E00 40%, #FFB000 70%, #FF2A54 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: spark-flame 4s ease-in-out infinite;
+  text-shadow: none;
+  position: relative;
+}
+
+@keyframes spark-flame {
+  0%, 100% {
+    background-position: 0% 50%;
+    filter: brightness(1);
+  }
+  25% {
+    background-position: 50% 50%;
+    filter: brightness(1.2);
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: brightness(1.4);
+  }
+  75% {
+    background-position: 50% 50%;
+    filter: brightness(1.1);
+  }
+}
+
+/* Ignite button with warm pulsing glow */
+.spark-ignite-btn {
+  position: relative;
+  overflow: visible !important;
+  box-shadow: 0 0 20px rgba(255, 42, 84, 0.4), 0 0 60px rgba(255, 42, 84, 0.1) !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.spark-ignite-btn::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: var(--gradient-primary);
+  z-index: -1;
+  filter: blur(12px);
+  opacity: 0.5;
+  animation: spark-btn-pulse 3s ease-in-out infinite;
+}
+
+@keyframes spark-btn-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+.spark-ignite-btn:hover {
+  transform: translateY(-3px) scale(1.03) !important;
+  box-shadow: 0 0 30px rgba(255, 42, 84, 0.6), 0 0 80px rgba(255, 94, 0, 0.3) !important;
+}
+
+.spark-ignite-btn:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+/* Feature card enhanced hover with warm glow */
+.feature-card:hover {
+  border-color: rgba(255, 42, 84, 0.5) !important;
+  box-shadow: var(--shadow-lg), 0 0 40px rgba(255, 42, 84, 0.15) !important;
+}
+
+/* Warm holographic shimmer */
+.holographic::before {
+  background: linear-gradient(125deg,
+      transparent 0%,
+      rgba(255, 94, 0, 0.02) 30%,
+      rgba(255, 42, 84, 0.05) 50%,
+      rgba(255, 176, 0, 0.02) 70%,
+      transparent 100%) !important;
+}
+
+/* Enhanced glass cards with warm tint */
+.glass-card:hover,
+.auth-card:hover {
+  border-color: rgba(255, 42, 84, 0.3);
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(255, 42, 84, 0.1);
+}
+
+/* Warm gradient for action buttons */
+.btn-primary {
+  box-shadow: 0 4px 20px rgba(255, 42, 84, 0.35);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 30px rgba(255, 42, 84, 0.5) !important;
+}
+
+/* Warm OTP input glow */
+.otp-input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 20px rgba(255, 42, 84, 0.3) !important;
+}
+
+/* Warm input field focus */
+.input-field:focus,
+.textarea-field:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px rgba(255, 42, 84, 0.12) !important;
+}
+
+/* Heartbeat animation for match overlay */
+@keyframes spark-heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.15); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.1); }
+  60% { transform: scale(1); }
+}
+
+/* Link colors */
+.link-btn {
+  color: var(--primary) !important;
+}
+.link-btn:hover {
+  color: var(--primary-light) !important;
 }

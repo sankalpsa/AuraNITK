@@ -80,7 +80,7 @@ export default function ChatList() {
     const getPreview = (m) => {
         const msg = m.last_message;
         if (!msg) return <span style={{ color: 'var(--primary)', fontWeight: 600 }}>New match! Say hi 👋</span>;
-        if ((msg.startsWith('/uploads/') || (msg.startsWith('http') && msg.includes('/aura-')))) {
+        if ((msg.startsWith('/uploads/') || (msg.startsWith('http') && msg.includes('/spark-')))) {
             const isVoice = msg.includes('voice') || msg.includes('webm');
             const isImg = msg.includes('image') || msg.includes('jpg') || msg.includes('png');
             const prefix = m.last_message_mine ? 'You: ' : '';
@@ -93,8 +93,8 @@ export default function ChatList() {
         <div className="profile-page view-animate" style={{ paddingBottom: '90px' }}>
             {/* Header Area */}
             <div className="page-header" style={{ padding: '30px 20px 10px' }}>
-                <h1 className="font-serif" style={{ fontSize: '2.4rem', margin: 0 }}>Echoes</h1>
-                <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>Your cosmic connections</p>
+                <h1 className="font-serif" style={{ fontSize: '2.4rem', margin: 0 }}>Ignited Fusions</h1>
+                <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>Shared frequencies and flames</p>
             </div>
 
             {/* Futuristic Search */}
@@ -110,7 +110,7 @@ export default function ChatList() {
                 }}>
                     <span className="material-symbols-rounded" style={{ opacity: 0.5 }}>search</span>
                     <input
-                        placeholder="Seek a connection..."
+                        placeholder="Seek a flame..."
                         value={search}
                         onChange={e => handleSearch(e.target.value)}
                         style={{ background: 'none', border: 'none', color: 'white', fontSize: '1rem', width: '100%', outline: 'none' }}
@@ -123,18 +123,18 @@ export default function ChatList() {
                 {loading ? (
                     <div className="view-animate" style={{ textAlign: 'center', padding: '100px 0' }}>
                         <div className="spinner" style={{ margin: '0 auto 20px' }} />
-                        <p style={{ opacity: 0.5 }}>Tuning signals...</p>
+                        <p style={{ opacity: 0.5 }}>Stoking the flames...</p>
                     </div>
                 ) : filtered.length === 0 ? (
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh', padding: '0 20px' }}>
                         <div className="glass-card holographic" style={{ padding: '60px 40px', textAlign: 'center', borderRadius: '32px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ background: 'rgba(139,92,246,0.15)', width: '96px', height: '96px', borderRadius: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(139,92,246,0.3)', border: '1px solid rgba(139,92,246,0.3)' }}>
-                                <span className="material-symbols-rounded" style={{ color: 'var(--primary-light)', fontSize: '3rem' }}>auto_awesome</span>
+                            <div style={{ background: 'rgba(255, 42, 84, 0.15)', width: '96px', height: '96px', borderRadius: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(255, 42, 84, 0.3)', border: '1px solid rgba(255, 42, 84, 0.3)' }}>
+                                <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '3rem' }}>whatshot</span>
                             </div>
-                            <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '12px' }}>No Resonance Yet</h3>
-                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '32px', fontSize: '0.95rem' }}>Match with someone to start a cosmic transmission!</p>
+                            <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Dark Embers</h3>
+                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '32px', fontSize: '0.95rem' }}>Ignite a connection to start your first transmission.</p>
                             <button className="btn-primary" onClick={() => navigate('/discover')} style={{ width: '100%', padding: '14px', borderRadius: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>radar</span> Begin Discovery
+                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>whatshot</span> Begin Ignition
                             </button>
                         </div>
                     </div>
@@ -147,7 +147,7 @@ export default function ChatList() {
                         return (
                             <div
                                 key={m.match_id}
-                                className={`chat-item-aura glass-card ${hasUnread ? 'holographic unread' : ''}`}
+                                className={`chat-item-spark glass-card ${hasUnread ? 'holographic unread' : ''}`}
                                 onClick={() => navigate('/chat/convo', { state: { match_id: m.match_id, name: m.name, photo: m.photo, user_id: m.user_id } })}
                                 style={{
                                     padding: '16px',
@@ -198,7 +198,7 @@ export default function ChatList() {
                                             color: isTyping ? 'var(--primary-light)' : 'inherit'
                                         }}>
                                             {isTyping ? (
-                                                <span className="typing-aura">pulsing signal...</span>
+                                                <span className="typing-spark">igniting whispers...</span>
                                             ) : getPreview(m)}
                                         </p>
 

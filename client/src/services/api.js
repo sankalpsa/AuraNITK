@@ -1,32 +1,32 @@
 // ========================================
-// Aura — API Service
+// SPARK — API Service
 // ========================================
 
 const API = '';
 
 export function getToken() {
-    return localStorage.getItem('aura_token');
+    return localStorage.getItem('spark_token');
 }
 
 export function setToken(t) {
-    localStorage.setItem('aura_token', t);
+    localStorage.setItem('spark_token', t);
 }
 
 export function clearToken() {
-    localStorage.removeItem('aura_token');
-    localStorage.removeItem('aura_user');
+    localStorage.removeItem('spark_token');
+    localStorage.removeItem('spark_user');
 }
 
 export function getCachedUser() {
     try {
-        return JSON.parse(localStorage.getItem('aura_user'));
+        return JSON.parse(localStorage.getItem('spark_user'));
     } catch {
         return null;
     }
 }
 
 export function setCachedUser(u) {
-    localStorage.setItem('aura_user', JSON.stringify(u));
+    localStorage.setItem('spark_user', JSON.stringify(u));
 }
 
 export async function apiFetch(path, opts = {}) {

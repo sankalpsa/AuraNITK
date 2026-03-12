@@ -31,35 +31,35 @@ export default function Likes() {
 
     return (
         <div className="likes-page view-animate">
-            <div className="page-header"><h1 className="font-serif">Likes You ✨</h1></div>
+            <div className="page-header"><h1 className="font-serif text-spark">Resonance</h1></div>
             <div style={{ padding: 14 }}>
                 {loading ? (
-                    <div className="empty-state"><div className="spinner" style={{ width: 32, height: 32 }} /><h3>Loading...</h3></div>
+                    <div className="empty-state"><div className="spinner" style={{ width: 32, height: 32 }} /><h3>Tuning the frequency...</h3></div>
                 ) : likes.length === 0 ? (
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', padding: '0 20px' }}>
                         <div className="empty-state glass-card holographic" style={{ padding: '60px 40px', textAlign: 'center', borderRadius: '32px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ background: 'rgba(244, 63, 94, 0.15)', width: '96px', height: '96px', borderRadius: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(244, 63, 94, 0.3)', border: '1px solid rgba(244, 63, 94, 0.3)' }}>
-                                <span className="material-symbols-rounded" style={{ color: '#f43f5e', fontSize: '3.5rem' }}>favorite_border</span>
+                            <div style={{ background: 'rgba(255, 42, 84, 0.1)', width: '96px', height: '96px', borderRadius: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(255, 42, 84, 0.3)', border: '1px solid rgba(255, 42, 84, 0.2)' }}>
+                                <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '3.5rem' }}>favorite</span>
                             </div>
-                            <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Awaiting Resonance</h3>
+                            <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Silent Sparks</h3>
                             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '32px', fontSize: '0.95rem' }}>
-                                No one has tuned into your frequency yet. Keep radiating your aura — likes will appear here.
+                                Your frequency is silent. Radiate your presence and the sparks will follow.
                             </p>
                             <button className="btn-primary" style={{ width: '100%', padding: '14px', borderRadius: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={() => navigate('/discover')}>
-                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>explore</span> Explore Radar
+                                <span className="material-symbols-rounded" style={{ fontSize: 20 }}>bolt</span> Ignite Presence
                             </button>
                         </div>
                     </div>
                 ) : (
                     <>
-                        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 12 }}>
-                            {likes.length} people liked you
+                        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 12, fontWeight: 600, letterSpacing: '0.05em' }}>
+                            {likes.length} SOULS RADIATING INTEREST
                         </p>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '15px' }}>
                             {likes.map(u => {
                                 const isBlur = !u.is_super_like;
                                 return (
-                                    <div key={u.id} className="aura-grid-item glass-card holographic"
+                                    <div key={u.id} className="spark-grid-item glass-card holographic"
                                         onClick={() => navigate('/profile/view', { state: { profile: u } })}>
                                         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                                             <img src={u.photo || defaultAvatar(u.name)} alt={u.name}
@@ -71,13 +71,13 @@ export default function Likes() {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="aura-item-overlay">
-                                            <h3 style={{ margin: 0, fontSize: '0.9rem' }}>{isBlur ? 'Aura Mystery' : u.name}</h3>
-                                            <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.6 }}>{isBlur ? 'Matched Frequency' : u.branch}</p>
+                                        <div className="spark-item-overlay">
+                                            <h3 style={{ margin: 0, fontSize: '0.9rem' }}>{isBlur ? 'Mystery Flame' : u.name}</h3>
+                                            <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.6 }}>{isBlur ? 'Hidden Resonance' : u.branch}</p>
                                         </div>
                                         <div style={{
                                             position: 'absolute', top: '10px', right: '10px',
-                                            background: u.is_super_like ? 'var(--gradient-aura)' : 'rgba(0,0,0,0.5)',
+                                            background: u.is_super_like ? 'var(--gradient-spark)' : 'rgba(0,0,0,0.5)',
                                             borderRadius: '10px', padding: '2px 8px', fontSize: '0.65rem', fontWeight: 700
                                         }}>
                                             {u.is_super_like ? 'SUPER' : 'LIKE'}

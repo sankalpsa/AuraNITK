@@ -145,7 +145,7 @@ export default function EditProfile() {
                 <button className="btn-icon" onClick={() => navigate('/profile')} style={{ background: 'var(--bg-elevated)' }}>
                     <span className="material-symbols-rounded">arrow_back</span>
                 </button>
-                <h2 className="font-serif" style={{ margin: 0, fontSize: '1.5rem' }}>Edit Identity</h2>
+                <h2 className="font-serif" style={{ margin: 0, fontSize: '1.5rem' }}>Refine Your SPARK</h2>
             </div>
 
             <div className="profile-content" style={{ padding: '20px' }}>
@@ -155,7 +155,7 @@ export default function EditProfile() {
                     <div className="glass-card holographic" style={{ padding: '24px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: 'var(--primary-light)' }}>
                             <span className="material-symbols-rounded">person_edit</span>
-                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Essence</h3>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Initial Ignition</h3>
                         </div>
 
                         <div className="input-group" style={{ marginBottom: '20px' }}>
@@ -177,7 +177,7 @@ export default function EditProfile() {
                         </div>
 
                         <div className="input-group">
-                            <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>💬 Cosmic Pickup Line</label>
+                            <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>🔥 Seductive Whisper</label>
                             <input
                                 className="input-field glass-input"
                                 value={pickupLine}
@@ -193,7 +193,7 @@ export default function EditProfile() {
                     <div className="glass-card holographic" style={{ padding: '24px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: 'var(--secondary)' }}>
                             <span className="material-symbols-rounded">school</span>
-                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Alignment</h3>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Harmonic Frequency</h3>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
@@ -212,7 +212,7 @@ export default function EditProfile() {
                         </div>
 
                         <div className="input-group" style={{ marginTop: '20px' }}>
-                            <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Seek Interest</label>
+                            <label style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '8px', display: 'block' }}>Attracted To</label>
                             <select className="input-field glass-input" value={showMe} onChange={e => setShowMe(e.target.value)} style={{ width: '100%' }}>
                                 <option value="all">Everyone</option>
                                 <option value="male">Men</option>
@@ -225,7 +225,7 @@ export default function EditProfile() {
                     <div className="glass-card holographic" style={{ padding: '24px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: 'var(--primary-light)' }}>
                             <span className="material-symbols-rounded">interests</span>
-                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Elemental Resonance</h3>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Soul Resonance</h3>
                         </div>
 
                         <div className="interest-tags" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
@@ -256,7 +256,7 @@ export default function EditProfile() {
                     <div className="glass-card holographic" style={{ padding: '24px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#22c55e' }}>
                             <span className="material-symbols-rounded">flag</span>
-                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Aura Spectrum</h3>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>SPARK Spectrum</h3>
                         </div>
 
                         <div className="input-group" style={{ marginBottom: '20px' }}>
@@ -286,7 +286,7 @@ export default function EditProfile() {
                     <div className="glass-card holographic" style={{ padding: '24px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: '#1DB954' }}>
                             <span className="material-symbols-rounded">library_music</span>
-                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Spectral Anthem</h3>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Soul Anthem</h3>
                         </div>
                         <p style={{ fontSize: '0.8rem', opacity: 0.6, marginBottom: '20px' }}>Paste a Spotify Track link to embed a playable Anthem on your profile.</p>
 
@@ -316,7 +316,7 @@ export default function EditProfile() {
                         {loading ? <div className="spinner" style={{ width: 20, height: 20 }} /> : (
                             <>
                                 <span className="material-symbols-rounded">auto_fix_high</span>
-                                Manifest Changes
+                                Ignite Updates
                             </>
                         )}
                     </button>
@@ -327,7 +327,7 @@ export default function EditProfile() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-light)' }}>
                             <span className="material-symbols-rounded">forum</span>
-                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Broadcast Prompts</h3>
+                            <h3 className="font-serif" style={{ margin: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Spark Transmissions</h3>
                         </div>
                         <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>{prompts.length}/3</span>
                     </div>
@@ -385,10 +385,10 @@ export default function EditProfile() {
                 <div className="glass-card holographic" style={{ padding: '24px', marginTop: '30px', border: isSnoozed ? '1px solid var(--primary)' : '1px solid var(--border)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
                         <span className="material-symbols-rounded">bedtime</span>
-                        <h3 className="font-serif" style={{ margin: 0 }}>Stellar Hibernate</h3>
+                        <h3 className="font-serif" style={{ margin: 0 }}>Flame Stasis</h3>
                     </div>
                     <p style={{ fontSize: '0.9rem', opacity: 0.6, marginBottom: '20px' }}>
-                        Retreat from the cosmic grid temporarily. Your profile will be hidden from new seekers.
+                        Cool your embers temporarily. Your flame will be hidden from new seekers.
                     </p>
                     <button
                         className={isSnoozed ? "btn-primary holographic" : "btn-secondary"}
@@ -407,7 +407,7 @@ export default function EditProfile() {
                     style={{ width: '100%', marginTop: '30px', padding: '15px', color: 'var(--text-secondary)' }}
                 >
                     <span className="material-symbols-rounded" style={{ marginRight: '8px' }}>settings</span>
-                    Advanced Config & Privacy
+                    Core Config & Privacy
                 </button>
             </div>
         </div>

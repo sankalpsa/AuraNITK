@@ -4,11 +4,11 @@ import { useAuth } from '../../context/AuthContext';
 import { apiFetch } from '../../services/api';
 
 const NAV_ITEMS = [
-    { view: 'discover', icon: 'style', label: 'Discover', path: '/discover' },
-    { view: 'connections', icon: 'people', label: 'Matches', path: '/connections' },
-    { view: 'chat', icon: 'chat_bubble', label: 'Messages', path: '/chat' },
-    { view: 'likes', icon: 'favorite', label: 'Likes', path: '/likes' },
-    { view: 'profile', icon: 'person', label: 'Profile', path: '/profile' },
+    { view: 'discover', icon: 'style', label: 'Ignition', path: '/discover' },
+    { view: 'connections', icon: 'people', label: 'Fusions', path: '/connections' },
+    { view: 'chat', icon: 'chat_bubble', label: 'Whispers', path: '/chat' },
+    { view: 'likes', icon: 'favorite', label: 'Resonance', path: '/likes' },
+    { view: 'profile', icon: 'person', label: 'Manifest', path: '/profile' },
 ];
 
 const MAIN_PATHS = ['/discover', '/connections', '/chat', '/likes', '/profile', '/settings'];
@@ -43,16 +43,16 @@ export default function Layout() {
     return (
         <div id="layout">
             {showNav && (
-                <nav className="bottom-nav-aura">
+                <nav className="bottom-nav-spark">
                     {NAV_ITEMS.map(item => (
                         <button
                             key={item.view}
-                            className={`nav-item-aura ${location.pathname.startsWith(item.path) ? 'active' : ''}`}
+                            className={`nav-item-spark ${location.pathname.startsWith(item.path) ? 'active' : ''}`}
                             onClick={() => navigate(item.path)}
                         >
                             <span className="material-symbols-rounded">{item.icon}</span>
                             {item.view === 'chat' && unreadCount > 0 && (
-                                <span className="nav-badge-aura">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                                <span className="nav-badge-spark">{unreadCount > 9 ? '9+' : unreadCount}</span>
                             )}
                         </button>
                     ))}

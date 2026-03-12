@@ -5,7 +5,7 @@ const ThemeContext = createContext();
 export function ThemeProvider({ children }) {
     // Check localStorage first, otherwise fallback to system preference
     const [theme, setTheme] = useState(() => {
-        const saved = localStorage.getItem('aura_theme');
+        const saved = localStorage.getItem('spark_theme');
         if (saved) return saved;
         return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
     });
@@ -13,7 +13,7 @@ export function ThemeProvider({ children }) {
     useEffect(() => {
         // Apply theme to document element
         document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('aura_theme', theme);
+        localStorage.setItem('spark_theme', theme);
     }, [theme]);
 
     const toggleTheme = () => {

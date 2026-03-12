@@ -86,13 +86,11 @@ export default function Discover() {
         return (
             <div className="discover-page view-animate">
                 <div className="page-header">
-                    <h1 className="font-serif text-aurora">Aura Radar</h1>
+                    <h1 className="font-serif text-spark">SPARK Radar</h1>
                 </div>
                 <div className="empty-state" style={{ height: '60vh' }}>
-                    <div className="cosmic-loader">
-                        <div className="spinner" style={{ width: 48, height: 48, borderTopColor: 'var(--primary)' }} />
-                    </div>
-                    <h3 className="font-serif" style={{ marginTop: '24px', opacity: 0.8 }}>Calibrating Aura Frequencies...</h3>
+                    <div className="spark-loader"></div>
+                    <h3 className="font-serif" style={{ marginTop: '24px', opacity: 0.8 }}>Tuning the Cosmic Radar...</h3>
                 </div>
             </div>
         );
@@ -100,12 +98,16 @@ export default function Discover() {
 
     return (
         <div className="discover-page view-animate" style={{ paddingBottom: '120px' }}>
-            <div className="radar-pulse-bg"></div>
+            <div className="radar-pulse-bg">
+                <div className="radar-pulse-circle"></div>
+                <div className="radar-pulse-circle delay-1"></div>
+                <div className="radar-pulse-circle delay-2"></div>
+            </div>
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="font-serif" style={{ fontSize: '2.5rem', lineHeight: '1' }}>Radar</h1>
+                    <h1 className="font-serif" style={{ fontSize: '2.5rem', lineHeight: '1' }}>SPARK Radar</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.05em' }}>
-                        {searchMode === 'local' ? 'NEARBY DIMENSIONS' : 'GLOBAL FREQUENCIES'}
+                        {searchMode === 'local' ? 'VICINITY IGNITIONS' : 'GLOBAL FLAMES'}
                     </p>
                 </div>
                 <button className="btn-icon holographic" onClick={() => setShowFilters(!showFilters)}
@@ -135,7 +137,7 @@ export default function Discover() {
                     </div>
 
                     <div className="filter-row" style={{ marginBottom: '20px' }}>
-                        <label className="filter-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Academic Sphere</label>
+                        <label className="filter-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Intellectual Synergy</label>
                         <select className="filter-select" value={filterBranch} onChange={(e) => { setFilterBranch(e.target.value); }}>
                             <option value="all">Everywhere</option>
                             {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
@@ -143,7 +145,7 @@ export default function Discover() {
                     </div>
 
                     <div className="filter-row" style={{ marginBottom: '28px' }}>
-                        <label className="filter-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Journey Stage</label>
+                        <label className="filter-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Celestial Era</label>
                         <select className="filter-select" value={filterYear} onChange={(e) => { setFilterYear(e.target.value); }}>
                             <option value="all">Any year</option>
                             {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
@@ -151,7 +153,7 @@ export default function Discover() {
                     </div>
 
                     <button className="btn-primary" style={{ width: '100%' }} onClick={() => { setShowFilters(false); loadProfiles(); }}>
-                        <span className="material-symbols-rounded">sync_alt</span> Apply Sync
+                        <span className="material-symbols-rounded">local_fire_department</span> Ignite Search
                     </button>
                 </div>
             )}
@@ -162,17 +164,17 @@ export default function Discover() {
                         <div style={{ background: 'var(--primary-soft)', width: '96px', height: '96px', borderRadius: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)', border: '1px solid rgba(139, 92, 246, 0.4)' }}>
                             <span className="material-symbols-rounded" style={{ color: 'var(--primary-light)', fontSize: '3rem' }}>satellite_alt</span>
                         </div>
-                        <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Static on the Radar</h3>
+                        <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Desolate Embers</h3>
                         <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '32px', fontSize: '0.95rem' }}>
-                            All known frequencies have been explored. Expand your parameters to find more.
+                            The embers have cooled here. Expand your search to find new flames.
                         </p>
                         <button className="btn-primary" style={{ width: '100%', padding: '14px', borderRadius: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={loadProfiles}>
-                            <span className="material-symbols-rounded" style={{ fontSize: 20 }}>refresh</span> Re-scan Area
+                            <span className="material-symbols-rounded" style={{ fontSize: 20 }}>whatshot</span> Ignite Radar
                         </button>
                     </div>
                 </div>
             ) : (
-                <div className="aura-radar-grid">
+                <div className="spark-radar-grid">
                     {cards.map((p) => (
                         <div key={p.id} className="radar-tile holographic glass-card card-hover-zoom" onClick={() => handleTileClick(p)}>
                             <div className="radar-photo-container image-parallax">
@@ -200,9 +202,9 @@ export default function Discover() {
                                 )}
                             </div>
                             {(p.match_percent || 70) >= 85 && (
-                                <div className="radar-badge btn-aura-pulse">
+                                <div className="radar-badge btn-spark-pulse">
                                     <span className="badge-bg" />
-                                    <span className="badge-text"><span className="material-symbols-rounded" style={{ fontSize: 12 }}>star</span> TOP AURA</span>
+                                    <span className="badge-text"><span className="material-symbols-rounded" style={{ fontSize: 12 }}>star</span> CELESTIAL MATCH</span>
                                 </div>
                             )}
                         </div>

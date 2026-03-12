@@ -104,7 +104,7 @@ export default function AdminDashboard() {
     };
 
     const handleBan = async (userId) => {
-        if (!window.confirm('⚠️ This will permanently ban this user from Aura. Continue?')) return;
+        if (!window.confirm('⚠️ This will permanently ban this user from SPARK. Continue?')) return;
         try {
             await apiFetch(`/api/admin/users/${userId}/ban`, { method: 'PUT' });
             showToast('User banned from platform', 'success');
@@ -253,7 +253,7 @@ export default function AdminDashboard() {
                     <span className="material-symbols-rounded" style={{ fontSize: '48px', color: 'var(--danger)' }}>shield_lock</span>
                 </div>
                 <h1 className="font-serif" style={{ fontSize: '2rem', marginBottom: '10px' }}>Restricted Sector</h1>
-                <p style={{ maxWidth: '400px', opacity: 0.6, lineHeight: 1.6 }}>Unauthorized access to the Aura Command Center is strictly prohibited. Your identifiers have been logged.</p>
+                <p style={{ maxWidth: '400px', opacity: 0.6, lineHeight: 1.6 }}>Unauthorized access to the SPARK Command Center is strictly prohibited. Your identifiers have been logged.</p>
                 <button className="btn-primary holographic" onClick={() => navigate('/discover')} style={{ marginTop: '30px' }}>
                     Return to Campus
                 </button>
@@ -263,7 +263,7 @@ export default function AdminDashboard() {
 
     if (!isUnlocked) {
         return (
-            <div className="vault-gate-aura view-animate">
+            <div className="vault-gate-spark view-animate">
                 <div className="glass-card holographic" style={{ maxWidth: '420px', padding: '40px 30px', textAlign: 'center' }}>
                     <div className="vault-ring">
                         <span className="material-symbols-rounded" style={{ fontSize: '48px', color: 'var(--primary-light)' }}>
@@ -272,10 +272,10 @@ export default function AdminDashboard() {
                     </div>
                     <h2 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '10px' }}>Security Vault</h2>
                     <p style={{ fontSize: '0.9rem', opacity: 0.6, marginBottom: '30px' }}>
-                        Provide the Master Key to establish a secure administrative link with the Aura Core.
+                        Provide the Master Key to establish a secure administrative link with the SPARK Core.
                     </p>
                     <form onSubmit={handleUnlock} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <div className="input-group-aura">
+                        <div className="input-group-spark">
                             <input
                                 type="password"
                                 placeholder="ENTER MASTER KEY"
@@ -306,7 +306,7 @@ export default function AdminDashboard() {
                         </button>
                     </form>
                     <div style={{ marginTop: '40px', fontSize: '0.75rem', opacity: 0.4 }}>
-                        AURA SYSTEM ADMINISTRATION • END-TO-END ENCRYPTED
+                        SPARK SYSTEM ADMINISTRATION • END-TO-END ENCRYPTED
                     </div>
                 </div>
             </div>
@@ -380,22 +380,22 @@ export default function AdminDashboard() {
                     gap: '20px',
                     marginBottom: '40px'
                 }}>
-                    <div className="admin-stat-card-aura glass-card holographic">
+                    <div className="admin-stat-card-spark glass-card holographic">
                         <span className="material-symbols-rounded" style={{ color: 'var(--primary)' }}>groups</span>
                         <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{data.stats?.total_users || 0}</div>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Personnel</div>
                     </div>
-                    <div className="admin-stat-card-aura glass-card holographic" style={{ borderColor: 'rgba(34, 197, 94, 0.3)' }}>
+                    <div className="admin-stat-card-spark glass-card holographic" style={{ borderColor: 'rgba(34, 197, 94, 0.3)' }}>
                         <span className="material-symbols-rounded" style={{ color: '#22c55e' }}>verified</span>
                         <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{data.stats?.verified_users || 0}</div>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Verified</div>
                     </div>
-                    <div className="admin-stat-card-aura glass-card holographic" style={{ borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+                    <div className="admin-stat-card-spark glass-card holographic" style={{ borderColor: 'rgba(239, 68, 68, 0.3)' }}>
                         <span className="material-symbols-rounded" style={{ color: 'var(--danger)' }}>emergency</span>
                         <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{data.stats?.total_reports || 0}</div>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Incidents</div>
                     </div>
-                    <div className="admin-stat-card-aura glass-card holographic" style={{ borderColor: 'rgba(245, 158, 11, 0.3)' }}>
+                    <div className="admin-stat-card-spark glass-card holographic" style={{ borderColor: 'rgba(245, 158, 11, 0.3)' }}>
                         <span className="material-symbols-rounded" style={{ color: '#f59e0b' }}>diamond</span>
                         <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{premiumRequests.filter(r => r.status === 'pending').length}</div>
                         <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Premium Queue</div>
@@ -442,7 +442,7 @@ export default function AdminDashboard() {
                     ))}
                 </div>
 
-                <div className="admin-content-aura">
+                <div className="admin-content-spark">
                     {/* Search Strip */}
                     {(activeTab === 'reports' || activeTab === 'verifications') && (
                         <div className="glass-card" style={{
@@ -482,7 +482,7 @@ export default function AdminDashboard() {
                                 </div>
                             ) : (
                                 filteredReports.map(r => (
-                                    <div key={r.id} className="admin-item-aura">
+                                    <div key={r.id} className="admin-item-spark">
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                             <div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
@@ -519,7 +519,7 @@ export default function AdminDashboard() {
                                 </div>
                             ) : (
                                 filteredVerifications.map(u => (
-                                    <div key={u.id} className="admin-item-aura">
+                                    <div key={u.id} className="admin-item-spark">
                                         <div style={{ display: 'flex', gap: '15px' }}>
                                             <div className="glass-card" style={{ width: '80px', height: '110px', flexShrink: 0, overflow: 'hidden', padding: 0 }}>
                                                 <img src={u.id_card_url} style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }}
@@ -589,7 +589,7 @@ export default function AdminDashboard() {
                                     <h3 className="font-serif" style={{ marginBottom: '20px' }}>Revenue Sources</h3>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px' }}>
                                         {paymentMethods.map(m => (
-                                            <div key={m.id} className="admin-item-aura" style={{ padding: '15px', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <div key={m.id} className="admin-item-spark" style={{ padding: '15px', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                                                     {m.qr_image_url && <img src={m.qr_image_url} style={{ width: '40px', height: '40px', borderRadius: '8px' }} alt="" />}
                                                     <div>
@@ -621,7 +621,7 @@ export default function AdminDashboard() {
                                     ) : (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                                             {premiumRequests.map(r => (
-                                                <div key={r.id} className="admin-item-aura" style={{ borderLeft: `4px solid ${r.status === 'pending' ? 'var(--primary)' : r.status === 'approved' ? '#22c55e' : 'var(--danger)'}` }}>
+                                                <div key={r.id} className="admin-item-spark" style={{ borderLeft: `4px solid ${r.status === 'pending' ? 'var(--primary)' : r.status === 'approved' ? '#22c55e' : 'var(--danger)'}` }}>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                                         <div>
                                                             <div style={{ fontWeight: 700 }}>{r.user_name}</div>
@@ -651,7 +651,7 @@ export default function AdminDashboard() {
                                 <div style={{ textAlign: 'center', marginBottom: '30px' }}>
                                     <span className="material-symbols-rounded" style={{ fontSize: '3rem', color: 'var(--primary)' }}>terminal</span>
                                     <h2 className="font-serif">Global Configuration</h2>
-                                    <p style={{ opacity: 0.6 }}>Rotate core security parameters for the Aura engine.</p>
+                                    <p style={{ opacity: 0.6 }}>Rotate core security parameters for the SPARK engine.</p>
                                 </div>
                                 <form onSubmit={handleChangeKey} className="settings-form" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                     <div className="settings-input-group">

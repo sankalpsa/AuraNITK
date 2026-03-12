@@ -57,7 +57,7 @@ export default function ResetPassword() {
                             </div>
                             <h3 className="font-serif" style={{ textAlign: 'center', marginBottom: '8px', fontSize: '1.5rem' }}>Secure Protocol</h3>
                             <p className="auth-hint" style={{ textAlign: 'center', marginBottom: '24px', color: 'var(--text-muted)' }}>
-                                Establish a new access key for your Aura account.
+                                Establish a new access key for your SPARK account.
                             </p>
 
                             <div className="input-group">
@@ -118,7 +118,7 @@ export default function ResetPassword() {
                                 Your new pass-key has been permanently established in our system. You may now return to the dimension.
                             </p>
                             <button className="btn-primary" onClick={() => navigate('/login')} style={{ width: '100%' }}>
-                                Re-enter Aura
+                                Re-enter SPARK
                             </button>
                         </div>
                     )}

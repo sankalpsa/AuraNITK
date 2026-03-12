@@ -4,7 +4,7 @@ import { apiFetch, apiUpload, markAsRead } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { defaultAvatar, formatTime } from '../utils/helpers';
-import { COMMON_EMOJIS, REACTION_EMOJIS, AURA_ICEBREAKERS } from '../constants';
+import { COMMON_EMOJIS, REACTION_EMOJIS, SPARK_ICEBREAKERS } from '../constants';
 import ImageViewer from '../components/common/ImageViewer';
 import ReportModal from '../components/common/ReportModal';
 
@@ -386,7 +386,7 @@ export default function ChatConvo() {
                     <div className="font-serif" style={{ fontSize: '1.1rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{chatName}</div>
                     <div style={{ fontSize: '0.75rem', color: onlineStatus === 'Online' ? '#22c55e' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         {onlineStatus === 'Online' && <span className="pulse-dot" />}
-                        {onlineStatus}
+                        {onlineStatus === 'Online' ? 'Alight' : 'Dimmed'}
                     </div>
                 </div>
 
@@ -406,22 +406,22 @@ export default function ChatConvo() {
             }}>
                 {messages.length === 0 ? (
                     <div className="view-animate" style={{ textAlign: 'center', padding: '60px 20px', margin: 'auto' }}>
-                        <div style={{ fontSize: '4rem', marginBottom: '20px', opacity: 0.5 }}>✨</div>
-                        <h3 className="font-serif">The Stars Align</h3>
-                        <p style={{ opacity: 0.6 }}>You and {chatName} have resonated. Send the first signal.</p>
+                        <div style={{ fontSize: '4rem', marginBottom: '20px', opacity: 0.5 }}>🔥</div>
+                        <h3 className="font-serif">The Flames Ignite</h3>
+                        <p style={{ opacity: 0.6 }}>You've sparked a fusion with {chatName}. Send the first whisper.</p>
                     </div>
                 ) : renderMessages()}
 
                 {isTyping && (
-                    <div className="typing-indicator-aura" style={{ alignSelf: 'flex-start', margin: '10px 0', display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.7 }}>
+                    <div className="typing-indicator-spark" style={{ alignSelf: 'flex-start', margin: '10px 0', display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.7 }}>
                         <div className="typing-dots"><span /><span /><span /></div>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--primary-light)' }}>{chatName} is pulsing...</span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--primary-light)' }}>{chatName} is igniting...</span>
                     </div>
                 )}
             </div>
 
             {/* Floating Input Area */}
-            <div className="chat-input-container-aura" style={{
+            <div className="chat-input-container-spark" style={{
                 padding: '10px 20px 30px',
                 background: 'linear-gradient(to top, var(--bg-main) 60%, transparent)'
             }}>
@@ -457,9 +457,9 @@ export default function ChatConvo() {
                         borderRadius: '20px',
                         border: '1px solid var(--border)'
                     }}>
-                        <div style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Aura Icebreakers</div>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>SPARK Icebreakers</div>
                         <div className="icebreaker-chips" style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '5px' }}>
-                            {AURA_ICEBREAKERS.map((prompt, i) => (
+                            {SPARK_ICEBREAKERS.map((prompt, i) => (
                                 <button key={i} className="icebreaker-chip glass-card" onClick={() => { setText(prompt); setIcebreakersOpen(false); }}
                                     style={{ padding: '8px 16px', borderRadius: '30px', whiteSpace: 'nowrap', fontSize: '0.85rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
                                     {prompt}
@@ -487,7 +487,7 @@ export default function ChatConvo() {
 
                     <textarea
                         id="chat-input"
-                        placeholder="Type a signal..."
+                        placeholder="Whisper something seductive..."
                         value={text}
                         onChange={(e) => { setText(e.target.value); handleTyping(); }}
                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
@@ -529,7 +529,7 @@ export default function ChatConvo() {
             {/* Menu Overlay */}
             {showMenu && (
                 <div className="modal-overlay" onClick={() => setShowMenu(false)}>
-                    <div className="msg-action-sheet-aura view-animate">
+                    <div className="msg-action-sheet-spark view-animate">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
                             <img src={chatPhoto || defaultAvatar(chatName)} style={{ width: '50px', height: '50px', borderRadius: '50%' }} alt="" />
                             <div>
@@ -540,13 +540,13 @@ export default function ChatConvo() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <button className="btn-secondary" style={{ justifyContent: 'flex-start', padding: '15px' }}
                                 onClick={() => { setShowMenu(false); navigate('/profile/view', { state: { profile: { id: chatUserId, name: chatName, photo: chatPhoto, match_id: matchId } } }); }}>
-                                <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>person</span> View Galactic Profile
+                                <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>person</span> View Soul Profile
                             </button>
                             <button className="btn-secondary" style={{ justifyContent: 'flex-start', padding: '15px' }} onClick={() => { setShowMenu(false); setShowReport(true); }}>
                                 <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>flag</span> Report Interference
                             </button>
                             <button className="btn-secondary danger" style={{ justifyContent: 'flex-start', padding: '15px', border: '1px solid rgba(239, 68, 68, 0.2)' }} onClick={() => { setShowMenu(false); unmatch(); }}>
-                                <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>heart_broken</span> Dissolve Connection
+                                <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>heart_broken</span> Extinguish Flame
                             </button>
                         </div>
                     </div>
@@ -556,7 +556,7 @@ export default function ChatConvo() {
             {/* Message Action Sheet */}
             {msgAction && (
                 <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setMsgAction(null); }}>
-                    <div className="msg-action-sheet-aura view-animate">
+                    <div className="msg-action-sheet-spark view-animate">
                         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                             <div style={{ fontSize: '0.8rem', opacity: 0.5, marginBottom: '15px' }}>Reflect on Transmission</div>
                             <div className="msg-action-reactions" style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
@@ -571,7 +571,7 @@ export default function ChatConvo() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <button className="btn-secondary" style={{ justifyContent: 'flex-start', padding: '15px' }}
                                 onClick={() => { setReplyState({ id: msgAction.id, text: msgAction.text, sender: msgAction.sender }); setMsgAction(null); }}>
-                                <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>reply</span> Echo Transmission
+                                <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>reply</span> Echo Whisper
                             </button>
                             {msgAction.text && (
                                 <button className="btn-secondary" style={{ justifyContent: 'flex-start', padding: '15px' }}
@@ -582,7 +582,7 @@ export default function ChatConvo() {
                             {msgAction.isMine ? (
                                 <button className="btn-secondary danger" style={{ justifyContent: 'flex-start', padding: '15px' }}
                                     onClick={() => { deleteMsg(msgAction.id); setMsgAction(null); }}>
-                                    <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>delete</span> Purge Transmission
+                                    <span className="material-symbols-rounded" style={{ marginRight: '15px' }}>delete</span> Extinguish Whisper
                                 </button>
                             ) : (
                                 <button className="btn-secondary danger" style={{ justifyContent: 'flex-start', padding: '15px' }}
