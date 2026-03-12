@@ -92,7 +92,7 @@ function checkEmailConfig() {
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.error('❌ FATAL: No email provider configured!');
         console.error('');
-        <p style="text-align:center;color:#D4AF37;">SPARK REQUIRES email to verify NITK students.</p>
+        console.error('SPARK REQUIRES email to verify NITK students.');
         console.error('Missing variables: ' + missing.join(', '));
         console.error('');
         console.error('Option 1 — Gmail SMTP (easiest):');
