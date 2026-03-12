@@ -296,6 +296,7 @@ const io = new Server(server, {
     cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
+const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'spark_dev_secret_2025_safe';
 
 const onlineUsers = new Set();

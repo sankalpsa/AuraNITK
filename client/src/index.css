@@ -8801,3 +8801,88 @@ select.input-field {
 .link-btn:hover {
   color: var(--primary-light) !important;
 }
+
+/* ---------- Spark Tuning Cosmic Flow ---------- */
+.tuning-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 40px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spark-orb {
+  position: absolute;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 0 20px rgba(255, 42, 84, 0.2);
+}
+
+.spark-orb-core {
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), transparent),
+              var(--gradient-spark);
+  z-index: 10;
+  box-shadow: 0 0 40px var(--primary-soft), inset 0 0 20px rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.spark-orb-vibe {
+  width: 65px;
+  height: 65px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  z-index: 5;
+  filter: blur(0px);
+}
+
+.spark-orb-vibe:hover {
+  transform: scale(1.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 25px var(--primary-soft);
+}
+
+.spark-orb-vibe.active {
+  background: var(--gradient-primary);
+  color: white;
+  border-color: white;
+  transform: scale(1.2);
+  box-shadow: 0 0 40px var(--primary-soft);
+  z-index: 15;
+}
+
+/* Floating Animations */
+@keyframes float-tuning {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+.floating-tuning {
+  animation: float-tuning 5s ease-in-out infinite;
+}
+
+.btn-spark-pulse {
+  animation: spark-pulse-intense 2s infinite;
+}
+
+@keyframes spark-pulse-intense {
+  0% { box-shadow: 0 0 0 0 rgba(255, 42, 84, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(255, 42, 84, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 42, 84, 0); }
+}
+
+/* Cosmic Particles for Signup Background */
+.signup-cosmic-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
