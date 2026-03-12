@@ -950,6 +950,51 @@ app.put('/api/profile', authenticate, async (req, res) => {
     }
 });
 
+// Get user's profile prompts
+app.get('/api/profile/prompts', authenticate, async (req, res) => {
+    try {
+        const prompts = await db.query('SELECT * FROM profile_prompts WHERE user_id = ? ORDER BY position ASC, created_at ASC', [req.user.id]);
+        res.json({ prompts });
+    } catch (e) {
+        console.error('Fetch prompts error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Add a profile prompt (Max 3)
+app.post('/api/profile/prompts', authenticate, async (req, res) => {
+    try {
+        const { question, answer } = req.body;
+        if (!question || !answer) return res.status(400).json({ error: 'Question and answer required' });
+
+        const currentPrompts = await db.query('SELECT id FROM profile_prompts WHERE user_id = ?', [req.user.id]);
+        if (currentPrompts.length >= 3) return res.status(400).json({ error: 'Maximum 3 prompts allowed' });
+
+        await db.run(
+            'INSERT INTO profile_prompts (user_id, question, answer, position) VALUES (?, ?, ?, ?)',
+            [req.user.id, question, answer, currentPrompts.length]
+        );
+
+        const prompts = await db.query('SELECT * FROM profile_prompts WHERE user_id = ? ORDER BY position ASC, created_at ASC', [req.user.id]);
+        res.json({ prompts });
+    } catch (e) {
+        console.error('Add prompt error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Delete a profile prompt
+app.delete('/api/profile/prompts/:id', authenticate, async (req, res) => {
+    try {
+        await db.run('DELETE FROM profile_prompts WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+        const prompts = await db.query('SELECT * FROM profile_prompts WHERE user_id = ? ORDER BY position ASC, created_at ASC', [req.user.id]);
+        res.json({ prompts });
+    } catch (e) {
+        console.error('Delete prompt error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 // Upload ID Card for verification
 app.post('/api/profile/id-card', authenticate, (req, res, next) => {
     // Force local disk storage for IDs in development for better control and PDF reliability

@@ -167,6 +167,9 @@ export default function Settings() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="settings-search-input"
+                        autoComplete="off"
+                        spellCheck="false"
+                        name="settings_search_field"
                     />
                     {searchQuery && (
                         <button className="btn-icon" onClick={() => setSearchQuery('')} style={{ padding: 2 }}>
