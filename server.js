@@ -957,7 +957,7 @@ app.get('/api/profile/prompts', authenticate, async (req, res) => {
         res.json({ prompts });
     } catch (e) {
         console.error('Fetch prompts error:', e);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Server error: ' + e.message });
     }
 });
 
@@ -979,7 +979,7 @@ app.post('/api/profile/prompts', authenticate, async (req, res) => {
         res.json({ prompts });
     } catch (e) {
         console.error('Add prompt error:', e);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Server error: ' + e.message });
     }
 });
 
@@ -991,7 +991,7 @@ app.delete('/api/profile/prompts/:id', authenticate, async (req, res) => {
         res.json({ prompts });
     } catch (e) {
         console.error('Delete prompt error:', e);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Server error: ' + e.message });
     }
 });
 

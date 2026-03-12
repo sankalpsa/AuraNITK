@@ -19,6 +19,14 @@ export default function Settings() {
     const [showSafety, setShowSafety] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
 
+    // CRITICAL: Block Chrome/Edge autofill from ruining the settings dashboard
+    // If the search query looks like an email and the component just mounted, clear it.
+    useEffect(() => {
+        if (searchQuery && (searchQuery.includes('@') || searchQuery === user?.email)) {
+            setSearchQuery('');
+        }
+    }, [searchQuery, user?.email]);
+
     // Premium Features state
     const [incognito, setIncognito] = useState(false);
     const [readReceipts, setReadReceipts] = useState(true);

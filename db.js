@@ -528,7 +528,17 @@ async function initTables() {
         'ALTER TABLE users ADD COLUMN last_active_at TEXT DEFAULT CURRENT_TIMESTAMP',
         // Location (GPS matching)
         'ALTER TABLE users ADD COLUMN latitude REAL DEFAULT NULL',
-        'ALTER TABLE users ADD COLUMN longitude REAL DEFAULT NULL'
+        'ALTER TABLE users ADD COLUMN longitude REAL DEFAULT NULL',
+        // Ensure profile_prompts exists
+        `CREATE TABLE IF NOT EXISTS profile_prompts (
+            id ${isPostgres ? 'SERIAL' : 'INTEGER'} PRIMARY KEY ${isPostgres ? '' : 'AUTOINCREMENT'},
+            user_id INTEGER NOT NULL ${isPostgres ? 'REFERENCES users(id) ON DELETE CASCADE' : ''},
+            question TEXT NOT NULL,
+            answer TEXT NOT NULL,
+            position INTEGER DEFAULT 0,
+            created_at ${isPostgres ? 'TIMESTAMP' : 'DATETIME'} DEFAULT CURRENT_TIMESTAMP
+            ${isPostgres ? '' : ', FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE'}
+        )`
     ];
 
     for (const migration of migrations) {
