@@ -11,6 +11,7 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState({ reports: [], pendingVerifications: [], stats: {} });
     const [activeTab, setActiveTab] = useState('reports');
+    const [refreshing, setRefreshing] = useState(false);
     const [isUnlocked, setIsUnlocked] = useState(false);
     const [masterPass, setMasterPass] = useState('');
     const [unlocking, setUnlocking] = useState(false);
@@ -74,20 +75,24 @@ export default function AdminDashboard() {
         showToast('Vault Locked — Session Ended', 'success');
     };
 
-    const loadDashboardData = async () => {
-        setLoading(true);
+    const loadDashboardData = async (silent = false) => {
+        if (!silent) setLoading(true);
+        else setRefreshing(true);
         try {
-            const result = await apiFetch('/api/admin/dashboard');
+            const [result, pm, pr] = await Promise.all([
+                apiFetch('/api/admin/dashboard'),
+                apiFetch('/api/admin/payment-methods'),
+                apiFetch('/api/admin/premium-requests')
+            ]);
             setData(result);
-            // Also load premium data
-            const pm = await apiFetch('/api/admin/payment-methods');
             setPaymentMethods(pm.methods || []);
-            const pr = await apiFetch('/api/admin/premium-requests');
             setPremiumRequests(pr.requests || []);
         } catch (e) {
-            showToast('Failed to load dashboard', 'error');
+            showToast('Failed to load dashboard data', 'error');
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
         }
-        setLoading(false);
     };
 
     const handleVerify = async (userId, status) => {
@@ -97,7 +102,7 @@ export default function AdminDashboard() {
                 body: JSON.stringify({ status })
             });
             showToast(`User ${status}!`, 'success');
-            loadDashboardData();
+            loadDashboardData(true);
         } catch (e) {
             showToast(e.message, 'error');
         }
@@ -108,7 +113,7 @@ export default function AdminDashboard() {
         try {
             await apiFetch(`/api/admin/users/${userId}/ban`, { method: 'PUT' });
             showToast('User banned from platform', 'success');
-            loadDashboardData();
+            loadDashboardData(true);
         } catch (e) {
             showToast(e.message, 'error');
         }
@@ -119,7 +124,7 @@ export default function AdminDashboard() {
         try {
             await apiFetch(`/api/admin/reports/${reportId}/dismiss`, { method: 'DELETE' });
             showToast('Report dismissed', 'success');
-            loadDashboardData();
+            loadDashboardData(true);
         } catch (e) {
             showToast(e.message, 'error');
         }
@@ -230,8 +235,7 @@ export default function AdminDashboard() {
                 body: JSON.stringify({ note: note || (action === 'approve' ? 'Approved' : 'Rejected') })
             });
             showToast(action === 'approve' ? 'User upgraded to Premium! 💎' : 'Request rejected', 'success');
-            const pr = await apiFetch('/api/admin/premium-requests');
-            setPremiumRequests(pr.requests || []);
+            loadDashboardData(true);
         } catch (e) { showToast(e.message, 'error'); }
     };
 
@@ -362,8 +366,11 @@ export default function AdminDashboard() {
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '10px' }}>
-                    <button className="btn-icon" onClick={loadDashboardData} style={{ background: 'none' }}>
-                        <span className="material-symbols-rounded">refresh</span>
+                    {refreshing && (
+                        <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2, marginRight: 10, alignSelf: 'center' }} />
+                    )}
+                    <button className="btn-icon" onClick={() => loadDashboardData(true)} style={{ background: 'none' }} disabled={refreshing}>
+                        <span className="material-symbols-rounded" style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }}>refresh</span>
                     </button>
                     <button className="btn-icon" onClick={handleLockVault} style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)' }}>
                         <span className="material-symbols-rounded">terminal</span>

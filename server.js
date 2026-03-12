@@ -20,7 +20,19 @@ const crypto = require('crypto');
 const db = require('./db');
 const { OAuth2Client } = require('google-auth-library');
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '763153801999-pggubb51vqlli45492dop5pkmdu1fdvc.apps.googleusercontent.com');
-console.log('✅ Modules loaded');
+
+// ========================================
+// Environment Validation
+// ========================================
+const REQUIRED_ENV = ['JWT_SECRET', 'DATABASE_URL', 'SMTP_EMAIL', 'SMTP_PASSWORD'];
+if (process.env.NODE_ENV === 'production') {
+    const missing = REQUIRED_ENV.filter(key => !process.env[key]);
+    if (missing.length > 0) {
+        console.error('❌ FATAL: Missing required environment variables:', missing.join(', '));
+        process.exit(1);
+    }
+}
+console.log('✅ Modules loaded & Environment validated');
 
 
 // ========================================
@@ -355,6 +367,18 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// CSRF Shield (Simple custom header check)
+// Prevents cross-site state-changing requests as browsers don't send custom headers automatically
+app.use((req, res, next) => {
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method) && req.path.startsWith('/api')) {
+        const csrfHeader = req.get('X-SPARK-XSRF');
+        if (!csrfHeader && process.env.NODE_ENV === 'production') {
+            return res.status(403).json({ error: 'Security violation: Missing required headers' });
+        }
+    }
+    next();
+});
+
 // Debug logger
 app.use((req, res, next) => {
     if (req.path.startsWith('/api')) {
@@ -592,7 +616,7 @@ app.post('/api/auth/send-otp', otpLimiter, async (req, res) => {
     }
 });
 
-app.post('/api/auth/verify-otp', (req, res) => {
+app.post('/api/auth/verify-otp', otpLimiter, (req, res) => {
     try {
         const { email, otp } = req.body;
         if (!email || !otp) return res.status(400).json({ error: 'Email and OTP required' });
@@ -633,7 +657,7 @@ app.post('/api/auth/register', async (req, res) => {
         const existing = await db.queryOne('SELECT id FROM users WHERE email = ?', [normalizedEmail]);
         if (existing) return res.status(409).json({ error: 'Email already registered' });
 
-        const hash = bcrypt.hashSync(password, 10);
+        const hash = await bcrypt.hash(password, 10);
 
         // Extract Institute from email domain
         const domain = normalizedEmail.split('@')[1] || '';
@@ -671,7 +695,7 @@ app.post('/api/auth/login', async (req, res) => {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
         const user = await db.queryOne('SELECT * FROM users WHERE email = ?', [email.toLowerCase().trim()]);
-        if (!user || !bcrypt.compareSync(password, user.password)) return res.status(401).json({ error: 'Invalid email or password' });
+        if (!user || !(await bcrypt.compare(password, user.password))) return res.status(401).json({ error: 'Invalid email or password' });
         if (user.is_active === 0) {
             await db.run('UPDATE users SET is_active = 1 WHERE id = ?', [user.id]);
             user.is_active = 1;
@@ -753,7 +777,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
             return res.status(400).json({ error: 'Reset token has expired. Please request a new one.' });
         }
 
-        const hash = bcrypt.hashSync(newPassword, 10);
+        const hash = await bcrypt.hash(newPassword, 10);
         await db.run(
             'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?',
             [hash, user.id]
@@ -773,11 +797,11 @@ app.post('/api/auth/change-password', authenticate, async (req, res) => {
         if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Both passwords required' });
         if (newPassword.length < 4) return res.status(400).json({ error: 'New password must be at least 4 characters' });
 
-        if (!bcrypt.compareSync(currentPassword, req.user.password)) {
+        if (!(await bcrypt.compare(currentPassword, req.user.password))) {
             return res.status(401).json({ error: 'Current password is incorrect' });
         }
 
-        const hash = bcrypt.hashSync(newPassword, 10);
+        const hash = await bcrypt.hash(newPassword, 10);
         await db.run('UPDATE users SET password = ? WHERE id = ?', [hash, req.user.id]);
         res.json({ success: true, message: 'Password changed successfully' });
     } catch (e) {
@@ -811,8 +835,8 @@ app.post('/api/auth/google', async (req, res) => {
         let user = await db.queryOne('SELECT * FROM users WHERE email = ?', [email]);
 
         if (!user) {
-            const dummyPassword = crypto.randomBytes(16).toString('hex');
-            const hash = bcrypt.hashSync(dummyPassword, 10);
+            const dummyPassword = crypto.randomBytes(32).toString('hex');
+            const hash = await bcrypt.hash(dummyPassword, 10);
 
             const domain = email.split('@')[1] || '';
             let institute = domain.split('.')[0].toUpperCase();
@@ -917,8 +941,10 @@ app.get('/api/auth/me', authenticate, async (req, res) => {
 app.put('/api/profile/location', authenticate, async (req, res) => {
     try {
         const { latitude, longitude } = req.body;
-        if (latitude === undefined || longitude === undefined) return res.status(400).json({ error: 'Coordinates required' });
-        await db.run('UPDATE users SET latitude = ?, longitude = ? WHERE id = ?', [latitude, longitude, req.user.id]);
+        const lat = parseFloat(latitude);
+        const lon = parseFloat(longitude);
+        if (isNaN(lat) || isNaN(lon)) return res.status(400).json({ error: 'Invalid coordinates' });
+        await db.run('UPDATE users SET latitude = ?, longitude = ? WHERE id = ?', [lat, lon, req.user.id]);
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: 'Server error' });
@@ -1148,7 +1174,7 @@ app.patch('/api/profile/photo/:photoId/caption', authenticate, async (req, res) 
 app.get('/api/users/:id/profile', authenticate, async (req, res) => {
     try {
         const targetId = parseInt(req.params.id);
-        if (!targetId || isNaN(targetId)) return res.status(400).json({ error: 'Invalid user ID' });
+        if (isNaN(targetId)) return res.status(400).json({ error: 'Invalid user ID' });
         const user = await db.queryOne('SELECT * FROM users WHERE id = ? AND is_active = 1', [targetId]);
         if (!user) return res.status(404).json({ error: 'User not found' });
         const safeUser = await sanitizeUser(user);
@@ -1256,6 +1282,9 @@ app.post('/api/swipe', authenticate, async (req, res) => {
 
         const userId = req.user.id;
         const targetId = parseInt(target_id);
+        if (isNaN(targetId)) return res.status(400).json({ error: 'Invalid target ID' });
+        if (targetId === userId) return res.status(400).json({ error: 'Cannot swipe on yourself' });
+
         const isSuperLike = action === 'super_like';
         const dbAction = isSuperLike ? 'like' : action;
 
@@ -1430,6 +1459,7 @@ app.get('/api/matches', authenticate, async (req, res) => {
 app.delete('/api/matches/:id', authenticate, async (req, res) => {
     try {
         const matchId = parseInt(req.params.id);
+        if (isNaN(matchId)) return res.status(400).json({ error: 'Invalid match ID' });
         const userId = req.user.id;
         const match = await db.queryOne('SELECT id FROM matches WHERE id = ? AND (user1_id = ? OR user2_id = ?)', [matchId, userId, userId]);
         if (!match) return res.status(404).json({ error: 'Match not found' });
@@ -1448,6 +1478,7 @@ app.delete('/api/matches/:id', authenticate, async (req, res) => {
 app.get('/api/messages/:matchId', authenticate, async (req, res) => {
     try {
         const matchId = parseInt(req.params.matchId);
+        if (isNaN(matchId)) return res.status(400).json({ error: 'Invalid match ID' });
         const userId = req.user.id;
         const match = await db.queryOne('SELECT * FROM matches WHERE id = ? AND (user1_id = ? OR user2_id = ?)', [matchId, userId, userId]);
         if (!match) return res.status(403).json({ error: 'Not your match' });
@@ -1477,6 +1508,7 @@ app.post('/api/messages/:matchId', authenticate,
     async (req, res) => {
         try {
             const matchId = parseInt(req.params.matchId);
+            if (isNaN(matchId)) return res.status(400).json({ error: 'Invalid match ID' });
             const userId = req.user.id;
             const { text, replyToId } = req.body;
 
@@ -1561,6 +1593,7 @@ app.post('/api/messages/:matchId', authenticate,
 app.delete('/api/messages/:id', authenticate, async (req, res) => {
     try {
         const msgId = parseInt(req.params.id);
+        if (isNaN(msgId)) return res.status(400).json({ error: 'Invalid message ID' });
         const userId = req.user.id;
         const result = await db.run('DELETE FROM messages WHERE id = ? AND sender_id = ?', [msgId, userId]);
         if (result.changes === 0) return res.status(404).json({ error: 'Message not found or not yours' });
@@ -1580,6 +1613,7 @@ app.delete('/api/messages/:id', authenticate, async (req, res) => {
 app.post('/api/messages/:matchId/read', authenticate, async (req, res) => {
     try {
         const matchId = parseInt(req.params.matchId);
+        if (isNaN(matchId)) return res.status(400).json({ error: 'Invalid match ID' });
         const userId = req.user.id;
         const result = await db.run(
             'UPDATE messages SET is_read = 1 WHERE match_id = ? AND sender_id != ? AND is_read = 0',
@@ -2396,19 +2430,41 @@ app.get('*', (req, res) => {
 });
 
 // ========================================
-// Graceful Shutdown
+// Global Error Handler
 // ========================================
-process.on('SIGTERM', () => {
-    console.log('📴 SIGTERM received. Shutting down gracefully...');
-    // Save sql.js DB before exit
-    try { if (typeof saveSqlJsDb === 'function') saveSqlJsDb(); } catch (e) { /* ignore */ }
-    server.close(() => { process.exit(0); });
+app.use((err, req, res, next) => {
+    console.error(`💥 [ERROR] ${req.method} ${req.path}:`, err);
+    
+    // Clean up delicate info in production
+    const message = process.env.NODE_ENV === 'production' 
+        ? 'Internal Server Error' 
+        : err.message;
+        
+    res.status(err.status || 500).json({
+        error: message,
+        timestamp: new Date().toISOString()
+    });
 });
 
-process.on('SIGINT', () => {
+// ========================================
+// Graceful Shutdown
+// ========================================
+process.on('SIGTERM', async () => {
+    console.log('📴 SIGTERM received. Shutting down gracefully...');
+    try { await db.close(); } catch (e) { console.error('Error closing DB:', e); }
+    server.close(() => { 
+        console.log('🛑 Server closed.');
+        process.exit(0); 
+    });
+});
+
+process.on('SIGINT', async () => {
     console.log('📴 SIGINT received. Shutting down...');
-    try { if (typeof saveSqlJsDb === 'function') saveSqlJsDb(); } catch (e) { /* ignore */ }
-    server.close(() => { process.exit(0); });
+    try { await db.close(); } catch (e) { console.error('Error closing DB:', e); }
+    server.close(() => { 
+        console.log('🛑 Server closed.');
+        process.exit(0); 
+    });
 });
 
 // ========================================

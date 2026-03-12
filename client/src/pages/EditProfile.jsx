@@ -9,7 +9,8 @@ export default function EditProfile() {
     const navigate = useNavigate();
     const { user, updateUser, isAuthenticated } = useAuth();
     const { showToast } = useToast();
-    const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [initLoading, setInitLoading] = useState(true);
 
     const [name, setName] = useState(user?.name || '');
     const [bio, setBio] = useState(user?.bio || '');
@@ -37,8 +38,14 @@ export default function EditProfile() {
     }
 
     useEffect(() => {
-        if (!isAuthenticated) navigate('/', { replace: true });
-        loadPrompts();
+        if (!isAuthenticated) return navigate('/', { replace: true });
+        
+        async function init() {
+            setInitLoading(true);
+            await loadPrompts();
+            setInitLoading(false);
+        }
+        init();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
 
@@ -55,7 +62,7 @@ export default function EditProfile() {
     const handleSave = async (e) => {
         e.preventDefault();
         if (!name.trim()) return showToast('Name is required', 'error');
-        setLoading(true);
+        setSubmitting(true);
         try {
             const data = await apiFetch('/api/profile', {
                 method: 'PUT',
@@ -92,7 +99,7 @@ export default function EditProfile() {
         } catch (e) {
             showToast(e.message, 'error');
         }
-        setLoading(false);
+        setSubmitting(false);
     };
 
     const toggleSnooze = async () => {
@@ -126,6 +133,15 @@ export default function EditProfile() {
             setPrompts(data.prompts || []);
         } catch (e) { showToast(e.message, 'error'); }
     };
+
+    if (initLoading) {
+        return (
+            <div className="profile-page view-animate" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="spark-loader"></div>
+                <h3 className="font-serif" style={{ marginTop: '24px', opacity: 0.8 }}>Tuning Your Soul Parameters...</h3>
+            </div>
+        );
+    }
 
     return (
         <div className="profile-page view-animate" style={{ paddingBottom: '100px' }}>
@@ -303,7 +319,7 @@ export default function EditProfile() {
                     </div>
 
                     {/* Save Button */}
-                    <button className="btn-primary holographic" type="submit" disabled={loading} style={{
+                    <button className="btn-primary holographic" type="submit" disabled={submitting} style={{
                         padding: '16px',
                         borderRadius: '15px',
                         display: 'flex',
@@ -313,7 +329,7 @@ export default function EditProfile() {
                         fontSize: '1.1rem',
                         marginTop: '10px'
                     }}>
-                        {loading ? <div className="spinner" style={{ width: 20, height: 20 }} /> : (
+                        {submitting ? <div className="spinner" style={{ width: 20, height: 20 }} /> : (
                             <>
                                 <span className="material-symbols-rounded">auto_fix_high</span>
                                 Ignite Updates

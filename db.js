@@ -35,11 +35,24 @@ if (isPostgres) {
     });
     console.log('🐘 Using PostgreSQL database (Production/Persistent)');
 
-    // Test connection immediately
-    pool.query('SELECT NOW()').then(() => console.log('✅ DB Connected')).catch(e => {
-        console.error('❌ DB Connection Failed:', e);
-        process.exit(1);
-    });
+    // Test connection with retry
+    async function connectWithRetry(retries = 5, delay = 5000) {
+        for (let i = 0; i < retries; i++) {
+            try {
+                await pool.query('SELECT NOW()');
+                console.log('✅ DB Connected');
+                return;
+            } catch (err) {
+                console.error(`❌ DB Connection attempt ${i + 1} failed:`, err.message);
+                if (i === retries - 1) {
+                    console.error('💥 Max retries reached. Exiting.');
+                    process.exit(1);
+                }
+                await new Promise(res => setTimeout(res, delay));
+            }
+        }
+    }
+    connectWithRetry();
 
 } else {
     // Try better-sqlite3 first (faster, native), fall back to sql.js (pure JS)
@@ -209,6 +222,7 @@ async function initTables() {
                 branch TEXT NOT NULL,
                 year TEXT NOT NULL,
                 bio TEXT DEFAULT '',
+                pickup_line TEXT DEFAULT '',
                 photo TEXT DEFAULT '',
                 show_me TEXT DEFAULT 'all',
                 interests TEXT DEFAULT '[]',
@@ -216,6 +230,15 @@ async function initTables() {
                 red_flags TEXT DEFAULT '[]',
                 is_verified INTEGER DEFAULT 0,
                 is_active INTEGER DEFAULT 1,
+                is_premium INTEGER DEFAULT 0,
+                premium_until TIMESTAMP DEFAULT NULL,
+                is_snoozed INTEGER DEFAULT 0,
+                snooze_until TIMESTAMP DEFAULT NULL,
+                is_admin INTEGER DEFAULT 0,
+                id_card_url TEXT,
+                verification_status TEXT DEFAULT 'unverified',
+                spotify_artist TEXT DEFAULT '',
+                spotify_song TEXT DEFAULT '',
                 reset_token TEXT DEFAULT NULL,
                 reset_token_expires TIMESTAMP DEFAULT NULL,
                 last_active_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -226,27 +249,28 @@ async function initTables() {
 
             CREATE TABLE IF NOT EXISTS swipes (
                 id SERIAL PRIMARY KEY,
-                user_id INTEGER NOT NULL REFERENCES users(id),
-                target_id INTEGER NOT NULL REFERENCES users(id),
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                target_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 action TEXT NOT NULL CHECK(action IN ('like','pass')),
+                is_super_like INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(user_id, target_id)
             );
 
             CREATE TABLE IF NOT EXISTS matches (
                 id SERIAL PRIMARY KEY,
-                user1_id INTEGER NOT NULL REFERENCES users(id),
-                user2_id INTEGER NOT NULL REFERENCES users(id),
+                user1_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                user2_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(user1_id, user2_id)
             );
 
             CREATE TABLE IF NOT EXISTS messages (
                 id SERIAL PRIMARY KEY,
-                match_id INTEGER NOT NULL REFERENCES matches(id),
-                sender_id INTEGER NOT NULL REFERENCES users(id),
+                match_id INTEGER NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
+                sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 text TEXT NOT NULL,
-                reply_to_id INTEGER REFERENCES messages(id),
+                reply_to_id INTEGER REFERENCES messages(id) ON DELETE SET NULL,
                 is_read INTEGER DEFAULT 0,
                 image_url TEXT,
                 voice_url TEXT,
@@ -255,8 +279,8 @@ async function initTables() {
 
             CREATE TABLE IF NOT EXISTS reports (
                 id SERIAL PRIMARY KEY,
-                reporter_id INTEGER NOT NULL REFERENCES users(id),
-                reported_id INTEGER NOT NULL REFERENCES users(id),
+                reporter_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                reported_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 reason TEXT NOT NULL,
                 details TEXT DEFAULT '',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -274,22 +298,13 @@ async function initTables() {
 
             CREATE TABLE IF NOT EXISTS anonymous_questions (
                 id SERIAL PRIMARY KEY,
-                sender_id INTEGER NOT NULL REFERENCES users(id),
-                receiver_id INTEGER NOT NULL REFERENCES users(id),
+                sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                receiver_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 question TEXT NOT NULL,
                 answer TEXT,
                 is_read INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
-
-            CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id);
-            CREATE INDEX IF NOT EXISTS idx_swipes_target ON swipes(target_id);
-            CREATE INDEX IF NOT EXISTS idx_matches_user1 ON matches(user1_id);
-            CREATE INDEX IF NOT EXISTS idx_matches_user2 ON matches(user2_id);
-            CREATE INDEX IF NOT EXISTS idx_messages_match ON messages(match_id);
-            CREATE INDEX IF NOT EXISTS idx_user_photos_user ON user_photos(user_id);
-            CREATE INDEX IF NOT EXISTS idx_anon_q_receiver ON anonymous_questions(receiver_id);
-            CREATE INDEX IF NOT EXISTS idx_anon_q_sender ON anonymous_questions(sender_id);
 
             CREATE TABLE IF NOT EXISTS payment_methods (
                 id SERIAL PRIMARY KEY,
@@ -303,8 +318,8 @@ async function initTables() {
 
             CREATE TABLE IF NOT EXISTS premium_requests (
                 id SERIAL PRIMARY KEY,
-                user_id INTEGER NOT NULL REFERENCES users(id),
-                payment_method_id INTEGER REFERENCES payment_methods(id),
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                payment_method_id INTEGER REFERENCES payment_methods(id) ON DELETE SET NULL,
                 transaction_id TEXT,
                 screenshot_url TEXT,
                 amount TEXT DEFAULT '49',
@@ -314,13 +329,10 @@ async function initTables() {
                 reviewed_at TIMESTAMP
             );
 
-            CREATE INDEX IF NOT EXISTS idx_premium_req_user ON premium_requests(user_id);
-            CREATE INDEX IF NOT EXISTS idx_premium_req_status ON premium_requests(status);
-
             CREATE TABLE IF NOT EXISTS message_reactions (
                 id SERIAL PRIMARY KEY,
                 message_id INTEGER NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
-                user_id INTEGER NOT NULL REFERENCES users(id),
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 reaction TEXT NOT NULL DEFAULT '❤️',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(message_id, user_id)
@@ -335,16 +347,18 @@ async function initTables() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
+            CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id);
+            CREATE INDEX IF NOT EXISTS idx_swipes_target ON swipes(target_id);
+            CREATE INDEX IF NOT EXISTS idx_matches_user1 ON matches(user1_id);
+            CREATE INDEX IF NOT EXISTS idx_matches_user2 ON matches(user2_id);
+            CREATE INDEX IF NOT EXISTS idx_messages_match ON messages(match_id);
+            CREATE INDEX IF NOT EXISTS idx_user_photos_user ON user_photos(user_id);
+            CREATE INDEX IF NOT EXISTS idx_anon_q_receiver ON anonymous_questions(receiver_id);
+            CREATE INDEX IF NOT EXISTS idx_anon_q_sender ON anonymous_questions(sender_id);
+            CREATE INDEX IF NOT EXISTS idx_premium_req_user ON premium_requests(user_id);
+            CREATE INDEX IF NOT EXISTS idx_premium_req_status ON premium_requests(status);
             CREATE INDEX IF NOT EXISTS idx_message_reactions_msg ON message_reactions(message_id);
             CREATE INDEX IF NOT EXISTS idx_profile_prompts_user ON profile_prompts(user_id);
-
-            -- Migration: Add institute to users if it doesn't exist
-            DO $$ 
-            BEGIN 
-                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='institute') THEN
-                    ALTER TABLE users ADD COLUMN institute TEXT NOT NULL DEFAULT 'NITK Surathkal';
-                END IF;
-            END $$;
         `);
     } else {
         // Use whichever SQLite engine is available
@@ -360,6 +374,7 @@ async function initTables() {
                 branch TEXT NOT NULL,
                 year TEXT NOT NULL,
                 bio TEXT DEFAULT '',
+                pickup_line TEXT DEFAULT '',
                 photo TEXT DEFAULT '',
                 show_me TEXT DEFAULT 'all',
                 interests TEXT DEFAULT '[]',
@@ -367,6 +382,15 @@ async function initTables() {
                 red_flags TEXT DEFAULT '[]',
                 is_verified INTEGER DEFAULT 0,
                 is_active INTEGER DEFAULT 1,
+                is_premium INTEGER DEFAULT 0,
+                premium_until TEXT DEFAULT NULL,
+                is_snoozed INTEGER DEFAULT 0,
+                snooze_until TEXT DEFAULT NULL,
+                is_admin INTEGER DEFAULT 0,
+                id_card_url TEXT,
+                verification_status TEXT DEFAULT 'unverified',
+                spotify_artist TEXT DEFAULT '',
+                spotify_song TEXT DEFAULT '',
                 reset_token TEXT DEFAULT NULL,
                 reset_token_expires TEXT DEFAULT NULL,
                 last_active_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -379,9 +403,10 @@ async function initTables() {
                 user_id INTEGER NOT NULL,
                 target_id INTEGER NOT NULL,
                 action TEXT NOT NULL CHECK(action IN ('like','pass')),
+                is_super_like INTEGER DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id),
-                FOREIGN KEY (target_id) REFERENCES users(id),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (target_id) REFERENCES users(id) ON DELETE CASCADE,
                 UNIQUE(user_id, target_id)
             )`,
             `CREATE TABLE IF NOT EXISTS matches (
@@ -389,8 +414,8 @@ async function initTables() {
                 user1_id INTEGER NOT NULL,
                 user2_id INTEGER NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user1_id) REFERENCES users(id),
-                FOREIGN KEY (user2_id) REFERENCES users(id),
+                FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (user2_id) REFERENCES users(id) ON DELETE CASCADE,
                 UNIQUE(user1_id, user2_id)
             )`,
             `CREATE TABLE IF NOT EXISTS messages (
@@ -403,9 +428,9 @@ async function initTables() {
                 image_url TEXT,
                 voice_url TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (match_id) REFERENCES matches(id),
-                FOREIGN KEY (sender_id) REFERENCES users(id),
-                FOREIGN KEY (reply_to_id) REFERENCES messages(id)
+                FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE,
+                FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (reply_to_id) REFERENCES messages(id) ON DELETE SET NULL
             )`,
             `CREATE TABLE IF NOT EXISTS reports (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -414,8 +439,8 @@ async function initTables() {
                 reason TEXT NOT NULL,
                 details TEXT DEFAULT '',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (reporter_id) REFERENCES users(id),
-                FOREIGN KEY (reported_id) REFERENCES users(id)
+                FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (reported_id) REFERENCES users(id) ON DELETE CASCADE
             )`,
             `CREATE TABLE IF NOT EXISTS user_photos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -434,7 +459,7 @@ async function initTables() {
                 reaction TEXT NOT NULL DEFAULT '❤️',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
-                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 UNIQUE(message_id, user_id)
             )`,
             `CREATE TABLE IF NOT EXISTS profile_prompts (
@@ -454,8 +479,8 @@ async function initTables() {
                 answer TEXT,
                 is_read INTEGER DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (sender_id) REFERENCES users(id),
-                FOREIGN KEY (receiver_id) REFERENCES users(id)
+                FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
             )`,
             `CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id)`,
             `CREATE INDEX IF NOT EXISTS idx_swipes_target ON swipes(target_id)`,
@@ -487,8 +512,8 @@ async function initTables() {
                 admin_note TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 reviewed_at DATETIME,
-                FOREIGN KEY (user_id) REFERENCES users(id),
-                FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id)
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id) ON DELETE SET NULL
             )`,
             `CREATE INDEX IF NOT EXISTS idx_premium_req_user ON premium_requests(user_id)`,
             `CREATE INDEX IF NOT EXISTS idx_premium_req_status ON premium_requests(status)`
@@ -544,16 +569,32 @@ async function initTables() {
     for (const migration of migrations) {
         try {
             if (isPostgres) {
-                const colName = migration.match(/ADD COLUMN (\w+)/)?.[1];
-                const tableName = migration.match(/ALTER TABLE (\w+)/)?.[1];
-                if (colName && tableName) {
-                    await pool.query(`ALTER TABLE ${tableName} ADD COLUMN IF NOT EXISTS ${migration.split('ADD COLUMN ')[1]}`);
+                const colMatch = migration.match(/ADD COLUMN\s+(?:IF NOT EXISTS\s+)?(\w+)/);
+                const tableMatch = migration.match(/ALTER TABLE\s+(\w+)/);
+                if (colMatch && tableMatch) {
+                    const colName = colMatch[1];
+                    const tableName = tableMatch[1];
+                    const colDef = migration.split(/ADD COLUMN\s+(?:IF NOT EXISTS\s+)?/i)[1];
+                    await pool.query(`ALTER TABLE ${tableName} ADD COLUMN IF NOT EXISTS ${colDef}`);
+                } else if (migration.trim().toUpperCase().startsWith('CREATE TABLE')) {
+                    await pool.query(migration);
                 }
             } else {
-                sqliteRunStmt(migration);
+                // For SQLite, check if migration is "ALTER TABLE ... ADD COLUMN ..."
+                const addColMatch = migration.match(/ALTER TABLE\s+(\w+)\s+ADD COLUMN\s+(\w+)/i);
+                if (addColMatch) {
+                    const tableName = addColMatch[1];
+                    const colName = addColMatch[2];
+                    const tableInfo = await query(`PRAGMA table_info(${tableName})`);
+                    if (!tableInfo.some(c => c.name === colName)) {
+                        sqliteRunStmt(migration);
+                    }
+                } else {
+                    sqliteRunStmt(migration);
+                }
             }
         } catch (e) {
-            // Column likely already exists
+            // Migration failed or column already exists, safe to ignore in this simple runner
         }
     }
 
@@ -563,6 +604,19 @@ async function initTables() {
     console.log('✅ Database tables initialized');
 }
 
-module.exports = { query, queryOne, run, initTables, isPostgres };
+async function close() {
+    if (isPostgres && pool) {
+        await pool.end();
+        console.log('🐘 PostgreSQL pool closed');
+    } else if (sqlite && typeof sqlite.close === 'function') {
+        sqlite.close();
+        console.log('📁 SQLite connection closed');
+    } else if (sqlJsDb) {
+        saveSqlJsDb();
+        console.log('📁 sql.js database saved and closed');
+    }
+}
+
+module.exports = { query, queryOne, run, initTables, isPostgres, close };
 
 

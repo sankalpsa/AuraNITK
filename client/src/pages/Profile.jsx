@@ -11,6 +11,7 @@ export default function Profile() {
     const { showToast } = useToast();
 
     const [stats, setStats] = useState({ matches: 0, likes_given: 0, likes_received: 0 });
+    const [loading, setLoading] = useState(true);
     const [photos, setPhotos] = useState([]);
     const [activePhoto, setActivePhoto] = useState(0);
     const [uploading, setUploading] = useState(false);
@@ -33,11 +34,19 @@ export default function Profile() {
 
     useEffect(() => {
         if (!isAuthenticated) return navigate('/', { replace: true });
-        loadStats();
-        loadPhotos();
-        loadAnonQuestions();
-        loadPrompts();
-        refreshUser();
+        
+        async function init() {
+            setLoading(true);
+            await Promise.all([
+                loadStats(),
+                loadPhotos(),
+                loadAnonQuestions(),
+                loadPrompts(),
+                refreshUser()
+            ]);
+            setLoading(false);
+        }
+        init();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
 
@@ -206,6 +215,15 @@ export default function Profile() {
         } catch (e) { showToast(e.message, 'error'); }
         setSavingCaption(false);
     };
+
+    if (loading) {
+        return (
+            <div className="profile-page view-animate" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="spark-loader"></div>
+                <h3 className="font-serif" style={{ marginTop: '24px', opacity: 0.8 }}>Calibrating Your Signal...</h3>
+            </div>
+        );
+    }
 
     if (!user) return null;
 

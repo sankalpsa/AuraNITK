@@ -42,6 +42,8 @@ export default function ChatConvo() {
     const fileInputRef = useRef(null);
     const lastTapRef = useRef({});
     const [reactions, setReactions] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [sending, setSending] = useState(false);
 
     function scrollToBottom() {
         if (messagesRef.current) {
@@ -59,6 +61,8 @@ export default function ChatConvo() {
             if (!silent) setTimeout(() => scrollToBottom(), 100);
         } catch (e) {
             if (!silent) showToast(e.message, 'error');
+        } finally {
+            if (!silent) setLoading(false);
         }
     }
 
@@ -158,8 +162,9 @@ export default function ChatConvo() {
     const sendMsg = async () => {
         const msgText = text.trim();
         const file = selectedFile;
-        if (!msgText && !file) return;
+        if ((!msgText && !file) || sending) return;
 
+        setSending(true);
         setText('');
         if (file) clearImgSelection();
         setEmojiOpen(false);
@@ -188,6 +193,8 @@ export default function ChatConvo() {
             }
         } catch (e) {
             showToast(e.message, 'error');
+        } finally {
+            setSending(false);
         }
     };
 
@@ -404,7 +411,11 @@ export default function ChatConvo() {
                 flexDirection: 'column',
                 gap: '4px'
             }}>
-                {messages.length === 0 ? (
+                {loading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                        <div className="spinner" />
+                    </div>
+                ) : messages.length === 0 ? (
                     <div className="view-animate" style={{ textAlign: 'center', padding: '60px 20px', margin: 'auto' }}>
                         <div style={{ fontSize: '4rem', marginBottom: '20px', opacity: 0.5 }}>🔥</div>
                         <h3 className="font-serif">The Flames Ignite</h3>
@@ -487,8 +498,9 @@ export default function ChatConvo() {
 
                     <textarea
                         id="chat-input"
-                        placeholder="Whisper something seductive..."
+                        placeholder={sending ? "Transmitting..." : "Whisper something seductive..."}
                         value={text}
+                        disabled={sending}
                         onChange={(e) => { setText(e.target.value); handleTyping(); }}
                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
                         style={{
@@ -500,7 +512,8 @@ export default function ChatConvo() {
                             maxHeight: '100px',
                             resize: 'none',
                             padding: '10px 0',
-                            outline: 'none'
+                            outline: 'none',
+                            opacity: sending ? 0.6 : 1
                         }}
                     />
 
@@ -508,16 +521,21 @@ export default function ChatConvo() {
                         <span className="material-symbols-rounded">{isRecording ? 'stop_circle' : 'mic'}</span>
                     </button>
 
-                    <button className="chat-send-btn holographic" onClick={sendMsg} disabled={!text.trim() && !selectedFile}
+                    <button className="chat-send-btn holographic" onClick={sendMsg} disabled={(!text.trim() && !selectedFile) || sending}
                         style={{
                             padding: '10px',
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            background: 'var(--gradient-primary)'
+                            background: 'var(--gradient-primary)',
+                            opacity: ( (!text.trim() && !selectedFile) || sending ) ? 0.5 : 1
                         }}>
-                        <span className="material-symbols-rounded" style={{ color: 'white', fontSize: '20px' }}>send</span>
+                        {sending ? (
+                            <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />
+                        ) : (
+                            <span className="material-symbols-rounded" style={{ color: 'white', fontSize: '20px' }}>send</span>
+                        )}
                     </button>
                 </div>
             </div>

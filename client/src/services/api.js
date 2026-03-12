@@ -31,7 +31,11 @@ export function setCachedUser(u) {
 
 export async function apiFetch(path, opts = {}) {
     const token = getToken();
-    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    const headers = { 
+        'Content-Type': 'application/json', 
+        'X-SPARK-XSRF': '1', // Simple header-based CSRF protection
+        ...(opts.headers || {}) 
+    };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     let res;
@@ -65,7 +69,9 @@ export async function apiFetch(path, opts = {}) {
 
 export async function apiUpload(path, formData) {
     const token = getToken();
-    const headers = {};
+    const headers = {
+        'X-SPARK-XSRF': '1'
+    };
     if (token) headers['Authorization'] = `Bearer ${token}`;
     let res;
     try {

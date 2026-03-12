@@ -39,6 +39,7 @@ export default function Settings() {
     const [paymentTxnId, setPaymentTxnId] = useState('');
     const [paymentScreenshot, setPaymentScreenshot] = useState(null);
     const [submittingPayment, setSubmittingPayment] = useState(false);
+    const [premiumLoading, setPremiumLoading] = useState(true);
 
     // Search filter helper — returns true if the section should be visible
     const q = searchQuery.toLowerCase().trim();
@@ -67,16 +68,29 @@ export default function Settings() {
     }
 
     async function loadPremiumData() {
+        setPremiumLoading(true);
         try {
             const [status, methods, requests] = await Promise.all([
-                apiFetch('/api/premium/status'),
-                apiFetch('/api/premium/methods'),
-                apiFetch('/api/premium/requests'),
+                apiFetch('/api/premium/status').catch(e => ({ is_premium: 0, error: e.message })),
+                apiFetch('/api/premium/methods').catch(e => ({ methods: [], error: e.message })),
+                apiFetch('/api/premium/requests').catch(e => ({ requests: [], error: e.message })),
             ]);
-            setPremiumStatus(status || { is_premium: 0 });
-            setPaymentMethods(methods.methods || []);
-            setMyRequests(requests.requests || []);
-        } catch { /* premium endpoints may not exist yet */ }
+            
+            if (status.is_premium !== undefined) setPremiumStatus(status);
+            if (methods.methods) setPaymentMethods(methods.methods);
+            if (requests.requests) setMyRequests(requests.requests);
+
+            // Log errors if any endpoint failed (excluding 404s which we handle silently)
+            [status, methods, requests].forEach(r => {
+                if (r.error && !r.error.includes('404')) {
+                    console.error('Premium Data Error:', r.error);
+                }
+            });
+        } catch (e) {
+            console.error('loadPremiumData failed', e);
+        } finally {
+            setPremiumLoading(false);
+        }
     }
 
     const handleSubmitPayment = async () => {
@@ -297,7 +311,11 @@ export default function Settings() {
                         </div>
                     </div>
 
-                    {premiumStatus.is_premium ? (
+                    {premiumLoading ? (
+                        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+                            <div className="spinner" />
+                        </div>
+                    ) : premiumStatus.is_premium ? (
                         <>
                             {/* Premium Active Badge */}
                             <div className="premium-active-badge">
