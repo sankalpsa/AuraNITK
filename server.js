@@ -1,5 +1,5 @@
 // ========================================
-// Aura — Production Server (Fixed)
+// SPARK — Production Server (Fixed)
 // ========================================
 require('dotenv').config();
 const express = require('express');
@@ -45,7 +45,7 @@ setInterval(() => {
 // ========================================
 const OTP_HTML = (otp) => `
     <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#1a1a2e;border-radius:16px;color:#fff;">
-        <h1 style="text-align:center;color:#D4AF37;">Aura ✨</h1>
+        <h1 style="text-align:center;color:#D4AF37;">SPARK ✨</h1>
         <p style="text-align:center;color:#ccc;">Your verification code is:</p>
         <div style="text-align:center;font-size:36px;font-weight:bold;letter-spacing:8px;color:#D4AF37;background:#050505;padding:20px;border-radius:12px;margin:20px 0;border:1px solid rgba(212,175,55,0.3);">
             ${otp}
@@ -92,7 +92,7 @@ function checkEmailConfig() {
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.error('❌ FATAL: No email provider configured!');
         console.error('');
-        console.error('Aura REQUIRES email to verify NITK students.');
+        <p style="text-align:center;color:#D4AF37;">SPARK REQUIRES email to verify NITK students.</p>
         console.error('Missing variables: ' + missing.join(', '));
         console.error('');
         console.error('Option 1 — Gmail SMTP (easiest):');
@@ -114,8 +114,8 @@ function checkEmailConfig() {
 async function sendOTPEmail(toEmail, otp) {
     const smtpEmail = (process.env.SMTP_EMAIL || '').trim();
     const displayEmail = (process.env.SENDER_DISPLAY_EMAIL || smtpEmail || 'noreply@aura.app').trim();
-    const displayName = 'Aura';
-    const subject = '🔐 Aura — Your Verification Code';
+    const displayName = 'SPARK';
+    const subject = '🔐 SPARK — Your Verification Code';
     const html = OTP_HTML(otp);
 
     const errors = [];
@@ -146,7 +146,7 @@ async function sendOTPEmail(toEmail, otp) {
                 to: toEmail,
                 subject: subject,
                 html: html,
-                headers: { 'X-Mailer': 'Aura App' }
+                headers: { 'X-Mailer': 'SPARK App' }
             });
 
             console.log(`✅ [Gmail SMTP] OTP sent to ${toEmail} (msgId: ${info.messageId})`);
@@ -296,8 +296,7 @@ const io = new Server(server, {
     cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
-const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'aura_dev_secret_2025_safe';
+const JWT_SECRET = process.env.JWT_SECRET || 'spark_dev_secret_2025_safe';
 
 const onlineUsers = new Set();
 
@@ -418,7 +417,7 @@ if (useCloudinary) {
     storage = new CloudinaryStorage({
         cloudinary,
         params: {
-            folder: 'aura-photos',
+            folder: 'spark-photos',
             allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
             public_id: (req, file) => {
                 const hash = crypto.createHash('sha256')
@@ -432,7 +431,7 @@ if (useCloudinary) {
             }
         }
     });
-    console.log('📸 Using Cloudinary for image storage');
+    console.log('📸 Using Cloudinary for SPARK photo storage');
 } else {
     const uploadsDir = path.join(__dirname, 'uploads');
     if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
@@ -638,14 +637,14 @@ app.post('/api/auth/register', async (req, res) => {
         let institute = domain.split('.')[0].toUpperCase();
         if (domain === 'nitk.edu.in') institute = 'NITK Surathkal';
         else if (domain.includes('.edu')) institute = institute + ' University';
-        else institute = domain || 'Global Aura';
+        else institute = domain || 'Global SPARK';
 
         const result = await db.run(
             `INSERT INTO users (name, email, password, age, gender, institute, branch, year, bio, show_me, interests, green_flags, red_flags, is_verified)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 name, normalizedEmail, hash, age, gender, institute, branch, year,
-                bio || "Hey there! I'm on Aura ✨",
+                bio || "Hey there! I'm on SPARK ✨",
                 show_me || 'all',
                 JSON.stringify(interests || []),
                 JSON.stringify(green_flags || []),
@@ -713,14 +712,14 @@ app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
                 auth: { user: smtpEmail, pass: process.env.SMTP_PASSWORD.trim() }
             });
             await transporter.sendMail({
-                from: `"Aura" <${smtpEmail}>`,
+                from: `"SPARK" <${smtpEmail}>`,
                 to: normalizedEmail,
-                subject: '🔐 Aura — Password Reset Request',
+                subject: '🔐 SPARK — Password Reset Request',
                 html: `
                     <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#1a1a2e;border-radius:16px;color:#fff;">
-                        <h1 style="text-align:center;color:#D4AF37;">Aura ✨</h1>
+                        <h1 style="text-align:center;color:#D4AF37;">SPARK ✨</h1>
                         <p>Hi ${user.name},</p>
-                        <p>Someone requested a password reset for your Aura account. Click the button below to set a new password:</p>
+                        <p>Someone requested a password reset for your SPARK account. Click the button below to set a new password:</p>
                         <div style="text-align:center;margin:32px 0;">
                             <a href="${resetUrl}" style="background:linear-gradient(135deg, #8B5CF6, #EC4899);color:white;padding:16px 32px;text-decoration:none;border-radius:30px;font-weight:bold;display:inline-block;">Reset Password</a>
                         </div>

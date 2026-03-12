@@ -85,11 +85,11 @@ export default function Landing() {
                 </div>
 
                 <h1 className="hero-title font-serif">
-                    Ignite Your <span className="text-spark spark-text-flicker">SPARK</span>
+                    Experience <span className="text-spark spark-text-flicker">SPARK</span>
                 </h1>
 
                 <p className="hero-tagline" style={{ fontStyle: 'italic', fontFamily: "'Cormorant Garamond', serif" }}>
-                    Beyond swiping. Pure attraction.
+                    Beyond swiping. Pure energy.
                 </p>
                 <p className="hero-subtext">
                     The ultra-premium social circle for university elites.

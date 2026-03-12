@@ -1,7 +1,7 @@
 {
-  "name": "aura",
+  "name": "spark",
   "version": "1.0.0",
-  "description": "Aura — Unified campus dating platform for university students",
+  "description": "SPARK — Unified campus dating platform for university students",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
