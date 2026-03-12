@@ -38,7 +38,7 @@ export default function Connections() {
                 ) : matches.length === 0 ? (
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', padding: '0 20px' }}>
                         <div className="empty-state glass-card holographic" style={{ padding: '60px 40px', textAlign: 'center', borderRadius: '32px', maxWidth: '400px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ background: 'rgba(255, 42, 84, 0.1)', width: '96px', height: '96px', borderRadius: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', boxShadow: '0 0 30px rgba(255, 42, 84, 0.3)', border: '1px solid rgba(255, 42, 84, 0.2)' }}>
+                            <div style={{ background: 'rgba(167, 139, 250, 0.08)', width: '96px', height: '96px', borderRadius: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', boxShadow: '0 0 20px rgba(167, 139, 250, 0.15)', border: '1px solid rgba(167, 139, 250, 0.15)' }}>
                                 <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '3.5rem' }}>all_inclusive</span>
                             </div>
                             <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Awaiting Fusion</h3>

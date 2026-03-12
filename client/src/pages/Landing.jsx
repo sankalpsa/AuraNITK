@@ -116,16 +116,13 @@ export default function Landing() {
                     flexWrap: 'wrap'
                 }}>
                     {[
-                        { num: '100+', label: 'Connections Made' },
-                        { num: '50+', label: 'Active Members' },
-                        { num: '∞', label: 'Chemistry' }
+                        { num: '🎓', label: 'Campus Verified' },
+                        { num: '🔒', label: 'Private & Secure' },
+                        { num: '⚡', label: 'Real-Time Chat' }
                     ].map((stat, i) => (
                         <div key={i} style={{ textAlign: 'center' }}>
                             <div style={{
-                                fontSize: '2rem', fontWeight: 800,
-                                background: 'var(--gradient-primary)',
-                                WebkitBackgroundClip: 'text', backgroundClip: 'text',
-                                color: 'transparent'
+                                fontSize: '2rem', fontWeight: 800
                             }}>{stat.num}</div>
                             <div style={{
                                 fontSize: '0.8rem', color: 'var(--text-muted)',

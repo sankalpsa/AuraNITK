@@ -527,7 +527,7 @@ export default function Settings() {
                     </div>
                     <div className="about-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border)' }}>
                         <div style={{ background: '#000', width: '100%', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <img src="/spark-logo.png" alt="SPARK Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            <img src="/aura-logo.png" alt="SPARK Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         </div>
                         <div style={{ padding: '20px' }}>
                             <p className="font-serif" style={{ color: 'var(--text-main)', fontSize: '1.05rem', margin: '0 0 8px' }}>
