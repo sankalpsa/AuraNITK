@@ -1,4 +1,4 @@
-// Aura — Database Layer (SQLite / PostgreSQL)
+// SPARK — Database Layer (SQLite / PostgreSQL)
 // ========================================
 // Uses PostgreSQL when DATABASE_URL is set (production on Render)
 // Falls back to SQLite for local development
@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === 'production' && !isPostgres) {
 let pool, sqlite;
 let useSqlJs = false;
 let sqlJsDb = null;
-const SQLITE_DB_PATH = path.join(__dirname, 'aura.db');
+const SQLITE_DB_PATH = path.join(__dirname, 'spark.db');
 
 if (isPostgres) {
     const { Pool } = require('pg');

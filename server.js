@@ -113,7 +113,7 @@ function checkEmailConfig() {
 
 async function sendOTPEmail(toEmail, otp) {
     const smtpEmail = (process.env.SMTP_EMAIL || '').trim();
-    const displayEmail = (process.env.SENDER_DISPLAY_EMAIL || smtpEmail || 'noreply@aura.app').trim();
+    const displayEmail = (process.env.SENDER_DISPLAY_EMAIL || smtpEmail || 'noreply@spark.app').trim();
     const displayName = 'SPARK';
     const subject = '🔐 SPARK — Your Verification Code';
     const html = OTP_HTML(otp);

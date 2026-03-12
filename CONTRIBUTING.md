@@ -1,4 +1,4 @@
-# 🛠️ Aura — Internal Setup Guide
+# 🛠️ SPARK — Internal Setup Guide
 
 This document is for collaborators and authorized developers only.
 
@@ -6,7 +6,7 @@ This document is for collaborators and authorized developers only.
 
 1.  **Clone the Repo**:
     ```bash
-    git clone https://github.com/sankalpsa/AuraNITK.git
+    git clone https://github.com/sankalpsa/SPARK.git
     ```
 
 2.  **Install Dependencies**:
@@ -32,7 +32,7 @@ This document is for collaborators and authorized developers only.
     ```
 
 4.  **Database**:
-    - The server will automatically initialize `aura.db` (SQLite) on the first run.
+    - The server will automatically initialize `spark.db` (SQLite) on the first run.
 
 5.  **Run Application**:
     ```bash
