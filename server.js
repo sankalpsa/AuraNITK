@@ -24,7 +24,7 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '763153801
 // ========================================
 // Environment Validation
 // ========================================
-const REQUIRED_ENV = ['JWT_SECRET', 'DATABASE_URL', 'SMTP_EMAIL', 'SMTP_PASSWORD'];
+const REQUIRED_ENV = ['JWT_SECRET', 'SMTP_EMAIL', 'SMTP_PASSWORD'];
 if (process.env.NODE_ENV === 'production') {
     const missing = REQUIRED_ENV.filter(key => !process.env[key]);
     if (missing.length > 0) {
@@ -139,8 +139,12 @@ async function sendSparkEmail(toEmail, subject, html) {
             },
             pool: true,
             maxConnections: 1,
+            maxMessages: 10,
             tls: { rejectUnauthorized: false },
-            family: 4
+            family: 4,
+            connectionTimeout: 20000,
+            greetingTimeout: 20000,
+            socketTimeout: 20000
         });
 
         try {
@@ -1123,6 +1127,7 @@ app.post('/api/feedback', authenticate, async (req, res) => {
         if (!message) return res.status(400).json({ error: 'Message is required' });
 
         const adminEmail = (process.env.ADMIN_EMAIL || process.env.SMTP_EMAIL || '').trim();
+        console.log(`📨 Feedback transmission initiated to root: ${adminEmail}`);
         if (!adminEmail) return res.status(500).json({ error: 'Admin email not configured' });
 
         const html = `
