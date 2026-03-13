@@ -581,6 +581,17 @@ export default function Settings() {
                             </div>
                         </div>
                     </div>
+
+                    <div className="settings-item flex items-center justify-between p-4 cursor-pointer hover:bg-elevated transition-colors border-t border-spark-border" onClick={() => navigate('/feedback')}>
+                        <div className="flex items-center gap-3">
+                            <span className="material-symbols-rounded text-spark">chat_bubble</span>
+                            <div>
+                                <h4 className="font-medium">Pulse Feedback</h4>
+                                <p className="text-xs text-muted">Suggest improvements or report issues</p>
+                            </div>
+                        </div>
+                        <span className="material-symbols-rounded text-muted">chevron_right</span>
+                    </div>
                 </div>}
 
                 {/* Login section — Instagram-style "Log in" section */}

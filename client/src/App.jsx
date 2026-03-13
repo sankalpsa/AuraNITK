@@ -17,6 +17,7 @@ import EditProfile from './pages/EditProfile';
 import ViewProfile from './pages/ViewProfile';
 import Settings from './pages/Settings';
 import AdminDashboard from './pages/AdminDashboard';
+import Feedback from './pages/Feedback';
 import BroadcastListener from './components/common/BroadcastListener';
 import GlobalEffects from './components/common/GlobalEffects';
 
@@ -54,6 +55,7 @@ function AppRoutes() {
         <Route path="/profile/view" element={<ProtectedRoute><ViewProfile /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />

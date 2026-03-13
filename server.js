@@ -123,16 +123,13 @@ function checkEmailConfig() {
     console.log(`📧 Detected Email Providers: ${providers.join(', ')}`);
 }
 
-async function sendOTPEmail(toEmail, otp) {
+async function sendSparkEmail(toEmail, subject, html) {
     const smtpEmail = (process.env.SMTP_EMAIL || '').trim();
     const displayEmail = (process.env.SENDER_DISPLAY_EMAIL || smtpEmail || 'noreply@spark.app').trim();
     const displayName = 'SPARK';
-    const subject = '🔐 SPARK — Your Verification Code';
-    const html = OTP_HTML(otp);
-
     const errors = [];
 
-    // --- 1. Gmail SMTP (Now Primary) ---
+    // --- 1. Gmail SMTP ---
     if (smtpEmail && process.env.SMTP_PASSWORD?.trim()) {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -140,19 +137,14 @@ async function sendOTPEmail(toEmail, otp) {
                 user: smtpEmail,
                 pass: process.env.SMTP_PASSWORD.trim()
             },
-            // Render specific tweaks for connections
             pool: true,
             maxConnections: 1,
-            maxMessages: 10,
             tls: { rejectUnauthorized: false },
-            family: 4,
-            connectionTimeout: 20000,
-            greetingTimeout: 20000,
-            socketTimeout: 20000
+            family: 4
         });
 
         try {
-            const info = await transporter.sendMail({
+            await transporter.sendMail({
                 from: `"${displayName}" <${smtpEmail}>`,
                 replyTo: `"${displayName}" <${displayEmail}>`,
                 to: toEmail,
@@ -160,9 +152,8 @@ async function sendOTPEmail(toEmail, otp) {
                 html: html,
                 headers: { 'X-Mailer': 'SPARK App' }
             });
-
-            console.log(`✅ [Gmail SMTP] OTP sent to ${toEmail} (msgId: ${info.messageId})`);
-            return;
+            console.log(`✅ [Gmail SMTP] Email sent to ${toEmail}`);
+            return true;
         } catch (smtpErr) {
             console.error(`❌ [Gmail SMTP] Failed to send to ${toEmail}:`, smtpErr.message);
             errors.push(`SMTP Error: ${smtpErr.message}`);
@@ -188,19 +179,14 @@ async function sendOTPEmail(toEmail, otp) {
                 })
             });
             if (res.ok) {
-                console.log(`✅ [Resend] OTP sent to ${toEmail}`);
-                return;
+                console.log(`✅ [Resend] Email sent to ${toEmail}`);
+                return true;
             }
-            const errText = await res.text();
-            console.error(`❌ [Resend] HTTP ${res.status}: ${errText}`);
-            errors.push(`Resend: ${res.status} ${errText}`);
-        } catch (e) {
-            console.error('❌ [Resend] Exception:', e.message);
-            errors.push(`Resend Error: ${e.message}`);
-        }
+            errors.push(`Resend: ${res.status}`);
+        } catch (e) { errors.push(`Resend Error: ${e.message}`); }
     }
 
-    // --- 3. Brevo (Sendinblue) API ---
+    // --- 3. Brevo API ---
     if (process.env.BREVO_API_KEY?.trim()) {
         try {
             const res = await fetch('https://api.brevo.com/v3/smtp/email', {
@@ -217,16 +203,11 @@ async function sendOTPEmail(toEmail, otp) {
                 })
             });
             if (res.ok) {
-                console.log(`✅ [Brevo] OTP sent to ${toEmail}`);
-                return;
+                console.log(`✅ [Brevo] Email sent to ${toEmail}`);
+                return true;
             }
-            const errText = await res.text();
-            console.error(`❌ [Brevo] HTTP ${res.status}: ${errText}`);
-            errors.push(`Brevo: ${res.status} ${errText}`);
-        } catch (e) {
-            console.error('❌ [Brevo] Exception:', e.message);
-            errors.push(`Brevo Error: ${e.message}`);
-        }
+            errors.push(`Brevo: ${res.status}`);
+        } catch (e) { errors.push(`Brevo Error: ${e.message}`); }
     }
 
     // --- 4. Mailjet API ---
@@ -249,16 +230,11 @@ async function sendOTPEmail(toEmail, otp) {
                 })
             });
             if (res.ok) {
-                console.log(`✅ [Mailjet] OTP sent to ${toEmail}`);
-                return;
+                console.log(`✅ [Mailjet] Email sent to ${toEmail}`);
+                return true;
             }
-            const errText = await res.text();
-            console.error(`❌ [Mailjet] HTTP ${res.status}: ${errText}`);
-            errors.push(`Mailjet: ${res.status} ${errText}`);
-        } catch (e) {
-            console.error('❌ [Mailjet] Exception:', e.message);
-            errors.push(`Mailjet Error: ${e.message}`);
-        }
+            errors.push(`Mailjet: ${res.status}`);
+        } catch (e) { errors.push(`Mailjet Error: ${e.message}`); }
     }
 
     // --- 5. SendGrid API ---
@@ -273,28 +249,24 @@ async function sendOTPEmail(toEmail, otp) {
                 body: JSON.stringify({
                     personalizations: [{ to: [{ email: toEmail }] }],
                     from: { email: displayEmail, name: displayName },
-                    reply_to: { email: displayEmail, name: displayName },
                     subject: subject,
                     content: [{ type: 'text/html', value: html }]
                 })
             });
             if (res.ok) {
-                console.log(`✅ [SendGrid] OTP sent to ${toEmail}`);
-                return;
+                console.log(`✅ [SendGrid] Email sent to ${toEmail}`);
+                return true;
             }
-            const errText = await res.text();
-            console.error(`❌ [SendGrid] HTTP ${res.status}: ${errText}`);
-            errors.push(`SendGrid: ${res.status} ${errText}`);
-        } catch (e) {
-            console.error('❌ [SendGrid] Exception:', e.message);
-            errors.push(`SendGrid Error: ${e.message}`);
-        }
+            errors.push(`SendGrid: ${res.status}`);
+        } catch (e) { errors.push(`SendGrid Error: ${e.message}`); }
     }
 
-    // Final failure check
-    const errorMsg = 'All email delivery attempts failed. Please contact support.';
-    console.error(errorMsg, errors);
-    throw new Error(`${errorMsg} Details: ${errors.join(' | ')}`);
+    console.error('All email delivery attempts failed:', errors);
+    throw new Error(`Email delivery failed: ${errors.join(' | ')}`);
+}
+
+async function sendOTPEmail(toEmail, otp) {
+    return sendSparkEmail(toEmail, '🔐 SPARK — Your Verification Code', OTP_HTML(otp));
 }
 
 
@@ -1141,6 +1113,39 @@ app.put('/api/profile/photo/:photoId/primary', authenticate, async (req, res) =>
     } catch (e) {
         console.error('Set primary error:', e);
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Submit feedback
+app.post('/api/feedback', authenticate, async (req, res) => {
+    try {
+        const { type, message } = req.body;
+        if (!message) return res.status(400).json({ error: 'Message is required' });
+
+        const adminEmail = (process.env.ADMIN_EMAIL || process.env.SMTP_EMAIL || '').trim();
+        if (!adminEmail) return res.status(500).json({ error: 'Admin email not configured' });
+
+        const html = `
+            <div style="font-family:sans-serif; max-width:600px; margin:0 auto; padding:20px; background:#0a0a0a; color:#fff; border-radius:12px; border:1px solid #333;">
+                <h2 style="color: #d8b4fe; border-bottom: 2px solid #333; padding-bottom: 10px;">🔥 SPARK Feedback Received</h2>
+                <div style="padding: 20px 0;">
+                    <p><strong>From:</strong> ${req.user.name} (${req.user.email})</p>
+                    <p><strong>Type:</strong> ${type || 'General Improvement'}</p>
+                    <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #d8b4fe;">
+                        <p style="white-space: pre-wrap; margin: 0;">${message}</p>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: #666; text-align: center; margin-top: 20px;">
+                    Sent from the SPARK Pulse Engine — ${new Date().toLocaleString()}
+                </p>
+            </div>
+        `;
+
+        await sendSparkEmail(adminEmail, `🚀 SPARK Feedback: ${type || 'New Suggestion'}`, html);
+        res.json({ success: true, message: 'Feedback transmitted successfully! Thank you. ✨' });
+    } catch (e) {
+        console.error('Feedback error:', e);
+        res.status(500).json({ error: 'Failed to transmit feedback. Please try again later.' });
     }
 });
 
