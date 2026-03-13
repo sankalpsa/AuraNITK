@@ -477,18 +477,44 @@ export default function Profile() {
                     </div>
                     <div className="photo-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                         {photos.map((p, i) => (
-                            <div key={p.id} className={`photo-item glass-card holographic ${i === activePhoto ? 'active' : ''}`} style={{ aspectAspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: i === activePhoto ? '2px solid var(--primary)' : '1px solid var(--border)' }} onClick={() => setActivePhoto(i)}>
+                            <div key={p.id} className={`photo-item glass-card holographic ${i === activePhoto ? 'active' : ''}`} style={{ aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: i === activePhoto ? '2px solid var(--primary)' : '1px solid var(--border)' }} onClick={() => setActivePhoto(i)}>
                                 <img src={p.url || p.photo_url} alt="Profile fragment" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 <div className="photo-item-actions" style={{ position: 'absolute', top: 4, right: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
                                     <button onClick={(e) => { e.stopPropagation(); setPrimary(p.id); }} style={{ background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '4px', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', color: p.is_primary ? 'var(--primary)' : 'white' }}>
                                         <span className="material-symbols-rounded" style={{ fontSize: 14 }}>{p.is_primary ? 'star' : 'grade'}</span>
                                     </button>
+                                    <button onClick={(e) => { e.stopPropagation(); deletePhoto(p.id); }} style={{ background: 'rgba(239,68,68,0.7)', border: 'none', borderRadius: '4px', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: 14 }}>delete</span>
+                                    </button>
+                                    <button onClick={(e) => { e.stopPropagation(); setEditingCaptionId(p.id); setCaptionText(p.caption || ''); }} style={{ background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '4px', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: 14 }}>edit</span>
+                                    </button>
                                 </div>
+                                {/* Caption editing overlay */}
+                                {editingCaptionId === p.id && (
+                                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.85)', padding: '8px', zIndex: 10 }} onClick={e => e.stopPropagation()}>
+                                        <input
+                                            value={captionText}
+                                            onChange={e => setCaptionText(e.target.value)}
+                                            placeholder="Add a caption..."
+                                            style={{ width: '100%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px', color: 'white', padding: '4px 8px', fontSize: '0.75rem', marginBottom: '6px' }}
+                                            autoFocus
+                                        />
+                                        <div style={{ display: 'flex', gap: 4 }}>
+                                            <button onClick={() => saveCaption(p.id)} disabled={savingCaption} style={{ flex: 1, background: 'var(--gradient-primary)', border: 'none', borderRadius: '6px', color: 'white', fontSize: '0.7rem', padding: '4px 0', cursor: 'pointer' }}>
+                                                {savingCaption ? '...' : 'Save'}
+                                            </button>
+                                            <button onClick={() => setEditingCaptionId(null)} style={{ flex: 1, background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'white', fontSize: '0.7rem', padding: '4px 0', cursor: 'pointer' }}>
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ))}
                         {photos.length < 6 && (
-                            <div className="photo-add-placeholder glass-card holographic" style={{ aspectAspectRatio: '1/1', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-elevated)', borderRadius: '12px', cursor: 'pointer' }} onClick={() => fileInputRef.current?.click()}>
-                                <span className="material-symbols-rounded" style={{ color: 'var(--text-muted)' }}>add</span>
+                            <div className="photo-add-placeholder glass-card holographic" style={{ aspectRatio: '1/1', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-elevated)', borderRadius: '12px', cursor: 'pointer' }} onClick={() => fileInputRef.current?.click()}>
+                                <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: 32 }}>add_circle</span>
                             </div>
                         )}
                     </div>
@@ -515,11 +541,11 @@ export default function Profile() {
                                         <span className="material-symbols-rounded" style={{ fontSize: 18, color: 'var(--primary-light)' }}>mystery</span>
                                         <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(q.created_at).toLocaleDateString()}</span>
                                     </div>
-                                    <p style={{ fontSize: '0.95rem', marginBottom: '16px', fontWeight: 500 }}>{q.question_text}</p>
+                                    <p style={{ fontSize: '0.95rem', marginBottom: '16px', fontWeight: 500 }}>{q.question}</p>
                                     {q.answer_text ? (
                                         <div style={{ background: 'var(--primary-soft)', padding: '12px', borderRadius: '10px', fontSize: '0.9rem', position: 'relative' }}>
                                             <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px', color: 'var(--primary)' }}>My Ignition</div>
-                                            <p style={{ margin: 0 }}>{q.answer_text}</p>
+                                            <p style={{ margin: 0 }}>{q.answer}</p>
                                         </div>
                                     ) : (
                                         <div className="anon-answer-input">
@@ -590,6 +616,15 @@ export default function Profile() {
                     </section>
                 )}
             </div>
+
+            {/* Hidden ID card file input */}
+            <input
+                ref={idInputRef}
+                type="file"
+                accept="image/*,application/pdf"
+                style={{ display: 'none' }}
+                onChange={handleIDUpload}
+            />
 
             {/* Photo Crop Modal */}
             {showCrop && (

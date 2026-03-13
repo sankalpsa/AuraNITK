@@ -480,6 +480,41 @@ export default function ChatConvo() {
                     </div>
                 )}
 
+                {/* Emoji Picker */}
+                {emojiOpen && (
+                    <div className="view-animate" style={{
+                        padding: '12px',
+                        marginBottom: '10px',
+                        background: 'var(--bg-glass)',
+                        backdropFilter: 'blur(20px)',
+                        borderRadius: '20px',
+                        border: '1px solid var(--border)',
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(8, 1fr)',
+                        gap: '4px'
+                    }}>
+                        {COMMON_EMOJIS.map((emoji, i) => (
+                            <button
+                                key={i}
+                                onClick={() => { setText(t => t + emoji); setEmojiOpen(false); }}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontSize: '1.3rem',
+                                    padding: '6px 4px',
+                                    borderRadius: '8px',
+                                    transition: 'background 0.2s'
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                            >
+                                {emoji}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
                 <div className="chat-input-pill" style={{
                     display: 'flex',
                     alignItems: 'center',

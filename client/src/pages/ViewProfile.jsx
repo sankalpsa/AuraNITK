@@ -321,9 +321,9 @@ export default function ViewProfile() {
                         ) : (
                             answeredQs.map(q => (
                                 <div key={q.id} className="echo-card glass-card holographic card-hover-zoom" style={{ padding: '20px' }}>
-                                    <p style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '12px', color: 'var(--primary-light)' }}>Q: {q.question_text}</p>
+                                    <p style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '12px', color: 'var(--primary-light)' }}>Q: {q.question}</p>
                                     <div style={{ background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '10px' }}>
-                                        <p style={{ margin: 0, fontSize: '0.95rem' }}>{q.answer_text}</p>
+                                        <p style={{ margin: 0, fontSize: '0.95rem' }}>{q.answer}</p>
                                     </div>
                                 </div>
                             ))
@@ -406,7 +406,23 @@ export default function ViewProfile() {
 
             {/* Modals & Overlays */}
             {showReport && <ReportModal userId={profile.id} onClose={() => setShowReport(false)} />}
-            {matchData && <MatchOverlay matchData={matchData} onClose={() => setMatchData(null)} />}
+            {matchData && (
+                <MatchOverlay
+                    matchedUser={matchData.user}
+                    onClose={() => { setMatchData(null); navigate(-1); }}
+                    onChat={() => {
+                        setMatchData(null);
+                        navigate('/chat/convo', {
+                            state: {
+                                match_id: matchData.matchId,
+                                user_id: matchData.user.id,
+                                name: matchData.user.name,
+                                photo: matchData.user.photo
+                            }
+                        });
+                    }}
+                />
+            )}
 
             {imgViewerOpen && (
                 <div className="image-viewer-overlay view-animate" onClick={() => setImgViewerOpen(false)} style={{

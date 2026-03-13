@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { apiFetch, getToken } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
@@ -103,7 +103,7 @@ export default function Settings() {
             formData.append('amount', '49');
             if (paymentMethods.length > 0) formData.append('payment_method_id', paymentMethods[0].id);
 
-            const token = localStorage.getItem('token');
+            const token = getToken();
             const resp = await fetch('/api/premium/subscribe', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
@@ -555,8 +555,17 @@ export default function Settings() {
                         </div>
                     </div>
                     <div className="about-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border)' }}>
-                        <div style={{ background: '#000', width: '100%', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <img src="/aura-logo.png" alt="SPARK Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        <div style={{ background: 'linear-gradient(135deg,#0a0118,#1a0535)', width: '100%', aspectRatio: '1/1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                            {/* Ambient glow rings */}
+                            <div style={{ position: 'absolute', width: '200px', height: '200px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+                            <div style={{ position: 'absolute', width: '140px', height: '140px', borderRadius: '50%', border: '1px solid rgba(139,92,246,0.3)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+                            <div style={{ position: 'absolute', width: '180px', height: '180px', borderRadius: '50%', border: '1px solid rgba(236,72,153,0.2)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+                            {/* S mark */}
+                            <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
+                                <div style={{ fontSize: '5rem', fontWeight: 900, background: 'linear-gradient(135deg,#ec4899,#8b5cf6,#06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1, fontFamily: 'Georgia, serif', letterSpacing: '-4px' }}>S</div>
+                                <div style={{ fontSize: '1.4rem', fontWeight: 900, background: 'linear-gradient(90deg,#ec4899,#8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '0.5em', marginLeft: '0.5em', fontFamily: 'Arial, sans-serif' }}>SPARK</div>
+                                <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.3em', marginTop: '6px' }}>CAMPUS CONNECTIONS</div>
+                            </div>
                         </div>
                         <div style={{ padding: '20px' }}>
                             <p className="font-serif" style={{ color: 'var(--text-main)', fontSize: '1.05rem', margin: '0 0 8px' }}>

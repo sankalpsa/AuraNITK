@@ -1059,7 +1059,7 @@ app.post('/api/profile/photo', authenticate, upload.single('photo'), async (req,
 
         // Check existing photo count
         const countRow = await db.queryOne('SELECT COUNT(*) as c FROM user_photos WHERE user_id = ?', [req.user.id]);
-        if (countRow && countRow.c >= 4) return res.status(400).json({ error: 'Maximum 4 photos allowed. Delete one first.' });
+        if (countRow && countRow.c >= 6) return res.status(400).json({ error: 'Maximum 6 photos allowed. Delete one first.' });
 
         const photoUrl = req.file.path && req.file.path.startsWith('http') ? req.file.path : `/uploads/${req.file.filename}`;
 
