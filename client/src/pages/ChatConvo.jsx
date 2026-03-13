@@ -99,8 +99,10 @@ export default function ChatConvo() {
                 msgIdsRef.current.add(msg.id);
                 setTimeout(() => scrollToBottom(), 50);
                 markAsRead(matchId);
-                // Emit read status back to sender
-                socket.emit('message_read', { messageId: msg.id, fromUserId: msg.sender_id });
+                // Emit read status back to sender if setting enabled
+                if (user?.read_receipts !== 0) {
+                    socket.emit('message_read', { messageId: msg.id, fromUserId: msg.sender_id });
+                }
             }
         };
 

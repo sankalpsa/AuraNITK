@@ -305,9 +305,9 @@ export default function Profile() {
                                 <span className="material-symbols-rounded" style={{ fontSize: '2.5rem' }}>add_a_photo</span>
                             </div>
                             <p style={{ color: 'var(--text-muted)' }}>Ignite your visual presence</p>
-                            <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileSelect} />
                         </div>
                     )}
+                    <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileSelect} />
                     {photos.length > 1 && (
                         <div className="carousel-indicators" style={{ position: 'absolute', top: '100px', right: '20px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 5 }}>
                             {photos.map((_, i) => (

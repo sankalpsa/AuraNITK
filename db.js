@@ -396,7 +396,9 @@ async function initTables() {
                 last_active_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 latitude REAL DEFAULT NULL,
-                longitude REAL DEFAULT NULL
+                longitude REAL DEFAULT NULL,
+                read_receipts INTEGER DEFAULT 1,
+                is_incognito INTEGER DEFAULT 0
             )`,
             `CREATE TABLE IF NOT EXISTS swipes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -554,6 +556,8 @@ async function initTables() {
         // Location (GPS matching)
         'ALTER TABLE users ADD COLUMN latitude REAL DEFAULT NULL',
         'ALTER TABLE users ADD COLUMN longitude REAL DEFAULT NULL',
+        'ALTER TABLE users ADD COLUMN read_receipts INTEGER DEFAULT 1',
+        'ALTER TABLE users ADD COLUMN is_incognito INTEGER DEFAULT 0',
         // Ensure profile_prompts exists
         `CREATE TABLE IF NOT EXISTS profile_prompts (
             id ${isPostgres ? 'SERIAL' : 'INTEGER'} PRIMARY KEY ${isPostgres ? '' : 'AUTOINCREMENT'},

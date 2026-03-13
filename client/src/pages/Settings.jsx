@@ -54,7 +54,10 @@ export default function Settings() {
 
     useEffect(() => {
         if (!isAuthenticated) navigate('/', { replace: true });
-        if (user) setIncognito(user.is_snoozed === 1);
+        if (user) {
+            setIncognito(user.is_incognito === 1);
+            setReadReceipts(user.read_receipts !== 0);
+        }
         loadReports();
         loadPremiumData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -344,13 +347,13 @@ export default function Settings() {
                                         try {
                                             const resp = await apiFetch('/api/account/incognito', {
                                                 method: 'PUT',
-                                                body: JSON.stringify({ is_snoozed: newVal })
+                                                body: JSON.stringify({ is_incognito: newVal })
                                             });
-                                            if (user) updateUser({ ...user, is_snoozed: resp.is_snoozed });
+                                            if (user) updateUser({ ...user, is_incognito: resp.is_incognito, is_snoozed: resp.is_incognito });
                                             showToast(newVal ? 'Embers Cloaked 🕵️‍♀️' : 'Flame Visible', 'success');
                                         } catch (err) {
                                             setIncognito(!newVal);
-                                            showToast('Failed to toggle Ghost Mode', 'error');
+                                            showToast(err.message || 'Failed to toggle Ghost Mode', 'error');
                                         }
                                     }} />
                                     <span className="toggle-slider"></span>
@@ -367,9 +370,20 @@ export default function Settings() {
                                     </div>
                                 </div>
                                 <label className="toggle-switch">
-                                    <input type="checkbox" checked={readReceipts} onChange={(e) => {
-                                        setReadReceipts(e.target.checked);
-                                        showToast(e.target.checked ? 'Read Receipts ON' : 'Read Receipts OFF', 'info');
+                                    <input type="checkbox" checked={readReceipts} onChange={async (e) => {
+                                        const newVal = e.target.checked;
+                                        setReadReceipts(newVal);
+                                        try {
+                                            const resp = await apiFetch('/api/account/read-receipts', {
+                                                method: 'PUT',
+                                                body: JSON.stringify({ enabled: newVal })
+                                            });
+                                            if (user) updateUser({ ...user, read_receipts: resp.read_receipts });
+                                            showToast(newVal ? 'Ignition Confirmation ON' : 'Ignition Confirmation OFF', 'info');
+                                        } catch (err) {
+                                            setReadReceipts(!newVal);
+                                            showToast(err.message || 'Failed to update Read Receipts', 'error');
+                                        }
                                     }} />
                                     <span className="toggle-slider"></span>
                                 </label>

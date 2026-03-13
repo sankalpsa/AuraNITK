@@ -881,16 +881,7 @@ app.delete('/api/account', authenticate, async (req, res) => {
     }
 });
 
-app.put('/api/account/incognito', authenticate, async (req, res) => {
-    try {
-        const { is_snoozed } = req.body;
-        await db.run('UPDATE users SET is_snoozed = ? WHERE id = ?', [is_snoozed ? 1 : 0, req.user.id]);
-        res.json({ success: true, is_snoozed: is_snoozed ? 1 : 0 });
-    } catch (e) {
-        console.error('Incognito error:', e);
-        res.status(500).json({ error: 'Server error' });
-    }
-});
+// Reports against the current user (so they know why they were reported)
 
 // Reports against the current user (so they know why they were reported)
 app.get('/api/reports/me', authenticate, async (req, res) => {
@@ -1247,7 +1238,7 @@ app.get('/api/discover', authenticate, async (req, res) => {
                )
                ${genderFilter}
                ${campusFilter}
-             ORDER BY ${distanceOrder} u.is_verified DESC, ${randomFn}
+             ORDER BY ${distanceOrder} u.is_premium DESC, u.is_verified DESC, ${randomFn}
              LIMIT 20`,
             [...distanceParams, userId, userId, userId, userId, userId, ...extraParams]
         );
@@ -1625,6 +1616,12 @@ app.post('/api/messages/:matchId/read', authenticate, async (req, res) => {
         const matchId = parseInt(req.params.matchId);
         if (isNaN(matchId)) return res.status(400).json({ error: 'Invalid match ID' });
         const userId = req.user.id;
+        const reader = await db.queryOne('SELECT read_receipts FROM users WHERE id = ?', [userId]);
+        
+        if (reader && reader.read_receipts === 0) {
+             return res.json({ success: true, changes: 0, note: 'Read receipts disabled' });
+        }
+
         const result = await db.run(
             'UPDATE messages SET is_read = 1 WHERE match_id = ? AND sender_id != ? AND is_read = 0',
             [matchId, userId]
@@ -1648,12 +1645,34 @@ app.post('/api/messages/:matchId/read', authenticate, async (req, res) => {
 
 app.put('/api/account/incognito', authenticate, async (req, res) => {
     try {
-        const { is_snoozed } = req.body;
-        const snoozedVal = is_snoozed ? 1 : 0;
-        await db.run('UPDATE users SET is_snoozed = ? WHERE id = ?', [snoozedVal, req.user.id]);
-        res.json({ message: 'Ghost mode updated', is_snoozed: snoozedVal });
+        const { is_incognito } = req.body;
+        // Check if user is premium to enable permanent incognito
+        const user = await db.queryOne('SELECT is_premium FROM users WHERE id = ?', [req.user.id]);
+        if (!user.is_premium && is_incognito) {
+            return res.status(403).json({ error: 'Ghost Embers is a premium feature. Upgrade to stay hidden permanently!' });
+        }
+
+        const incognitoVal = is_incognito ? 1 : 0;
+        await db.run('UPDATE users SET is_incognito = ?, is_snoozed = ? WHERE id = ?', [incognitoVal, incognitoVal, req.user.id]);
+        res.json({ message: 'Ghost mode updated', is_incognito: incognitoVal });
     } catch (e) {
         console.error('Ghost mode error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.put('/api/account/read-receipts', authenticate, async (req, res) => {
+    try {
+        const { enabled } = req.body;
+        // Read receipt control is a premium feature
+        const user = await db.queryOne('SELECT is_premium FROM users WHERE id = ?', [req.user.id]);
+        if (!user.is_premium) {
+            return res.status(403).json({ error: 'Ignition Confirmation control is a premium feature.' });
+        }
+
+        await db.run('UPDATE users SET read_receipts = ? WHERE id = ?', [enabled ? 1 : 0, req.user.id]);
+        res.json({ success: true, read_receipts: enabled ? 1 : 0 });
+    } catch (e) {
         res.status(500).json({ error: 'Server error' });
     }
 });
@@ -2486,10 +2505,10 @@ async function start() {
 
     // Ensure main developer account has admin privileges in production
     try {
-        await db.run('UPDATE users SET is_admin = 1 WHERE email = ?', ['sankalpbeerappa.253it002@nitk.edu.in']);
-        console.log('🛡️ Admin status verified for main operator');
+        await db.run('UPDATE users SET is_admin = 1, is_premium = 1 WHERE email = ?', ['sankalpbeerappa.253it002@nitk.edu.in']);
+        console.log('🛡️ Admin & Premium status verified for main operator');
     } catch (e) {
-        console.error('Failed to set admin status:', e.message);
+        console.error('Failed to set admin/premium status:', e.message);
     }
 
     // Seed default payment method if none exist

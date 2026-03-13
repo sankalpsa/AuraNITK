@@ -7,7 +7,7 @@ import { defaultAvatar } from '../utils/helpers';
 
 export default function Likes() {
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
+    const { user, isAuthenticated } = useAuth();
     const { showToast } = useToast();
     const [likes, setLikes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -57,7 +57,7 @@ export default function Likes() {
                         </p>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '15px' }}>
                             {likes.map(u => {
-                                const isBlur = !u.is_super_like;
+                                const isBlur = !u.is_super_like && user?.is_premium !== 1;
                                 return (
                                     <div key={u.id} className="spark-grid-item glass-card holographic"
                                         onClick={() => navigate('/profile/view', { state: { profile: u } })}>
