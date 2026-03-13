@@ -626,6 +626,15 @@ export default function Profile() {
                 onChange={handleIDUpload}
             />
 
+            {/* Hidden photo file input */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleFileSelect}
+            />
+
             {/* Photo Crop Modal */}
             {showCrop && (
                 <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
