@@ -1231,6 +1231,7 @@ app.get('/api/discover', authenticate, async (req, res) => {
              WHERE u.id != ?
                AND u.is_active = 1
                AND (u.is_snoozed = 0 OR u.is_snoozed IS NULL)
+               AND (u.is_incognito = 0 OR u.is_incognito IS NULL)
                AND u.id NOT IN (SELECT target_id FROM swipes WHERE user_id = ?)
                AND u.id NOT IN (
                  SELECT CASE WHEN user1_id = ? THEN user2_id ELSE user1_id END
@@ -1288,6 +1289,21 @@ app.post('/api/swipe', authenticate, async (req, res) => {
 
         const isSuperLike = action === 'super_like';
         const dbAction = isSuperLike ? 'like' : action;
+
+        // Rate limit Super Likes for non-premium users
+        if (isSuperLike && req.user.is_premium === 0) {
+            const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+            const superCount = await db.queryOne(
+                "SELECT COUNT(*) as c FROM swipes WHERE user_id = ? AND is_super_like = 1 AND created_at > ?",
+                [userId, last24h]
+            );
+            if (superCount && superCount.c >= 1) {
+                return res.status(403).json({ 
+                    error: 'Daily Super Like Limit Reached',
+                    message: 'Upgrade to SPARK Premium for unlimited Super Likes and higher visibility!' 
+                });
+            }
+        }
 
         // Check if target exists
         const targetUser = await db.queryOne('SELECT id, name, photo FROM users WHERE id = ?', [targetId]);
@@ -1716,6 +1732,23 @@ app.post('/api/report', authenticate, async (req, res) => {
     }
 });
 
+app.get('/api/reports/history', authenticate, async (req, res) => {
+    try {
+        const reports = await db.query(
+            `SELECT r.*, u.name as reported_name, u.photo as reported_photo
+             FROM reports r
+             JOIN users u ON r.reported_id = u.id
+             WHERE r.reporter_id = ?
+             ORDER BY r.created_at DESC`,
+            [req.user.id]
+        );
+        res.json({ reports });
+    } catch (e) {
+        console.error('Report history error:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 // ========================================
 // ANONYMOUS QUESTIONS
 // ========================================
@@ -1898,7 +1931,9 @@ app.get('/api/admin/dashboard', authenticate, isAdmin, async (req, res) => {
             SELECT 
                 (SELECT COUNT(*) FROM users) as total_users,
                 (SELECT COUNT(*) FROM users WHERE is_verified = 1) as verified_users,
-                (SELECT COUNT(*) FROM reports) as total_reports
+                (SELECT COUNT(*) FROM reports) as total_reports,
+                (SELECT COUNT(*) FROM users WHERE is_premium = 1) as premium_users,
+                (SELECT COALESCE(SUM(CAST(amount AS INTEGER)), 0) FROM premium_requests WHERE status = 'approved') as total_revenue
         `);
 
         res.json({ reports, pendingVerifications, stats });
