@@ -714,7 +714,9 @@ app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
             [resetToken, tokenExpiry.toISOString(), user.id]
         );
 
-        const resetUrl = `${process.env.CLIENT_URL || 'https://nitknot.online'}/reset-password/${resetToken}`;
+        const protocol = req.protocol === 'https' ? 'https' : 'http';
+        const host = req.get('host');
+        const resetUrl = `${protocol}://${host}/reset-password/${resetToken}`;
 
         const smtpEmail = (process.env.SMTP_EMAIL || '').trim();
         if (smtpEmail && process.env.SMTP_PASSWORD?.trim()) {
@@ -2501,7 +2503,15 @@ app.use((err, req, res, next) => {
 // ========================================
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(spaRoot, 'index.html'));
+        const filePath = path.join(spaRoot, 'index.html');
+        res.sendFile(filePath, (err) => {
+            if (err) {
+                console.error(`❌ SPA Fallback Error for ${req.path}:`, err.message);
+                if (!res.headersSent) {
+                    res.status(404).send('Portal connection failed. Please return to landing.');
+                }
+            }
+        });
     } else {
         res.status(404).json({ error: 'Not found' });
     }
