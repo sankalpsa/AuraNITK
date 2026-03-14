@@ -380,32 +380,57 @@ export default function AdminDashboard() {
 
             <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '30px 20px' }}>
 
-                {/* Real-time Stats */}
-                <div className="admin-stats-grid" style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                    gap: '20px',
-                    marginBottom: '40px'
-                }}>
-                    <div className="admin-stat-card-spark glass-card holographic">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--primary)' }}>groups</span>
-                        <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{data.stats?.total_users || 0}</div>
-                        <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Personnel</div>
+                {/* Real-time Intel: Professional Dashboard Stats */}
+                <div className="admin-stats-v2 view-animate">
+                    <div className="admin-card-pro">
+                        <div className="admin-card-icon">
+                            <span className="material-symbols-rounded">group</span>
+                        </div>
+                        <span className="admin-card-label">Personnel</span>
+                        <div className="admin-card-value">{(data.stats?.total_users || 0).toLocaleString()}</div>
+                        <div className="admin-card-trend trend-up">
+                            <span className="material-symbols-rounded" style={{ fontSize: 14 }}>trending_up</span>
+                            <span>Live Campus Orbit</span>
+                        </div>
                     </div>
-                    <div className="admin-stat-card-spark glass-card holographic" style={{ borderColor: 'rgba(34, 197, 94, 0.3)' }}>
-                        <span className="material-symbols-rounded" style={{ color: '#22c55e' }}>verified</span>
-                        <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{data.stats?.verified_users || 0}</div>
-                        <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Verified</div>
+
+                    <div className="admin-card-pro">
+                        <div className="admin-card-icon" style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' }}>
+                            <span className="material-symbols-rounded">verified</span>
+                        </div>
+                        <span className="admin-card-label">Verified Units</span>
+                        <div className="admin-card-value">{(data.stats?.verified_users || 0).toLocaleString()}</div>
+                        <div className="admin-card-trend trend-up">
+                            <span className="material-symbols-rounded" style={{ fontSize: 14 }}>verified</span>
+                            <span>{Math.round((data.stats?.verified_users / data.stats?.total_users) * 100 || 0)}% Integrity</span>
+                        </div>
                     </div>
-                    <div className="admin-stat-card-spark glass-card holographic" style={{ borderColor: 'rgba(239, 68, 68, 0.3)' }}>
-                        <span className="material-symbols-rounded" style={{ color: 'var(--danger)' }}>emergency</span>
-                        <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{data.stats?.total_reports || 0}</div>
-                        <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Incidents</div>
+
+                    <div className="admin-card-pro revenue">
+                        <div className="admin-card-icon" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+                            <span className="material-symbols-rounded">payments</span>
+                        </div>
+                        <span className="admin-card-label">Total Revenue</span>
+                        <div className="admin-card-value">₹{(data.stats?.total_revenue || 0).toLocaleString()}</div>
+                        <div className="finance-chart-mock">
+                            {[40, 70, 45, 90, 65, 80, 100].map((h, i) => (
+                                <div key={i} className="chart-bar" style={{ height: `${h}%`, background: '#f59e0b' }}></div>
+                            ))}
+                        </div>
                     </div>
-                    <div className="admin-stat-card-spark glass-card holographic" style={{ borderColor: 'rgba(245, 158, 11, 0.3)' }}>
-                        <span className="material-symbols-rounded" style={{ color: '#f59e0b' }}>diamond</span>
-                        <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{premiumRequests.filter(r => r.status === 'pending').length}</div>
-                        <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Premium Queue</div>
+
+                    <div className="admin-card-pro incidents">
+                        <div className="admin-card-icon" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+                            <span className="material-symbols-rounded">emergency</span>
+                        </div>
+                        <span className="admin-card-label">System Incidents</span>
+                        <div className="admin-card-value">{data.stats?.total_reports || 0}</div>
+                        <div className="admin-card-trend" style={{ color: data.stats?.total_reports > 5 ? '#ef4444' : '#22c55e' }}>
+                            <span className="material-symbols-rounded" style={{ fontSize: 14 }}>
+                                {data.stats?.total_reports > 5 ? 'warning' : 'check_circle'}
+                            </span>
+                            <span>{data.stats?.total_reports > 5 ? 'Action Required' : 'Stable Ops'}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -548,40 +573,43 @@ export default function AdminDashboard() {
                     )}
 
                     {activeTab === 'broadcast' && (
-                        <div className="admin-broadcast-view view-animate" style={{ maxWidth: '600px', margin: '0 auto' }}>
-                            <div className="glass-card" style={{ padding: '30px' }}>
-                                <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                                    <span className="material-symbols-rounded" style={{ fontSize: '3rem', color: 'var(--primary)' }}>campaign</span>
-                                    <h2 className="font-serif">Global Signal</h2>
-                                    <p style={{ opacity: 0.6 }}>Dispatch a campus-wide notification to all active devices.</p>
+                        <div className="admin-broadcast-view view-animate" style={{ maxWidth: '700px', margin: '0 auto' }}>
+                            <div className="admin-table-container" style={{ border: 'none' }}>
+                                <div style={{ padding: '40px', textAlign: 'center', background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.05), transparent)' }}>
+                                    <div className="admin-card-icon" style={{ margin: '0 auto 20px', width: '64px', height: '64px' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: '32px' }}>campaign</span>
+                                    </div>
+                                    <h2 className="font-serif" style={{ fontSize: '2rem' }}>Campus-Wide Signal</h2>
+                                    <p style={{ opacity: 0.6, maxWidth: '400px', margin: '10px auto' }}>Dispatch an emergency or informational broadcast to every active device in the SPARK network.</p>
                                 </div>
-                                <form onSubmit={handleBroadcast} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', opacity: 0.5, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Signal Title</label>
-                                        <input className="input-field" type="text" placeholder="e.g. SYSTEM UPDATE"
-                                            value={broadcast.title} onChange={e => setBroadcast({ ...broadcast, title: e.target.value })} required />
+                                <form onSubmit={handleBroadcast} style={{ padding: '0 40px 40px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div className="input-group-spark">
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: 700, marginBottom: '8px', display: 'block' }}>SIGNAL IDENTIFIER</label>
+                                        <input className="input-field" type="text" placeholder="e.g. SYSTEM_MAINTENANCE_ALPHA"
+                                            value={broadcast.title} onChange={e => setBroadcast({ ...broadcast, title: e.target.value })} required 
+                                            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }} />
                                     </div>
                                     <div>
-                                        <label style={{ fontSize: '0.75rem', opacity: 0.5, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Signal Payload</label>
-                                        <textarea className="textarea-field" placeholder="Content of the transmission..."
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: 700, marginBottom: '8px', display: 'block' }}>PAYLOAD CONTENT</label>
+                                        <textarea className="textarea-field" placeholder="Draft your transmission..."
                                             value={broadcast.message} onChange={e => setBroadcast({ ...broadcast, message: e.target.value })} required
-                                            style={{ minHeight: '120px' }}></textarea>
+                                            style={{ minHeight: '150px', background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}></textarea>
                                     </div>
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         {['info', 'success', 'warning'].map(type => (
                                             <button key={type} type="button" onClick={() => setBroadcast({ ...broadcast, type })}
                                                 style={{
-                                                    flex: 1, padding: '10px', borderRadius: '10px', border: '1px solid var(--border)',
-                                                    background: broadcast.type === type ? 'var(--bg-elevated)' : 'transparent',
-                                                    color: broadcast.type === type ? 'var(--primary-light)' : 'var(--text-muted)',
-                                                    cursor: 'pointer', fontSize: '0.8rem', textTransform: 'capitalize'
+                                                    flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid var(--border)',
+                                                    background: broadcast.type === type ? 'var(--primary-light)' : 'var(--bg-elevated)',
+                                                    color: broadcast.type === type ? 'white' : 'var(--text-muted)',
+                                                    cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase'
                                                 }}>
                                                 {type}
                                             </button>
                                         ))}
                                     </div>
-                                    <button className="btn-primary holographic" type="submit" disabled={sendingBroadcast} style={{ padding: '15px' }}>
-                                        {sendingBroadcast ? 'TRANSMITTING...' : 'DISPATCH SIGNAL'}
+                                    <button className="btn-primary holographic" type="submit" disabled={sendingBroadcast} style={{ padding: '18px', fontSize: '1rem' }}>
+                                        {sendingBroadcast ? 'TRANSMITTING SIGNAL...' : 'EXECUTE GLOBAL BROADCAST'}
                                     </button>
                                 </form>
                             </div>
@@ -590,63 +618,119 @@ export default function AdminDashboard() {
 
                     {activeTab === 'premium' && (
                         <div className="admin-premium-view view-animate">
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '30px' }}>
-                                {/* Payment Config */}
-                                <div className="glass-card" style={{ padding: '30px' }}>
-                                    <h3 className="font-serif" style={{ marginBottom: '20px' }}>Revenue Sources</h3>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px' }}>
-                                        {paymentMethods.map(m => (
-                                            <div key={m.id} className="admin-item-spark" style={{ padding: '15px', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                                    {m.qr_image_url && <img src={m.qr_image_url} style={{ width: '40px', height: '40px', borderRadius: '8px' }} alt="" />}
-                                                    <div>
-                                                        <div style={{ fontWeight: 600 }}>{m.label}</div>
-                                                        <div style={{ fontSize: '0.75rem', opacity: 0.5 }}>{m.upi_id || 'QR Only'}</div>
-                                                    </div>
-                                                </div>
-                                                <div style={{ display: 'flex', gap: '5px' }}>
-                                                    <button className="btn-icon" onClick={() => togglePaymentMethod(m.id)}><span className="material-symbols-rounded" style={{ fontSize: '18px' }}>{m.is_active ? 'visibility' : 'visibility_off'}</span></button>
-                                                    <button className="btn-icon" onClick={() => deletePaymentMethod(m.id)} style={{ color: 'var(--danger)' }}><span className="material-symbols-rounded" style={{ fontSize: '18px' }}>delete</span></button>
-                                                </div>
-                                            </div>
-                                        ))}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '30px' }}>
+                                {/* Finance Overview & Gateways */}
+                                <div className="admin-table-container">
+                                    <div className="admin-table-header">
+                                        <h3 className="font-serif">Global Gateways</h3>
+                                        <button className="btn-primary holographic" onClick={() => setActiveTab('premium')} style={{ padding: '8px 16px', fontSize: '0.8rem' }}>
+                                            View Payouts
+                                        </button>
                                     </div>
-                                    <h4 style={{ fontSize: '0.9rem', marginBottom: '15px', opacity: 0.6 }}>Add Method</h4>
-                                    <form onSubmit={handleAddPaymentMethod} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                                        <input className="input-field" placeholder="Method Label" value={newPayment.label} onChange={e => setNewPayment({ ...newPayment, label: e.target.value })} required />
-                                        <input className="input-field" placeholder="UPI ID (Optional)" value={newPayment.upi_id} onChange={e => setNewPayment({ ...newPayment, upi_id: e.target.value })} />
-                                        <input type="file" onChange={e => setQrFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} />
-                                        <button className="btn-secondary" type="submit" disabled={addingMethod}>Add Gateway</button>
-                                    </form>
-                                </div>
-
-                                {/* Incoming Requests */}
-                                <div className="glass-card" style={{ padding: '30px' }}>
-                                    <h3 className="font-serif" style={{ marginBottom: '20px' }}>Premium Requests</h3>
-                                    {premiumRequests.length === 0 ? (
-                                        <div style={{ textAlign: 'center', padding: '40px', opacity: 0.4 }}>No pending transactions.</div>
-                                    ) : (
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                                            {premiumRequests.map(r => (
-                                                <div key={r.id} className="admin-item-spark" style={{ borderLeft: `4px solid ${r.status === 'pending' ? 'var(--primary)' : r.status === 'approved' ? '#22c55e' : 'var(--danger)'}` }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                                        <div>
-                                                            <div style={{ fontWeight: 700 }}>{r.user_name}</div>
-                                                            <div style={{ fontSize: '0.75rem', opacity: 0.5 }}>₹{r.amount} • {r.transaction_id}</div>
-                                                        </div>
-                                                        <div className="status-pill" style={{ background: 'var(--bg-elevated)', fontSize: '0.7rem' }}>{r.status.toUpperCase()}</div>
+                                    <div style={{ padding: '20px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '30px' }}>
+                                            {paymentMethods.map(m => (
+                                                <div key={m.id} className="admin-list-item" style={{ borderRadius: '12px', background: 'rgba(255,255,255,0.02)' }}>
+                                                    <div className="admin-avatar-pro">
+                                                        {m.qr_image_url ? (
+                                                            <img src={m.qr_image_url} style={{ width: '100%', height: '100%', borderRadius: '10px' }} alt="" />
+                                                        ) : (
+                                                            <span className="material-symbols-rounded">account_balance_wallet</span>
+                                                        )}
                                                     </div>
-                                                    {r.screenshot_url && <img src={r.screenshot_url} style={{ width: '100%', borderRadius: '10px', marginBottom: '15px', cursor: 'pointer' }} onClick={() => window.open(r.screenshot_url, '_blank')} alt="Proof" />}
-                                                    {r.status === 'pending' && (
-                                                        <div style={{ display: 'flex', gap: '10px' }}>
-                                                            <button className="btn-primary holographic" onClick={() => handlePremiumAction(r.id, 'approve')} style={{ flex: 1, background: '#22c55e' }}>Approve</button>
-                                                            <button className="btn-secondary danger" onClick={() => handlePremiumAction(r.id, 'reject')} style={{ flex: 1 }}>Reject</button>
-                                                        </div>
-                                                    )}
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{ fontWeight: 700 }}>{m.label}</div>
+                                                        <div style={{ fontSize: '0.75rem', opacity: 0.5 }}>{m.upi_id || 'QR Only Source'}</div>
+                                                    </div>
+                                                    <div className="admin-payment-pill">
+                                                        {m.is_active ? 'ACTIVE' : 'OFFLINE'}
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                                        <button className="btn-icon" onClick={() => togglePaymentMethod(m.id)}>
+                                                            <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>{m.is_active ? 'pause' : 'play_arrow'}</span>
+                                                        </button>
+                                                        <button className="btn-icon" onClick={() => deletePaymentMethod(m.id)} style={{ color: 'var(--danger)' }}>
+                                                            <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>delete</span>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
-                                    )}
+
+                                        <div className="glass-card" style={{ padding: '20px', background: 'rgba(255,255,255,0.03)', border: '1px dashed var(--border)' }}>
+                                            <h4 style={{ fontSize: '0.85rem', marginBottom: '15px', color: 'var(--primary-light)' }}>Register New Gateway</h4>
+                                            <form onSubmit={handleAddPaymentMethod} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                                    <input className="input-field" placeholder="Gateway Label (e.g. GPay Business)" value={newPayment.label} onChange={e => setNewPayment({ ...newPayment, label: e.target.value })} required />
+                                                    <input className="input-field" placeholder="Business UPI ID" value={newPayment.upi_id} onChange={e => setNewPayment({ ...newPayment, upi_id: e.target.value })} />
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                                    <label className="btn-secondary" style={{ flex: 1, padding: '10px', fontSize: '0.8rem', cursor: 'pointer', textAlign: 'center' }}>
+                                                        <span className="material-symbols-rounded" style={{ fontSize: 18, verticalAlign: 'middle', marginRight: 8 }}>qr_code_2</span>
+                                                        {qrFile ? qrFile.name : 'Upload QR Signature'}
+                                                        <input type="file" onChange={e => setQrFile(e.target.files[0])} style={{ display: 'none' }} />
+                                                    </label>
+                                                    <button className="btn-primary holographic" type="submit" disabled={addingMethod} style={{ flex: 1, padding: '10px' }}>
+                                                        {addingMethod ? 'Syncing...' : 'Deploy Gateway'}
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Premium Claims Intelligence */}
+                                <div className="admin-table-container">
+                                    <div className="admin-table-header">
+                                        <h3 className="font-serif">Transaction Queue</h3>
+                                        <span className="admin-payment-pill" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+                                            {premiumRequests.filter(r => r.status === 'pending').length} Action Required
+                                        </span>
+                                    </div>
+                                    <div style={{ padding: '20px', maxHeight: '600px', overflowY: 'auto' }}>
+                                        {premiumRequests.length === 0 ? (
+                                            <div style={{ textAlign: 'center', padding: '60px 20px', opacity: 0.4 }}>
+                                                <span className="material-symbols-rounded" style={{ fontSize: 48, marginBottom: 15 }}>check_circle</span>
+                                                <p>All claims have been settled.</p>
+                                            </div>
+                                        ) : (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                                {premiumRequests.map(r => (
+                                                    <div key={r.id} className="admin-card-pro" style={{ padding: '16px', borderLeft: `4px solid ${r.status === 'pending' ? 'var(--primary)' : r.status === 'approved' ? '#22c55e' : 'var(--danger)'}`, background: 'rgba(255,255,255,0.01)' }}>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                                                            <div>
+                                                                <div style={{ fontWeight: 800, fontSize: '1rem' }}>{r.user_name}</div>
+                                                                <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>{r.user_email} • {r.user_branch}</div>
+                                                            </div>
+                                                            <div style={{ textAlign: 'right' }}>
+                                                                <div style={{ fontWeight: 800, color: '#f59e0b', fontSize: '1.1rem' }}>₹{r.amount}</div>
+                                                                <div style={{ fontSize: '0.7rem', opacity: 0.4 }}>ID: {r.transaction_id}</div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        {r.screenshot_url && (
+                                                            <div className="glass-card" style={{ marginBottom: 15, padding: 0, overflow: 'hidden', height: '120px' }}>
+                                                                <img src={r.screenshot_url} style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }} 
+                                                                    onClick={() => window.open(r.screenshot_url, '_blank')} alt="Proof" />
+                                                            </div>
+                                                        )}
+
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                            <span style={{ fontSize: '0.75rem', color: r.status === 'approved' ? '#22c55e' : r.status === 'rejected' ? '#ef4444' : '#f59e0b', fontWeight: 800, letterSpacing: 1 }}>
+                                                                {r.status.toUpperCase()}
+                                                            </span>
+                                                            {r.status === 'pending' && (
+                                                                <div style={{ display: 'flex', gap: '8px' }}>
+                                                                    <button className="btn-secondary" onClick={() => handlePremiumAction(r.id, 'reject')} style={{ padding: '6px 12px', fontSize: '0.75rem' }}>Deny</button>
+                                                                    <button className="btn-primary holographic" onClick={() => handlePremiumAction(r.id, 'approve')} style={{ padding: '6px 16px', fontSize: '0.75rem', background: '#22c55e' }}>Verify & Grant</button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -654,30 +738,32 @@ export default function AdminDashboard() {
 
                     {activeTab === 'settings' && (
                         <div className="admin-settings-view view-animate" style={{ maxWidth: '600px', margin: '0 auto' }}>
-                            <div className="glass-card" style={{ padding: '30px' }}>
-                                <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                                    <span className="material-symbols-rounded" style={{ fontSize: '3rem', color: 'var(--primary)' }}>terminal</span>
-                                    <h2 className="font-serif">Global Configuration</h2>
-                                    <p style={{ opacity: 0.6 }}>Rotate core security parameters for the SPARK engine.</p>
+                            <div className="admin-table-container">
+                                <div style={{ padding: '40px', textAlign: 'center' }}>
+                                    <div className="admin-card-icon" style={{ margin: '0 auto 20px', width: '64px', height: '64px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: '32px' }}>terminal</span>
+                                    </div>
+                                    <h2 className="font-serif">Core Parameters</h2>
+                                    <p style={{ opacity: 0.6 }}>Rotate the Master Encryption Key to secure the Command Center.</p>
                                 </div>
-                                <form onSubmit={handleChangeKey} className="settings-form" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                    <div className="settings-input-group">
-                                        <label style={{ fontSize: '0.75rem', opacity: 0.5 }}>CURRENT SYSTEM KEY</label>
-                                        <input type="password" value={currentKey} onChange={e => setCurrentKey(e.target.value)} required
-                                            style={{ width: '100%', padding: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)', borderRadius: '10px', color: 'white' }} />
+                                <form onSubmit={handleChangeKey} style={{ padding: '0 40px 40px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: 700 }}>CURRENT MASTER SIGNATURE</label>
+                                        <input className="input-field" type="password" value={currentKey} onChange={e => setCurrentKey(e.target.value)} required
+                                            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', textAlign: 'center', letterSpacing: '0.5em' }} />
                                     </div>
-                                    <div className="settings-input-group">
-                                        <label style={{ fontSize: '0.75rem', opacity: 0.5 }}>NEW MASTER KEY</label>
-                                        <input type="password" value={newKey} onChange={e => setNewKey(e.target.value)} required minLength={8}
-                                            style={{ width: '100%', padding: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)', borderRadius: '10px', color: 'white' }} />
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: 700 }}>NEW SYSTEM KEY</label>
+                                        <input className="input-field" type="password" value={newKey} onChange={e => setNewKey(e.target.value)} required minLength={8}
+                                            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', textAlign: 'center', letterSpacing: '0.5em' }} />
                                     </div>
-                                    <div className="settings-input-group">
-                                        <label style={{ fontSize: '0.75rem', opacity: 0.5 }}>CONFIRM SIGNATURE</label>
-                                        <input type="password" value={confirmKey} onChange={e => setConfirmKey(e.target.value)} required
-                                            style={{ width: '100%', padding: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)', borderRadius: '10px', color: 'white' }} />
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: 700 }}>VERIFY NEW KEY</label>
+                                        <input className="input-field" type="password" value={confirmKey} onChange={e => setConfirmKey(e.target.value)} required
+                                            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', textAlign: 'center', letterSpacing: '0.5em' }} />
                                     </div>
-                                    <button className="btn-primary holographic" type="submit" disabled={changingKey || newKey !== confirmKey} style={{ padding: '15px' }}>
-                                        {changingKey ? 'ROTATING...' : 'EXECUTE KEY ROTATION'}
+                                    <button className="btn-primary holographic" type="submit" disabled={changingKey || newKey !== confirmKey} style={{ padding: '18px', background: '#ef4444' }}>
+                                        {changingKey ? 'ROTATING PARAMETERS...' : 'AUTHORIZE KEY ROTATION'}
                                     </button>
                                 </form>
                             </div>

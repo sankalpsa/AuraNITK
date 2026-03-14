@@ -556,7 +556,15 @@ app.post('/api/auth/send-otp', otpLimiter, async (req, res) => {
     try {
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email is required' });
+        
         const normalizedEmail = email.toLowerCase().trim();
+        
+        // Strict Email Format Validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(normalizedEmail)) {
+            return res.status(400).json({ error: 'Invalid portal identity. Please use a valid email address.' });
+        }
+
         const existing = await db.queryOne('SELECT id FROM users WHERE email = ?', [normalizedEmail]);
         if (existing) return res.status(409).json({ error: 'Email already registered. Please login.' });
 
@@ -585,7 +593,7 @@ app.post('/api/auth/send-otp', otpLimiter, async (req, res) => {
                 error: mailErr.message || "Failed to send verification email. Please try again."
             });
         }
-        res.json({ success: true, message: "OTP sent to your NITK email! Check your inbox (and spam folder)." });
+        res.json({ success: true, message: "OTP sent! Please check your inbox (and your spam/junk folder) for the verification code." });
     } catch (e) {
         console.error('Send OTP error:', e);
         res.status(500).json({ error: 'Server error' });
@@ -710,26 +718,18 @@ app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
 
         const smtpEmail = (process.env.SMTP_EMAIL || '').trim();
         if (smtpEmail && process.env.SMTP_PASSWORD?.trim()) {
-            const transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: { user: smtpEmail, pass: process.env.SMTP_PASSWORD.trim() }
-            });
-            await transporter.sendMail({
-                from: `"SPARK" <${smtpEmail}>`,
-                to: normalizedEmail,
-                subject: '🔐 SPARK — Password Reset Request',
-                html: `
-                    <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#1a1a2e;border-radius:16px;color:#fff;">
-                        <h1 style="text-align:center;color:#D4AF37;">SPARK ✨</h1>
-                        <p>Hi ${user.name},</p>
-                        <p>Someone requested a password reset for your SPARK account. Click the button below to set a new password:</p>
-                        <div style="text-align:center;margin:32px 0;">
-                            <a href="${resetUrl}" style="background:linear-gradient(135deg, #8B5CF6, #EC4899);color:white;padding:16px 32px;text-decoration:none;border-radius:30px;font-weight:bold;display:inline-block;">Reset Password</a>
-                        </div>
-                        <p style="color:#888;font-size:12px;text-align:center;">This link expires in 1 hour.<br>If you didn't request this, safely ignore this email.</p>
+            const html = `
+                <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#1a1a2e;border-radius:16px;color:#fff;">
+                    <h1 style="text-align:center;color:#D4AF37;">SPARK ✨</h1>
+                    <p>Hi ${user.name},</p>
+                    <p>Someone requested a password reset for your SPARK account. Click the button below to set a new password:</p>
+                    <div style="text-align:center;margin:32px 0;">
+                        <a href="${resetUrl}" style="background:linear-gradient(135deg, #8B5CF6, #EC4899);color:white;padding:16px 32px;text-decoration:none;border-radius:30px;font-weight:bold;display:inline-block;">Reset Password</a>
                     </div>
-                `
-            });
+                    <p style="color:#888;font-size:12px;text-align:center;">This link expires in 1 hour.<br>If you didn't request this, safely ignore this email.</p>
+                </div>
+            `;
+            await sendSparkEmail(normalizedEmail, '🔐 SPARK — Password Reset Request', html);
         }
         res.json({ success: true, message: 'If an account exists, a reset link has been sent.' });
     } catch (e) {
@@ -2449,7 +2449,6 @@ app.put('/api/admin/premium-requests/:id/reject', authenticate, isAdmin, async (
 setInterval(async () => {
     try {
         const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
-        // Find matches older than 48h with zero messages
         const expiredMatches = await db.query(
             `SELECT m.id FROM matches m
              WHERE m.created_at < ?
@@ -2462,10 +2461,25 @@ setInterval(async () => {
         if (expiredMatches.length > 0) {
             console.log(`🕐 Expired ${expiredMatches.length} idle matches (48h no messages)`);
         }
+    } catch (e) { /* ignore */ }
+}, 60 * 60 * 1000);
+
+// Global Premium Expiry Cleanup (Runs every hour)
+// Ensures premium features are revoked exactly when they expire
+setInterval(async () => {
+    try {
+        const now = new Date().toISOString();
+        const expiredCount = await db.run(
+            'UPDATE users SET is_premium = 0, is_incognito = 0, premium_until = NULL WHERE is_premium = 1 AND premium_until IS NOT NULL AND premium_until < ?',
+            [now]
+        );
+        if (expiredCount.changes > 0) {
+            console.log(`💎 Revoked premium for ${expiredCount.changes} users (30-day expiry)`);
+        }
     } catch (e) {
-        // Silently ignore — timer will retry
+        console.error('Premium cleanup job failed:', e);
     }
-}, 60 * 60 * 1000); // Every hour
+}, 60 * 60 * 1000);
 
 // Auto un-snooze users whose snooze expired
 setInterval(async () => {

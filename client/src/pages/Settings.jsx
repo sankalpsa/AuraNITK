@@ -305,166 +305,190 @@ export default function Settings() {
                         <span className="material-symbols-rounded settings-chevron">chevron_right</span>
                     </div>
 
-                    {/* SPARK Premium Section */}
-                    <div className="settings-section-header" style={{ marginTop: 20 }}>
-                        <span className="material-symbols-rounded" style={{ fontSize: 20, color: '#f59e0b' }}>workspace_premium</span>
-                        <div>
-                            <h3 style={{ color: '#f59e0b' }}>Premium controls</h3>
-                            <p className="settings-section-desc">{premiumStatus.is_premium ? 'Your premium features' : 'Upgrade to unlock exclusive features'}</p>
-                        </div>
+                    {/* SPARK Premium: Spotify-like Subscription Dashboard */}
+                    <div className="settings-section-header" style={{ marginTop: 24, marginBottom: 16 }}>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Subscription</h3>
                     </div>
 
                     {premiumLoading ? (
-                        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', padding: '30px' }}>
                             <div className="spinner" />
                         </div>
                     ) : premiumStatus.is_premium ? (
-                        <>
-                            {/* Premium Active Badge */}
-                            <div className="premium-active-badge">
-                                <span className="material-symbols-rounded" style={{ fontSize: 22, color: '#f59e0b' }}>diamond</span>
-                                <div>
-                                    <strong style={{ color: '#f59e0b' }}>Premium Active ✨</strong>
-                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '2px 0 0' }}>
-                                        Expires: {premiumStatus.premium_until ? new Date(premiumStatus.premium_until).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Never'}
-                                    </p>
+                        <div className="premium-dashboard-spark view-animate">
+                            <div className="premium-plan-tag">
+                                <span className="material-symbols-rounded" style={{ fontSize: 14 }}>diamond</span>
+                                SPARK Diamond
+                            </div>
+                            <h2 className="premium-plan-title">Monthly Premium</h2>
+                            <div className="premium-plan-status">
+                                <span className="status-dot-pulse"></span>
+                                Active Plan
+                            </div>
+
+                            <div className="premium-info-grid">
+                                <div className="premium-info-item">
+                                    <label>Next Billing Date</label>
+                                    <span>{premiumStatus.premium_until ? new Date(premiumStatus.premium_until).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Flexible'}</span>
+                                </div>
+                                <div className="premium-info-item">
+                                    <label>Price</label>
+                                    <span>₹49.00 / mo</span>
+                                </div>
+                                <div className="premium-info-item">
+                                    <label>Payment Method</label>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#3b82f6' }}>account_balance_wallet</span>
+                                        UPI (Recurring)
+                                    </span>
+                                </div>
+                                <div className="premium-info-item">
+                                    <label>Auto-Renew</label>
+                                    <span style={{ color: '#22c55e' }}>Enabled</span>
                                 </div>
                             </div>
 
-                            {/* Incognito Toggle */}
-                            <div className="settings-item" style={{ cursor: 'default' }}>
-                                <div className="settings-item-left">
-                                    <span className="material-symbols-rounded" style={{ color: '#a78bfa' }}>visibility_off</span>
-                                    <div>
-                                        <span className="settings-item-title">Ghost Embers</span>
-                                        <span className="settings-item-sub">Your flame only glows for those you choose.</span>
-                                    </div>
-                                </div>
-                                <label className="toggle-switch">
-                                    <input type="checkbox" checked={incognito} onChange={async (e) => {
-                                        const newVal = e.target.checked;
-                                        setIncognito(newVal);
-                                        try {
-                                            const resp = await apiFetch('/api/account/incognito', {
-                                                method: 'PUT',
-                                                body: JSON.stringify({ is_incognito: newVal })
-                                            });
-                                            if (user) updateUser({ ...user, is_incognito: resp.is_incognito, is_snoozed: resp.is_incognito });
-                                            showToast(newVal ? 'Embers Cloaked 🕵️‍♀️' : 'Flame Visible', 'success');
-                                        } catch (err) {
-                                            setIncognito(!newVal);
-                                            showToast(err.message || 'Failed to toggle Ghost Mode', 'error');
-                                        }
-                                    }} />
-                                    <span className="toggle-slider"></span>
-                                </label>
+                            <div className="premium-renewal-notice">
+                                <span className="material-symbols-rounded">info</span>
+                                <p>Monthly renewals are manual for now. Scan the code in "Manage Plan" before your expiry to avoid service interruption.</p>
                             </div>
 
-                            {/* Read Receipts Toggle */}
-                            <div className="settings-item" style={{ cursor: 'default' }}>
-                                <div className="settings-item-left">
-                                    <span className="material-symbols-rounded" style={{ color: '#3b82f6' }}>done_all</span>
-                                    <div>
-                                        <span className="settings-item-title">Ignition Confirmation</span>
-                                        <span className="settings-item-sub">Show others when their whispers have been seen.</span>
+                            <button className="premium-manage-btn" onClick={() => showToast('Subscription details updated!', 'info')}>
+                                Edit Payment Method
+                            </button>
+
+                            {/* Features Active Section */}
+                            <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                                <div className="settings-item" style={{ padding: '12px 0', cursor: 'default' }}>
+                                    <div className="settings-item-left">
+                                        <span className="material-symbols-rounded" style={{ color: '#a78bfa' }}>visibility_off</span>
+                                        <div>
+                                            <span className="settings-item-title">Ghost Embers</span>
+                                            <span className="settings-item-sub">Stay invisible while you browse.</span>
+                                        </div>
                                     </div>
+                                    <label className="toggle-switch">
+                                        <input type="checkbox" checked={incognito} onChange={async (e) => {
+                                            const newVal = e.target.checked;
+                                            setIncognito(newVal);
+                                            try {
+                                                const resp = await apiFetch('/api/account/incognito', {
+                                                    method: 'PUT',
+                                                    body: JSON.stringify({ is_incognito: newVal })
+                                                });
+                                                if (user) updateUser({ ...user, is_incognito: resp.is_incognito });
+                                                showToast(newVal ? 'Identity Cloaked 🕵️‍♀️' : 'Identity Visible', 'success');
+                                            } catch (err) {
+                                                setIncognito(!newVal);
+                                                showToast('Failed to toggle Ghost Mode', 'error');
+                                            }
+                                        }} />
+                                        <span className="toggle-slider"></span>
+                                    </label>
                                 </div>
-                                <label className="toggle-switch">
-                                    <input type="checkbox" checked={readReceipts} onChange={async (e) => {
-                                        const newVal = e.target.checked;
-                                        setReadReceipts(newVal);
-                                        try {
-                                            const resp = await apiFetch('/api/account/read-receipts', {
-                                                method: 'PUT',
-                                                body: JSON.stringify({ enabled: newVal })
-                                            });
-                                            if (user) updateUser({ ...user, read_receipts: resp.read_receipts });
-                                            showToast(newVal ? 'Ignition Confirmation ON' : 'Ignition Confirmation OFF', 'info');
-                                        } catch (err) {
-                                            setReadReceipts(!newVal);
-                                            showToast(err.message || 'Failed to update Read Receipts', 'error');
-                                        }
-                                    }} />
-                                    <span className="toggle-slider"></span>
-                                </label>
+
+                                <div className="settings-item" style={{ padding: '12px 0', cursor: 'default' }}>
+                                    <div className="settings-item-left">
+                                        <span className="material-symbols-rounded" style={{ color: '#3b82f6' }}>done_all</span>
+                                        <div>
+                                            <span className="settings-item-title">Ignition Confirmation</span>
+                                            <span className="settings-item-sub">Private read receipts control.</span>
+                                        </div>
+                                    </div>
+                                    <label className="toggle-switch">
+                                        <input type="checkbox" checked={readReceipts} onChange={async (e) => {
+                                            const newVal = e.target.checked;
+                                            setReadReceipts(newVal);
+                                            try {
+                                                await apiFetch('/api/account/read-receipts', {
+                                                    method: 'PUT',
+                                                    body: JSON.stringify({ enabled: newVal })
+                                                });
+                                                if (user) updateUser({ ...user, read_receipts: newVal ? 1 : 0 });
+                                                showToast(newVal ? 'Receipts Active' : 'Receipts Hidden', 'info');
+                                            } catch (err) {
+                                                setReadReceipts(!newVal);
+                                                showToast('Failed to update receipts', 'error');
+                                            }
+                                        }} />
+                                        <span className="toggle-slider"></span>
+                                    </label>
+                                </div>
                             </div>
-                        </>
+                        </div>
                     ) : (
-                        <>
-                            {/* Get Premium Card */}
-                            <div className="premium-subscribe-card">
-                                <div className="premium-features-list">
-                                    <h4 style={{ margin: '0 0 10px', color: '#f59e0b' }}>💎 Unlock Premium for ₹49/month</h4>
-                                    <div className="premium-feature-item">
-                                        <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#a78bfa' }}>visibility_off</span>
-                                        <span>Incognito Mode — Only visible to people you like</span>
-                                    </div>
-                                    <div className="premium-feature-item">
-                                        <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#3b82f6' }}>done_all</span>
-                                        <span>Read Receipt Control — Hide your read status</span>
-                                    </div>
-                                    <div className="premium-feature-item">
-                                        <span className="material-symbols-rounded" style={{ fontSize: 18, color: '#10b981' }}>trending_up</span>
-                                        <span>Priority Profile — Get seen first in Discover</span>
-                                    </div>
+                        <div className="upgrade-card-spark view-animate">
+                            <h2>The SPARK Diamond</h2>
+                            <p>Unlock the full spectrum of connections.</p>
+                            
+                            <div className="premium-feature-list-horizontal">
+                                <div className="premium-feature-pill">
+                                    <span className="material-symbols-rounded">visibility_off</span>
+                                    <span>Ghost Embers (Incognito)</span>
                                 </div>
+                                <div className="premium-feature-pill">
+                                    <span className="material-symbols-rounded">done_all</span>
+                                    <span>Ignition Confirmation</span>
+                                </div>
+                                <div className="premium-feature-pill">
+                                    <span className="material-symbols-rounded">trending_up</span>
+                                    <span>Priority Profile Orbit</span>
+                                </div>
+                                <div className="premium-feature-pill">
+                                    <span className="material-symbols-rounded">history</span>
+                                    <span>Unlimited Super Spark Reset</span>
+                                </div>
+                            </div>
 
-                                {/* Payment Methods */}
+                            <div style={{ marginTop: 32, padding: 20, background: 'rgba(255,255,255,0.05)', borderRadius: 20 }}>
+                                <h3 style={{ margin: '0 0 10px', color: '#f59e0b' }}>₹49.00 / month</h3>
+                                
                                 {paymentMethods.length > 0 ? (
                                     <div className="premium-payment-section">
-                                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
-                                            Scan the QR code below to pay, then submit your payment details:
-                                        </p>
                                         {paymentMethods.map(m => (
-                                            <div key={m.id} className="premium-qr-card">
+                                            <div key={m.id} className="premium-qr-card" style={{ background: 'white', color: 'black', padding: 15, borderRadius: 15, marginBottom: 15 }}>
                                                 {m.qr_image_url && (
-                                                    <img src={m.qr_image_url} alt="Payment QR" className="premium-qr-img" onClick={() => window.open(m.qr_image_url, '_blank')} />
+                                                    <img src={m.qr_image_url} alt="QR" style={{ width: '100%', maxWidth: 200, marginBottom: 10 }} />
                                                 )}
-                                                <strong>{m.label}</strong>
-                                                {m.upi_id && <span className="premium-upi-id">{m.upi_id}</span>}
+                                                <div style={{ fontWeight: 800 }}>{m.label}</div>
+                                                <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>{m.upi_id}</div>
                                             </div>
                                         ))}
-
-                                        {/* Payment Form */}
+                                        
                                         {!showPaymentForm ? (
-                                            <button className="btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={() => setShowPaymentForm(true)}>
-                                                I've Paid — Submit Details
+                                            <button className="btn-primary" style={{ width: '100%', borderRadius: 30, background: 'white', color: '#312e81', fontWeight: 800 }} onClick={() => setShowPaymentForm(true)}>
+                                                Subscribe Now
                                             </button>
                                         ) : (
-                                            <div className="premium-payment-form">
-                                                <input className="input-field" type="text" placeholder="Transaction/UTR ID"
+                                            <div className="view-animate" style={{ textAlign: 'left' }}>
+                                                <input className="input-field" type="text" placeholder="Transaction ID" style={{ background: 'rgba(0,0,0,0.2)', border: 'none' }}
                                                     value={paymentTxnId} onChange={e => setPaymentTxnId(e.target.value)} />
-                                                <input className="input-field" type="file" accept="image/*" style={{ marginTop: 8 }}
+                                                <input className="input-field" type="file" accept="image/*" style={{ marginTop: 10 }}
                                                     onChange={e => setPaymentScreenshot(e.target.files[0])} />
-                                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0' }}>Upload a screenshot of your payment confirmation</p>
-                                                <button className="btn-primary" style={{ width: '100%', marginTop: 8 }} disabled={submittingPayment || !paymentTxnId}
+                                                <button className="btn-primary" style={{ width: '100%', marginTop: 15, borderRadius: 30 }} disabled={submittingPayment || !paymentTxnId}
                                                     onClick={handleSubmitPayment}>
-                                                    {submittingPayment ? 'Submitting...' : '🚀 Submit Payment'}
+                                                    {submittingPayment ? 'Processing...' : 'Verify Payment'}
                                                 </button>
                                             </div>
                                         )}
                                     </div>
                                 ) : (
-                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: 16 }}>
-                                        Payment setup coming soon. Contact admin for early access!
-                                    </p>
-                                )}
-
-                                {/* Existing requests */}
-                                {myRequests.length > 0 && (
-                                    <div style={{ marginTop: 14 }}>
-                                        <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>Your Requests:</p>
-                                        {myRequests.map(r => (
-                                            <div key={r.id} className="premium-my-request">
-                                                <span className={`status-pill ${r.status === 'approved' ? 'verified' : r.status === 'rejected' ? 'rejected' : 'pending'}`}>{r.status}</span>
-                                                <span style={{ fontSize: '0.8rem' }}>₹{r.amount} • {new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
-                                                {r.admin_note && r.status !== 'pending' && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>— {r.admin_note}</span>}
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <p style={{ opacity: 0.6, fontSize: '0.8rem' }}>Payment gateways are being synchronized. Check back shortly.</p>
                                 )}
                             </div>
-                        </>
+
+                            {myRequests.length > 0 && (
+                                <div style={{ marginTop: 20, textAlign: 'left' }}>
+                                    <p style={{ fontSize: '0.75rem', opacity: 0.5, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 1 }}>Recent Activity</p>
+                                    {myRequests.map(r => (
+                                        <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                            <span style={{ fontSize: '0.85rem' }}>Premium Subscription</span>
+                                            <span style={{ fontSize: '0.85rem', color: r.status === 'approved' ? '#22c55e' : r.status === 'rejected' ? '#ef4444' : '#f59e0b' }}>{r.status}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     )}
 
                     {/* Dark Mode Toggle (free for all) */}

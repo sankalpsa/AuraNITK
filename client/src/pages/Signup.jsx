@@ -31,16 +31,24 @@ export default function Signup() {
 
     const handleSendOtp = async (e) => {
         e.preventDefault();
-        if (!email.trim()) {
+        const trimmedEmail = email.trim();
+        if (!trimmedEmail) {
             return showToast('Please enter your email', 'error');
         }
+
+        // Basic Email Regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmedEmail)) {
+            return showToast('Please enter a valid email address', 'error');
+        }
+
         setLoading(true);
         try {
             await apiFetch('/api/auth/send-otp', {
                 method: 'POST',
-                body: JSON.stringify({ email: email.toLowerCase() }),
+                body: JSON.stringify({ email: trimmedEmail.toLowerCase() }),
             });
-            showToast('OTP sent to your email! 📧', 'success');
+            showToast('OTP sent! Check your inbox & spam. 📧', 'success');
             setStep('otp');
         } catch (e) {
             showToast(e.message, 'error');
@@ -224,6 +232,11 @@ export default function Signup() {
                             <h3 style={{ textAlign: 'center', marginBottom: '8px' }}>Verify Identity</h3>
                             <p className="auth-hint" style={{ textAlign: 'center', marginBottom: '32px', color: 'var(--text-muted)' }}>
                                 Enter the cosmic key sent to<br /><strong>{email}</strong>
+                                <br />
+                                <span style={{ fontSize: '0.75rem', marginTop: '8px', display: 'block', color: 'var(--warning, #f59e0b)' }}>
+                                    <span className="material-symbols-rounded" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>info</span>
+                                    Don't see it? Check your <strong>Spam or Junk</strong> folder.
+                                </span>
                             </p>
                             <div className="otp-inputs">
                                 {otp.map((digit, idx) => (
